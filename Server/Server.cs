@@ -1,4 +1,8 @@
-﻿using BepInEx;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using BepInEx;
 using Server.Emulator.EagleTcpPatches;
 
 namespace Server
@@ -9,6 +13,7 @@ namespace Server
         public static BepInEx.Logging.ManualLogSource logger;
         private static bool EnableEmulator = true;
         public static DataBase Database;
+        public static List<string> MustImplement = new();
 
         private void Awake()
         {
@@ -21,6 +26,12 @@ namespace Server
                 Logger.LogInfo("Local server is enabled!");
                 HookManager.Instance.Create();
             }
+        }
+
+        private void OnApplicationQuit()
+        {
+            var output = MustImplement.Aggregate("", (current, line) => current + $"{line}\n");
+            File.WriteAllText("must-implement.txt", output);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+
 namespace Server.Emulator.EagleTcpPatches;
 
 public class EagleTcpClient
@@ -91,7 +92,7 @@ public class EagleTcpClient
 
     public static void DisconnectServer(int tag)
     {
-        ServerLogger.LogInfo("Disconnected from the '" + (tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? "login" : "gate") + "'server");
+        ServerLogger.LogInfo("Disconnected from the '" + (tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? "login" : "gate") + "' server");
         ConnectedClients[tag] = false;
     }
 }

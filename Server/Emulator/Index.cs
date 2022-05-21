@@ -49,7 +49,8 @@ public class Index
         bool found = false;
         found = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? Login.Dispatch(mainCmd, paraCmd, msgContent) : Gate.Dispatch(mainCmd, paraCmd, msgContent);
         if (!found) ServerLogger.LogError($"Handler not found!");
-
+        if (!found) Server.MustImplement.Add($"tag: {tag}, mainCmd: {mainCmd}, paraCmd: {paraCmd}");
+        
         return found;
     }
 }

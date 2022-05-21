@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Server.Emulator;
 
 namespace Server
 {
@@ -13,14 +15,24 @@ namespace Server
         {
             public class AccountData
             {
-                public uint accId;
+                private uint? _accId = null;
+                public uint accId
+                {
+                    get
+                    {
+                        _accId ??= DataBase.GenerateAccId();
+                        return _accId.Value;
+                    }
+                    set => _accId = value;
+                }
+
                 public long sessionId = 0;
                 public string steamId;
                 public string token;
                 public string charId = "0000000000";
                 public string name;
-                public int language = 2;
-                public int country;
+                public uint language = 2;
+                public uint country;
                 public uint selectCharId;
                 public uint headId;
                 public int selectThemeId = 1;
@@ -35,7 +47,6 @@ namespace Server
                 public string charId;
             }
         }
-
 
         private static string dbPath = @$"{Directory.GetCurrentDirectory()}\ServerMod";
         private Dictionary<string, Datatypes.AccountData> Accounts;
@@ -60,6 +71,12 @@ namespace Server
                 File.WriteAllText(@$"{dbPath}\accounts.json", "{}");
                 Accounts = new Dictionary<string, Datatypes.AccountData>();
             }
+        }
+
+        public static uint GenerateAccId()
+        {
+            var lastId = Server.Database.Accounts.Select(acc => acc.Value.accId).Max();
+            return lastId + 1;
         }
 
         public Datatypes.AccountData GetAccount(string steamId)
@@ -91,6 +108,11 @@ namespace Server
         public void SetAccount(string steamId, Datatypes.AccountData account)
         {
             Accounts[steamId] = account;
+        }
+
+        public void AddAccount(Datatypes.AccountData accountData)
+        {
+            Accounts.Add(accountData.steamId, accountData);
         }
 
         public uint GetAccountId(string steamId)

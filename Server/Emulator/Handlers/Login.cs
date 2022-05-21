@@ -9,11 +9,11 @@ namespace Server.Emulator.Handlers;
 
 public class Login
 {
-    private Dictionary<uint, Action<uint, uint, byte[]>> Handlers = new();
+    private Dictionary<uint, Action<byte[]>> Handlers = new();
 
     public Login()
     {
-        Handlers.Add((uint)cometLogin.ParaCmd.ParaCmd_Req_GameVersion, (uint mainCmd, uint paraCmd, byte[] msgContent) =>
+        Handlers.Add((uint)cometLogin.ParaCmd.ParaCmd_Req_GameVersion, (byte[] msgContent) =>
         {
             string gameVersion = Aquatrax.GlobalConfig.getInstance().getGameVersion();
             ServerLogger.LogInfo($"GameVersion: {gameVersion}");
@@ -34,7 +34,7 @@ public class Login
             Index.Instance.LoginPackageQueue.Enqueue(gamePackage);
         });
         
-        Handlers.Add((uint)cometLogin.ParaCmd.ParaCmd_Req_ThirdLogin, (uint mainCmd, uint paraCmd, byte[] msgContent) =>
+        Handlers.Add((uint)cometLogin.ParaCmd.ParaCmd_Req_ThirdLogin, (byte[] msgContent) =>
         {
             ServerLogger.LogInfo($"ThirdLogin");
             cometLogin.Req_ThirdLogin data = Serializer.Deserialize<cometLogin.Req_ThirdLogin>(new MemoryStream(msgContent));
@@ -101,7 +101,7 @@ public class Login
     {
         if (!Handlers.ContainsKey(paraCmd)) return false;
 
-        Handlers[paraCmd](mainCmd, paraCmd, msgContent);
+        Handlers[paraCmd](msgContent);
         return true;
     }
 }
