@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BepInEx;
+using Server.Emulator.Database;
 
 namespace Server;
 
@@ -11,20 +12,21 @@ public class Server : BaseUnityPlugin
 {
     public static BepInEx.Logging.ManualLogSource logger;
     private static bool EnableEmulator = true;
-    public static DataBase Database;
+    public static Emulator.Database.Database Database;
     public static List<string> MustImplement = new();
 
     private void Awake()
     {
         Server.logger = Logger;
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+
+        if (!EnableEmulator) return;
         
-        if (EnableEmulator)
-        {
-            Database = new DataBase();
-            Logger.LogInfo("Local server is enabled!");
-            HookManager.Instance.Create();
-        }
+        Database = new Database();
+        Database.Init();
+            
+        Logger.LogInfo("Local server is enabled!");
+        HookManager.Instance.Create();
     }
 
     private void OnApplicationQuit()

@@ -56,19 +56,16 @@ public class Login
                 token = sBuilder.ToString();
             }
 
-            DataBase.Datatypes.AccountData accountData = Server.Database.GetAccount(data.openId);
+            var accountData = Server.Database.GetAccount(data.openId);
             uint accId;
             if (accountData == null)
             {
-                accId = Server.Database.GetAccountId(data.openId);
-                accountData = new DataBase.Datatypes.AccountData()
-                {
-                    accId = accId,
-                    steamId = data.openId,
-                    token = token,
-                };
-                Server.Database.SetAccount(data.openId, accountData);
-                Server.Database.Save();
+                accountData = Server.Database.CreateAccount();
+                accountData.steamId = data.openId;
+                accountData.token = token;
+                Server.Database.UpdateAccount(accountData);
+
+                accId = accountData.accId;
             }
             else
             {
@@ -77,7 +74,7 @@ public class Login
 
             ServerLogger.LogInfo($"Token: {token}, AccId: {accId}");
 
-            Index.GamePackage gamePackage = new Index.GamePackage()
+            var gamePackage = new Index.GamePackage()
             {
                 MainCmd = (uint)cometLogin.MainCmd.MainCmd_Login,
                 ParaCmd = (uint)cometLogin.ParaCmd.ParaCmd_Ret_ThirdLogin,

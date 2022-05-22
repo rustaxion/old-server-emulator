@@ -168,9 +168,9 @@ public class PlaceholderServerData
      ");
 
     public static cometScene.CharacterList
-        characterList = new cometScene.CharacterList() { _list = {  }}; /*JsonMapper.ToObject<cometScene.CharacterList>(@"
+        characterList = JsonMapper.ToObject<cometScene.CharacterList>(@"
       {
-         ""List"": [
+         ""list"": [
             {
                 ""charId"": 20060,
                 ""level"": 30,
@@ -383,5 +383,5 @@ public class PlaceholderServerData
             }
          ]
       }
-    ");*/
+    ");
 }

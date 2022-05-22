@@ -34,10 +34,6 @@ public class Gate
             var data = Serializer.Deserialize<cometGate.LoginGateVerify>(new MemoryStream(msgContent));
             var accId = data.accId;
 
-            var acc = Server.Database.GetAccount(accId);
-            acc.sessionId = Server.Database.Session;
-            Server.Database.Save();
-
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometGate.MainCmd.MainCmd_Time,
@@ -65,22 +61,19 @@ public class Gate
             });
         });
         
-        // + 500 to disable it...
-        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_CreateCharacter + 1000 + 500, (byte[] msgContent) =>
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_CreateCharacter + 1000, (byte[] msgContent) =>
         {
             ServerLogger.LogInfo("Creating a new character!");
             var data = Serializer.Deserialize<cometGate.CreateCharacter>(new MemoryStream(msgContent));
-            var newCharacter = new DataBase.Datatypes.AccountData
-            {
-                name = data.name,
-                selectCharId = data.selectCharId,
-                language = data.language,
-                country = data.country,
-                headId = data.selectCharId
-            };
-            newCharacter.charId = Math.Round((double)newCharacter.accId + 40000000000).ToString(CultureInfo.InvariantCulture);
-            Server.Database.AddAccount(newCharacter);
-            Server.Database.Save();
+            var account = Server.Database.CreateAccount();
+
+            account.name = data.name;
+            account.selectCharId = data.selectCharId;
+            account.language = data.language;
+            account.country = data.country;
+            account.headId = data.selectCharId;
+            
+            Server.Database.UpdateAccount(account);
 
             var characterFullData = new cometScene.Ntf_CharacterFullData
             {
@@ -88,34 +81,27 @@ public class Gate
                 {
                     baseInfo = new cometScene.PlayerBaseInfo
                     {
-                        accId = newCharacter.accId,
-                        charId = Convert.ToInt64(newCharacter.charId),
-                        charName = newCharacter.name,
-                        headId = newCharacter.headId,
-                        level = 1,
-                        curExp = 0,
-                        maxExp = 0,
+                        accId = account.accId,
+                        charId = Convert.ToInt64(account.charId),
+                        charName = account.name,
+                        headId = account.headId,
+                        level = account.level,
+                        curExp = account.curExp,
+                        maxExp = account.maxExp,
                         guideStep = 7,
-                        curCharacterId = newCharacter.selectCharId,
-                        curThemeId = (uint)newCharacter.selectThemeId,
-                        onlineTime = 0,
+                        curCharacterId = account.selectCharId,
+                        curThemeId = (uint)account.selectThemeId,
+                        onlineTime = account.onlineTime,
                         needReqAppReceipt = 0,
                         activePoint = 0,
                         preRankId = 0,
-                        guideList = { 9, 9, 8, 7, 6, 5, 4, 3, 2, 1 },
-                        country = newCharacter.country,
+                        guideList = { 9, 8, 7, 6, 5, 4, 3, 2, 1 },
+                        country = account.country,
                         preRankId4K = 0,
                         preRankId6K = 0,
-                        titleId = 1001,
+                        titleId = account.titleId,
                     },
-                    currencyInfo = new cometScene.PlayerCurrencyInfo
-                    {
-                        gold = 0,
-                        diamond = 0,
-                        curStamina = 0,
-                        maxStamina = 10,
-                        honourPoint = 0,
-                    },
+                    currencyInfo = account.currencyInfo,
                     socialData = new cometScene.SocialData(),
                     announcement = JsonMapper.ToObject<cometScene.AnnouncementData>(@"
                         {
@@ -130,30 +116,13 @@ public class Gate
                             ""picList"": []
                         }
                     "),
-                    themeList = JsonMapper.ToObject<cometScene.ThemeList>("{ \"list\": " + JsonMapper.ToJson(Enumerable.Range(1, 14).Select(i => new cometScene.ThemeData { themeId = (uint)i}).ToList()) + "}"),
-                    vipInfo = new cometScene.PlayerVIPInfo
-                    {
-                        level = 0,
-                        exp = 0,
-                        levelUpExp = 100,
-                        inSubscription = 0,
-                    },
-                    arcadeData = new cometScene.ArcadeData
-                    {
-                        key4List = new cometScene.ArcadeDiffList(),
-                        key6List = new cometScene.ArcadeDiffList(),
-                        key8List = new cometScene.ArcadeDiffList(),
-                    },
-                    team = new cometScene.TeamData
-                    {
-                        teamId = 0,
-                        teamName = "",
-                        uploadSongCount = 3,
-                        canUploadSong = 0,
-                    },
+                    themeList = account.themeList,
+                    vipInfo = account.vipInfo,
+                    arcadeData = account.arcadeData,
+                    team = account.team,
                     charList = PlaceholderServerData.characterList,
-                    scoreList = new cometScene.ScoreList(),
-                    songList = JsonMapper.ToObject<cometScene.SongList>("{ \"list\": " + JsonMapper.ToJson(PlaceholderServerData.songList.Select(i => new cometScene.SongData { songId = (uint)i}).ToList()) +  @", ""favoriteList"": []"  + "}"),
+                    scoreList = account.scoreList,
+                    songList = account.songList,
                 }
             };
             
