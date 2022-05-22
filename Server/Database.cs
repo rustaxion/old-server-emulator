@@ -3,144 +3,142 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Server.Emulator;
 
-namespace Server
+namespace Server;
+
+public class DataBase
 {
-    public class DataBase
+    // Due to some mono not wanting to load System.Data, I can't use sqlite
+    // so sadly I will have to use json files as a database
+    public class Datatypes
     {
-        // Due to some mono not wanting to load System.Data, I can't use sqlite
-        // so sadly I will have to use json files as a database
-        public class Datatypes
+        public class AccountData
         {
-            public class AccountData
+            private uint? _accId = null;
+            public uint accId
             {
-                private uint? _accId = null;
-                public uint accId
+                get
                 {
-                    get
-                    {
-                        _accId ??= DataBase.GenerateAccId();
-                        return _accId.Value;
-                    }
-                    set => _accId = value;
+                    _accId ??= DataBase.GenerateAccId();
+                    return _accId.Value;
                 }
-
-                public long sessionId = 0;
-                public string steamId;
-                public string token;
-                public string charId = "0000000000";
-                public string name;
-                public uint language = 2;
-                public uint country;
-                public uint selectCharId;
-                public uint headId;
-                public int selectThemeId = 1;
-                public uint totalScore = 0;
-                public uint total4KScore = 0;
-                public uint total6KScore = 0;
-                public uint total8KScore = 0;
+                set => _accId = value;
             }
 
-            class CharacterData
-            {
-                public string charId;
-            }
+            public long sessionId = 0;
+            public string steamId;
+            public string token;
+            public string charId = "0000000000";
+            public string name;
+            public uint language = 2;
+            public uint country;
+            public uint selectCharId;
+            public uint headId;
+            public int selectThemeId = 1;
+            public uint totalScore = 0;
+            public uint total4KScore = 0;
+            public uint total6KScore = 0;
+            public uint total8KScore = 0;
         }
 
-        private static string dbPath = @$"{Directory.GetCurrentDirectory()}\ServerMod";
-        private Dictionary<string, Datatypes.AccountData> Accounts;
-        public long Session = (int)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-
-        public DataBase()
+        class CharacterData
         {
-            if (!Directory.Exists(dbPath))
-            {
-                Directory.CreateDirectory(dbPath);
-            }
+            public string charId;
+        }
+    }
 
-            // validate the file
-            try
-            {
-                string json = File.ReadAllText(@$"{dbPath}\accounts.json");
-                Accounts = JsonMapper.ToObject<Dictionary<string, Datatypes.AccountData>>(json);
-            }
-            catch
-            {
-                // Can't read the file, so we'll erase it
-                File.WriteAllText(@$"{dbPath}\accounts.json", "{}");
-                Accounts = new Dictionary<string, Datatypes.AccountData>();
-            }
+    private static string dbPath = @$"{Directory.GetCurrentDirectory()}\ServerMod";
+    private Dictionary<string, Datatypes.AccountData> Accounts;
+    public long Session = (int)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+
+    public DataBase()
+    {
+        if (!Directory.Exists(dbPath))
+        {
+            Directory.CreateDirectory(dbPath);
         }
 
-        public static uint GenerateAccId()
+        // validate the file
+        try
         {
-            var lastId = Server.Database.Accounts.Select(acc => acc.Value.accId).Max();
-            return lastId + 1;
+            string json = File.ReadAllText(@$"{dbPath}\accounts.json");
+            Accounts = JsonMapper.ToObject<Dictionary<string, Datatypes.AccountData>>(json);
         }
-
-        public Datatypes.AccountData GetAccount(string steamId)
+        catch
         {
-            if (Accounts.ContainsKey(steamId))
+            // Can't read the file, so we'll erase it
+            File.WriteAllText(@$"{dbPath}\accounts.json", "{}");
+            Accounts = new Dictionary<string, Datatypes.AccountData>();
+        }
+    }
+
+    public static uint GenerateAccId()
+    {
+        var lastId = Server.Database.Accounts.Select(acc => acc.Value.accId).Max();
+        return lastId + 1;
+    }
+
+    public Datatypes.AccountData GetAccount(string steamId)
+    {
+        if (Accounts.ContainsKey(steamId))
+        {
+            return Accounts[steamId];
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public Datatypes.AccountData GetAccount(uint accId)
+    {
+        Datatypes.AccountData account = null;
+        // iterate over accounts
+        foreach (var acc in Accounts)
+        {
+            if (acc.Value.accId == accId)
             {
-                return Accounts[steamId];
-            }
-            else
-            {
-                return null;
+                account = acc.Value;
             }
         }
+        return account;
+    }
 
-        public Datatypes.AccountData GetAccount(uint accId)
+    public void SetAccount(string steamId, Datatypes.AccountData account)
+    {
+        Accounts[steamId] = account;
+    }
+
+    public void AddAccount(Datatypes.AccountData accountData)
+    {
+        Accounts.Add(accountData.steamId, accountData);
+    }
+
+    public uint GetAccountId(string steamId)
+    {
+        if (Accounts.ContainsKey(steamId))
         {
-            Datatypes.AccountData account = null;
-            // iterate over accounts
-            foreach (var acc in Accounts)
+            return Accounts[steamId].accId;
+        }
+        else
+        {
+            uint accId = 0;
+
+            foreach (var account in Accounts)
             {
-                if (acc.Value.accId == accId)
+                if (account.Value.accId > accId)
                 {
-                    account = acc.Value;
+                    accId = account.Value.accId;
                 }
             }
-            return account;
+
+            return accId + 1;
         }
+    }
 
-        public void SetAccount(string steamId, Datatypes.AccountData account)
-        {
-            Accounts[steamId] = account;
-        }
-
-        public void AddAccount(Datatypes.AccountData accountData)
-        {
-            Accounts.Add(accountData.steamId, accountData);
-        }
-
-        public uint GetAccountId(string steamId)
-        {
-            if (Accounts.ContainsKey(steamId))
-            {
-                return Accounts[steamId].accId;
-            }
-            else
-            {
-                uint accId = 0;
-
-                foreach (var account in Accounts)
-                {
-                    if (account.Value.accId > accId)
-                    {
-                        accId = account.Value.accId;
-                    }
-                }
-
-                return accId + 1;
-            }
-        }
-
-        public void Save()
-        {
-            string json = JsonMapper.ToJson(Accounts);
-            File.WriteAllText(@$"{dbPath}\accounts.json", json);
-        }
+    public void Save()
+    {
+        string json = JsonMapper.ToJson(Accounts);
+        File.WriteAllText(@$"{dbPath}\accounts.json", json);
     }
 }
