@@ -48,16 +48,26 @@ public class Gate
             if (account == null) return;
 
             var json = @"{ ""userList"": [" +
-               (account.charId == "0000000000"
+               (account.charId == 0000000000
                    ? ""
-                   : ("{" + $@"""charId"": ""{account.charId}"", ""accStates"": 0" + "}")
+                   : ("{" + $@"""charId"": {account.charId}, ""accStates"": 0" + "}")
                ) + "]}";
             ServerLogger.LogInfo("LoginGateVerify: " + json.Replace("\n", "").Replace("\r", ""));
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometGate.MainCmd.MainCmd_Select,
                 ParaCmd = (uint)cometGate.ParaCmd.ParaCmd_SelectUserInfoList,
-                Data = Index.ObjectToByteArray(JsonMapper.ToObject<cometGate.SelectUserInfoList>(json)),
+                Data = Index.ObjectToByteArray(new cometGate.SelectUserInfoList
+                {
+                    userList =
+                    {
+                        new cometGate.SelectUserInfo
+                        {
+                            charId = (uint)account.charId,
+                            accStates = 0,
+                        },
+                    }
+                }),
             });
         });
         
@@ -82,7 +92,7 @@ public class Gate
                     baseInfo = new cometScene.PlayerBaseInfo
                     {
                         accId = account.accId,
-                        charId = Convert.ToInt64(account.charId),
+                        charId = account.charId,
                         charName = account.name,
                         headId = account.headId,
                         level = account.level,

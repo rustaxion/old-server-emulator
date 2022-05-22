@@ -43,20 +43,23 @@ public class Login
                 return;
 
             string token;
-            using (MD5 md5Hash = MD5.Create())
+            using (var md5Hash = MD5.Create())
             {
-                byte[] hash = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(data.openId + "6031"));
-                StringBuilder sBuilder = new StringBuilder();
+                var hash = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(data.openId + "6031"));
+                var sBuilder = new StringBuilder();
 
-                for (int i = 0; i < hash.Length; i++)
+                foreach (var t in hash)
                 {
-                    sBuilder.Append(hash[i].ToString("x2"));
+                    sBuilder.Append(t.ToString("x2"));
                 }
 
                 token = sBuilder.ToString();
             }
+            
+            ServerLogger.LogInfo($"Token: {token}");
 
             var accountData = Server.Database.GetAccount(data.openId);
+
             uint accId;
             if (accountData == null)
             {
@@ -72,7 +75,7 @@ public class Login
                 accId = accountData.accId;
             }
 
-            ServerLogger.LogInfo($"Token: {token}, AccId: {accId}");
+            ServerLogger.LogInfo($"AccId: {accId}");
 
             var gamePackage = new Index.GamePackage()
             {
