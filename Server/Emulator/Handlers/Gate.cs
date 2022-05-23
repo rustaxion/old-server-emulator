@@ -28,6 +28,17 @@ public class Gate
                 Data = new byte[0],
             });
         });
+        
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopInfo, (byte[] msgContent) =>
+        {
+            ServerLogger.LogInfo("Sent shop info.");
+            Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+            {
+                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ChangeLanguage,
+                Data = Index.ObjectToByteArray(PlaceholderServerData.ShopInfo),
+            });
+        });
 
         Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_LoginGateVerify + 1000, (byte[] msgContent) =>
         {
@@ -71,6 +82,70 @@ public class Gate
             });
         });
         
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_EnterGame + 1000, (byte[] msgContent) =>
+        {
+            var data = Serializer.Deserialize<cometGate.EnterGame>(new MemoryStream(msgContent));
+            var account = Server.Database.GetAccount((uint)(data.charId - 40000000000));
+
+            ServerLogger.LogInfo("Enter the game: account: " + (account != null ? account.ToString() : "null"));
+            if (account == null) return;
+
+            var announcementData = new cometScene.AnnouncementData();
+            announcementData.list.Add(new cometScene.AnnouncementOneData
+            {
+                title = "Operation Announcement",
+                content = "<b><color=#ffa500ff>《音灵INVAXION》Closing notice</color></b>\n\t\t  \n\n　　It's been a long wait, guardians of the sound.\n\t\t  \n　　Welcome to the<color=#ffa500ff>《音灵INVAXION》</color>world.",
+                picId = 0,
+                tag = 1,
+            });
+            
+            
+            var characterFullData = new cometScene.Ntf_CharacterFullData
+            {
+                data = new cometScene.CharacterFullData
+                {
+                    baseInfo = new cometScene.PlayerBaseInfo
+                    {
+                        accId = account.accId,
+                        charId = account.charId,
+                        charName = account.name,
+                        headId = account.headId,
+                        level = account.level,
+                        curExp = account.curExp,
+                        maxExp = account.maxExp,
+                        guideStep = 7,
+                        curCharacterId = account.selectCharId,
+                        curThemeId = (uint)account.selectThemeId,
+                        onlineTime = account.onlineTime,
+                        needReqAppReceipt = 0,
+                        activePoint = 0,
+                        preRankId = 0,
+                        guideList = { 9, 8, 7, 6, 5, 4, 3, 2, 1 },
+                        country = account.country,
+                        preRankId4K = 0,
+                        preRankId6K = 0,
+                        titleId = account.titleId,
+                    },
+                    currencyInfo = account.currencyInfo,
+                    socialData = new cometScene.SocialData(),
+                    announcement = announcementData,
+                    themeList = account.themeList,
+                    vipInfo = account.vipInfo,
+                    arcadeData = account.arcadeData,
+                    team = account.team,
+                    charList = PlaceholderServerData.characterList,
+                    scoreList = account.scoreList,
+                    songList = account.songList,
+                }
+            };
+            Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+            {
+                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ntf_CharacterFullData,
+                Data = Index.ObjectToByteArray(characterFullData),
+            });
+        });
+        
         Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_CreateCharacter + 1000, (byte[] msgContent) =>
         {
             ServerLogger.LogInfo("Creating a new character!");
@@ -84,6 +159,15 @@ public class Gate
             account.headId = data.selectCharId;
             
             Server.Database.UpdateAccount(account);
+            
+            var announcementData = new cometScene.AnnouncementData();
+            announcementData.list.Add(new cometScene.AnnouncementOneData
+            {
+                title = "Operation Announcement",
+                content = "<b><color=#ffa500ff>《音灵INVAXION》Closing notice</color></b>\n\t\t  \n\n　　It's been a long wait, guardians of the sound.\n\t\t  \n　　Welcome to the<color=#ffa500ff>《音灵INVAXION》</color>world.",
+                picId = 0,
+                tag = 1,
+            });
 
             var characterFullData = new cometScene.Ntf_CharacterFullData
             {
@@ -113,19 +197,7 @@ public class Gate
                     },
                     currencyInfo = account.currencyInfo,
                     socialData = new cometScene.SocialData(),
-                    announcement = JsonMapper.ToObject<cometScene.AnnouncementData>(@"
-                        {
-                            ""list"": [
-                                    {
-                                        ""title"": ""Operation Announcement"",
-                                        ""content"": ""<b><color=#ffa500ff>《音灵INVAXION》Closing notice</color></b>\n\t\t  \n\n　　It's been a long wait, guardians of the sound.\n\t\t  \n　　Welcome to the<color=#ffa500ff>《音灵INVAXION》</color>world."",
-                                        ""picId"": 0,
-                                        ""tag"": 1
-                                    },
-                            ],
-                            ""picList"": []
-                        }
-                    "),
+                    announcement = announcementData,
                     themeList = account.themeList,
                     vipInfo = account.vipInfo,
                     arcadeData = account.arcadeData,
@@ -152,7 +224,7 @@ public class Gate
             {
                 MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
                 ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_Event_Info,
-                Data = Index.ObjectToByteArray(PlaceholderServerData.Ret_Event_Info),
+                Data = Index.ObjectToByteArray(PlaceholderServerData.EventInfo),
             });
         });
 

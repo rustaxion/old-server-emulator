@@ -1,4 +1,7 @@
-﻿using LitJson;
+﻿using System.Collections.Generic;
+using System.Linq;
+using LitJson;
+using SharpCompress;
 
 namespace Server.Emulator;
 
@@ -25,363 +28,236 @@ public class PlaceholderServerData
         82002, 82003, 82004, 82005, 82006, 82007, 82008, 82009, 82010,
         82011, 82012, 82013, 84100, 84101, 84102, 90000
     };
-    
-    public static cometScene.Ret_Event_Info Ret_Event_Info = JsonMapper.ToObject<cometScene.Ret_Event_Info>(@"
-         {
-            ""levelGift"":{
-               ""getList"":[
-                  5,
-                  2
-               ]
-            },
-            ""getStamina"":{
-               ""isGet"":0
-            },
-            ""newPlayer"":{
-             ""loginDay"":7
-            },
-            ""weekCheckin"":{
-             ""loginDay"":2,
-               ""rewardList"":[
-                  {
-                    ""day"": 1,
-                    ""reward"": {
-                        ""type"": 1,
-                        ""count"": 10,
-                        ""id"": 0
-                    }
-                  },
-                  {
-                     ""day"":7,
-                     ""reward"":{
-                        ""type"":3,
-                        ""count"":1,
-                        ""id"":90005
-                     }
-                  },
-                  {
-                     ""day"":6,
-                     ""reward"":{
-                        ""type"":3,
-                        ""count"":1,
-                        ""id"":90002
-                     }
-                  },
-                  {
-                     ""day"":5,
-                     ""reward"":{
-                        ""type"":3,
-                        ""count"":1,
-                        ""id"":90001
-                     }
-                  },
-                  {
-                     ""day"":4,
-                     ""reward"":{
-                        ""type"":1,
-                        ""count"":10,
-                        ""id"":0
-                     }
-                 },
-                  {
-                     ""day"":3,
-                     ""reward"":{
-                        ""type"":3,
-                        ""count"":1,
-                        ""id"":90001
-                     }
-                  },
-                  {
-                     ""day"":2,
-                     ""reward"":{
-                        ""type"":3,
-                        ""count"":1,
-                        ""id"":90002
-                     }
-                  }
-               ]
-            },
-            ""bili"":{
-               ""beginTime"":""1530374400"",
-               ""endTime"":""1893427200"",
-               ""id"":0,
-               ""list"":[
-                  {
-                 ""index"":1,
-                     ""type"":4,
-                     ""condition"":1,
-                     ""value"":0,
-                     ""isGet"":1,
-                     ""rewardList"":[
-                        {
-                             ""type"":4,
-                             ""count"":1,
-                             ""id"":12
-                        }
-                     ]
-                  },
-                  {
-                 ""index"":4,
-                     ""type"":4,
-                     ""condition"":2,
-                     ""value"":0,
-                     ""isGet"":1,
-                     ""rewardList"":[
-                        {
-                     ""type"":5,
-                           ""count"":1,
-                           ""id"":20020
-                        }
-                     ]
-                  },
-                  {
-                 ""index"":3,
-                     ""type"":4,
-                     ""condition"":1,
-                     ""value"":0,
-                     ""isGet"":1,
-                     ""rewardList"":[
-                        {
-                     ""type"":5,
-                           ""count"":1,
-                           ""id"":50010
-                        }
-                     ]
-                  },
-                  {
-                 ""index"":2,
-                     ""type"":4,
-                     ""condition"":1,
-                     ""value"":0,
-                     ""isGet"":1,
-                     ""rewardList"":[
-                        {
-                     ""type"":4,
-                           ""count"":1,
-                           ""id"":8
-                        }
-                     ]
-                  }
-               ]
-            }
-         }
-     ");
 
-    public static cometScene.CharacterList
-        characterList = JsonMapper.ToObject<cometScene.CharacterList>(@"
-      {
-         ""list"": [
-            {
-                ""charId"": 20060,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40090,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40130,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 50010,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40010,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40040,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 10050,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 10010,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 10020,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 20040,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40220,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 10040,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 20050,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 30070,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 20020,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 20090,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40320,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 20030,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 10030,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 6
-            },
-            {
-                ""charId"": 30050,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40150,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40260,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 30040,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40330,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40120,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 20170,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 10060,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 30090,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 40250,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 30100,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"": 30110,
-                ""level"": 30,
-                ""exp"": 0,
-                ""playCount"": 0
-            },
-            {
-                ""charId"":1006010,
-                ""level"":30,
-                ""exp"":0,
-                ""playCount"":0
-            },
-            {
-                ""charId"":50050,
-                ""level"":30,
-                ""exp"":0,
-                ""playCount"":0
-            },
-            {
-                ""charId"":3004010,
-                ""level"":30,
-                ""exp"":0,
-                ""playCount"":0
-            },
-            {
-                ""charId"":30060,
-                ""level"":30,
-                ""exp"":0,
-                ""playCount"":0
-            }
-         ]
-      }
-    ");
+    public static cometScene.Ret_Event_Info EventInfo
+    {
+       get
+       {
+          var eventInfo = new cometScene.Ret_Event_Info();
+          eventInfo.levelGift.getList.AddRange(new uint[] { 5, 2 });
+          eventInfo.getStamina._isGet = 0;
+          eventInfo.newPlayer.loginDay = 7;
+          eventInfo.weekCheckin = new cometScene.WeekCheckinData
+          {
+             loginDay = 2,
+             rewardList = {
+                new cometScene.WeekCheckinRewardData
+                {
+                   day = 1,
+                   reward =
+                   {
+                      type = 1,
+                      id = 0,
+                      count = 10,
+                   }
+                },
+                new cometScene.WeekCheckinRewardData
+                {
+                   day = 2,
+                   reward =
+                   {
+                      type = 3,
+                      id = 90002,
+                      count = 1,
+                   }
+                },
+                new cometScene.WeekCheckinRewardData
+                {
+                   day = 3,
+                   reward =
+                   {
+                      type = 3,
+                      id = 90001,
+                      count = 1,
+                   }
+                },
+                new cometScene.WeekCheckinRewardData
+                {
+                   day = 4,
+                   reward =
+                   {
+                      type = 1,
+                      id = 0,
+                      count = 1,
+                   }
+                },
+                new cometScene.WeekCheckinRewardData
+                {
+                   day = 5,
+                   reward =
+                   {
+                      type = 3,
+                      id = 90001,
+                      count = 1,
+                   }
+                },
+                new cometScene.WeekCheckinRewardData
+                {
+                   day = 6,
+                   reward =
+                   {
+                      type = 3,
+                      id = 90002,
+                      count = 1,
+                   }
+                },
+                new cometScene.WeekCheckinRewardData
+                {
+                   day = 7,
+                   reward =
+                   {
+                      type = 1,
+                      id = 90005,
+                      count = 1,
+                   }
+                },
+             }
+          };
+
+          eventInfo.bili = new cometScene.SpecialEventData
+          {
+             beginTime = 1530374400,
+             endTime = 1893427200,
+             id = 0,
+             list =
+             {
+                new cometScene.SpecialEventOneData
+                {
+                   index = 1,
+                   type = 4,
+                   condition = 1,
+                   value = 0,
+                   isGet = 1,
+                   rewardList = { new cometScene.ItemData { type = 4, count = 1, id = 12 } }
+                },
+                new cometScene.SpecialEventOneData
+                {
+                   index = 2,
+                   type = 4,
+                   condition = 1,
+                   value = 0,
+                   isGet = 1,
+                   rewardList = { new cometScene.ItemData { type = 4, count = 1, id = 8 } }
+                },
+                new cometScene.SpecialEventOneData
+                {
+                   index = 3,
+                   type = 4,
+                   condition = 1,
+                   value = 0,
+                   isGet = 1,
+                   rewardList = { new cometScene.ItemData { type = 5, count = 1, id = 50010 } }
+                },
+                new cometScene.SpecialEventOneData
+                {
+                   index = 4,
+                   type = 4,
+                   condition = 2,
+                   value = 0,
+                   isGet = 1,
+                   rewardList = { new cometScene.ItemData { type = 5, count = 1, id = 20020 } }
+                },
+
+             },
+          };
+          return eventInfo;
+       }
+    }
+    
+    public static cometScene.CharacterList characterList
+       {
+          get
+          {
+             var characterList = new cometScene.CharacterList();
+             (new uint[]
+             {
+                20060, 40090, 40130, 50010, 40010,
+                40040, 10050, 10010, 10020, 20040,
+                40220, 10040, 20050, 30070, 20020,
+                20090, 40320, 20030, 10030, 30050,
+                40150, 40260, 30040, 40330, 40120,
+                20170, 10060, 30090, 40250, 30100,
+                30110, 1006010, 50050, 3004010, 30060
+             }).Select(i => new cometScene.CharData()
+             {
+                charId = i,
+                level = 30,
+                exp = 0,
+                playCount = 0,
+             }).ForEach(character => characterList.list.Add(character));
+             return characterList;
+          }
+       }
+
+    public static cometScene.Ret_ShopInfo ShopInfo
+    {
+       get
+       {
+          var shopInfo = new cometScene.Ret_ShopInfo();
+          shopInfo.characterList.AddRange((new int[][]
+          {
+             new [] { 20090, 2, 1000, 1000, 1 },
+             new [] { 40320, 2, 300, 300, 0 },
+             new [] { 20060, 2, 300, 300, 0 },
+             new [] { 40010, 2, 1888, 1888, 2 },
+             new [] { 40090, 2, 300, 300, 0 },
+             new [] { 20050, 2, 1000, 1000, 1 },
+             new [] { 30040, 2, 1888, 1888, 2 },
+             new [] { 40250, 2, 300, 300, 0 },
+             new [] { 40150, 2, 1000, 1000, 1 },
+             new [] { 20040, 2, 1000, 1000, 1 }
+          }).Select(i => new cometScene.ShopItemInfo
+          {
+             id = i[0],
+             costType = i[1],
+             normalPrice = i[2],
+             discountPrice = i[3],
+             order = i[4],
+             beginSaleTime = 0,
+             discountBeginTime = 0,
+             discountEndTime = 0,
+          }));
+          
+          shopInfo.songList.AddRange((new int[][]
+          {
+             new [] { 63204, 2, 200, 200, 0 },
+             new [] { 68008, 2, 200, 200, 2 },
+             new [] { 62005, 2, 200, 200, 0 },
+             new [] { 63103, 2, 200, 200, 0 },
+             new [] { 63123, 2, 200, 200, 0 },
+             new [] { 80002, 2, 200, 200, 2 },
+             new [] { 62006, 2, 200, 200, 0 },
+             new [] { 63122, 2, 200, 200, 0 },
+             new [] { 69008, 2, 200, 200, 2 },
+             new [] { 68108, 2, 200, 200, 0 }
+          }).Select(i => new cometScene.ShopItemInfo
+          {
+             id = i[0],
+             costType = i[1],
+             normalPrice = i[2],
+             discountPrice = i[3],
+             order = i[4],
+             beginSaleTime = 0,
+             discountBeginTime = 0,
+             discountEndTime = 0,
+          }));
+          
+          shopInfo.themeList.AddRange((new int[][]
+          {
+             new [] { 2, 2, 1000, 1000, 0 },
+             new [] { 6, 2, 1000, 1000, 0 }
+          }).Select(i => new cometScene.ShopItemInfo
+          {
+             id = i[0],
+             costType = i[1],
+             normalPrice = i[2],
+             discountPrice = i[3],
+             order = i[4],
+             beginSaleTime = 0,
+             discountBeginTime = 0,
+             discountEndTime = 0,
+          }));
+          return null;
+       }
+    }
 }

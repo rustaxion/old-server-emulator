@@ -39,6 +39,7 @@ public class EagleTcpClient
     
     public static int ParseCmd(int tag, ref int mainCmd, ref int paraCmd, byte[] msgContent)
     {
+        if (tag == (int)EagleTcp.CSocketType.SOCKET_GATEWAY) ServerLogger.LogInfo($"ParseCmd: gate, gateQueueSize {Index.Instance.GatePackageQueue.Count}");
         if (!IsConnected(tag))
         {
             return -1;
