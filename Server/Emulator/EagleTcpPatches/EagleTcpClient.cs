@@ -7,7 +7,8 @@ namespace Server.Emulator.EagleTcpPatches;
 public class EagleTcpClient
 {
     private static Dictionary<int, bool> ConnectedClients = new();
-    
+    public static Dictionary<int, long> Sessions = new();
+
     private EagleTcpClient()
     {
         ConnectedClients.Add(1, false);
@@ -39,11 +40,11 @@ public class EagleTcpClient
     
     public static int ParseCmd(int tag, ref int mainCmd, ref int paraCmd, byte[] msgContent)
     {
-        if (tag == (int)EagleTcp.CSocketType.SOCKET_GATEWAY) ServerLogger.LogInfo($"ParseCmd: gate, gateQueueSize {Index.Instance.GatePackageQueue.Count}");
         if (!IsConnected(tag))
         {
             return -1;
         }
+        if (tag == (int)EagleTcp.CSocketType.SOCKET_GATEWAY && Index.Instance.GatePackageQueue.Count == 0) ServerLogger.LogError($"Expected a 'gate' packet..");
 
         var queue = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? Index.Instance.LoginPackageQueue : Index.Instance.GatePackageQueue;
         var socket = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? EagleTcp.loginSocket : EagleTcp.gateSocket;
@@ -88,12 +89,14 @@ public class EagleTcpClient
     {
         ServerLogger.LogInfo("Connected to the '" + (tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? "login" : "gate") + "' server");
         ConnectedClients[tag] = true;
+        Sessions[tag] = (long)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
         return true;
     }
 
     public static void DisconnectServer(int tag)
     {
         ServerLogger.LogInfo("Disconnected from the '" + (tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? "login" : "gate") + "' server");
+        Sessions.Remove(tag);
         ConnectedClients[tag] = false;
     }
 }

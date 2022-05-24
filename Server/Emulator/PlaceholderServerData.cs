@@ -257,7 +257,7 @@ public class PlaceholderServerData
              discountBeginTime = 0,
              discountEndTime = 0,
           }));
-          return null;
+          return shopInfo;
        }
     }
 }

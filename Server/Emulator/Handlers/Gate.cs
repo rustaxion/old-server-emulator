@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using LitJson;
-using ProtoBuf;
+using Serializer = ProtoBuf.Serializer;
 
 namespace Server.Emulator.Handlers;
 
 public class Gate
 {
-    private Dictionary<uint, Action<byte[]>> Handlers = new();
+    private Dictionary<uint, Action<byte[], long>> Handlers = new();
 
     public Gate()
     {
-        Handlers.Add(1003, (byte[] msgContent) =>
+        Handlers.Add(1003, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo($"Reported game time.");
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeLanguage, (byte[] msgContent) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeLanguage, (byte[] msgContent, long sessionId) =>
         {
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
@@ -29,18 +27,18 @@ public class Gate
             });
         });
         
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopInfo, (byte[] msgContent) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopInfo, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo("Sent shop info.");
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ChangeLanguage,
+                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ShopInfo,
                 Data = Index.ObjectToByteArray(PlaceholderServerData.ShopInfo),
             });
         });
 
-        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_LoginGateVerify + 1000, (byte[] msgContent) =>
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_LoginGateVerify + 1000, (byte[] msgContent, long sessionId) =>
         {
             var data = Serializer.Deserialize<cometGate.LoginGateVerify>(new MemoryStream(msgContent));
             var accId = data.accId;
@@ -58,34 +56,32 @@ public class Gate
             var account = Server.Database.GetAccount(accId);
             if (account == null) return;
 
-            var json = @"{ ""userList"": [" +
-               (account.charId == 0000000000
-                   ? ""
-                   : ("{" + $@"""charId"": {account.charId}, ""accStates"": 0" + "}")
-               ) + "]}";
-            ServerLogger.LogInfo("LoginGateVerify: " + json.Replace("\n", "").Replace("\r", ""));
+            account.sessionId = sessionId;
+            Server.Database.UpdateAccount(account);
+            
+            var userInfoList = new cometGate.SelectUserInfoList();
+
+            if (account.charId != 0)
+            {
+                userInfoList.userList.Add(new cometGate.SelectUserInfo
+                {
+                    charId = (uint)account.charId,
+                    accStates = 0,
+                });
+            }
+            
+            ServerLogger.LogInfo($"LoginGateVerify: [{((userInfoList.userList.Count > 0) ? ("{ charId: " + account.charId + ", accStates: 0 }") : "") }]");
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometGate.MainCmd.MainCmd_Select,
                 ParaCmd = (uint)cometGate.ParaCmd.ParaCmd_SelectUserInfoList,
-                Data = Index.ObjectToByteArray(new cometGate.SelectUserInfoList
-                {
-                    userList =
-                    {
-                        new cometGate.SelectUserInfo
-                        {
-                            charId = (uint)account.charId,
-                            accStates = 0,
-                        },
-                    }
-                }),
+                Data = Index.ObjectToByteArray(userInfoList),
             });
         });
         
-        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_EnterGame + 1000, (byte[] msgContent) =>
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_EnterGame + 1000, (byte[] msgContent, long sessionId) =>
         {
-            var data = Serializer.Deserialize<cometGate.EnterGame>(new MemoryStream(msgContent));
-            var account = Server.Database.GetAccount((uint)(data.charId - 40000000000));
+            var account = Server.Database.GetAccount(sessionId);
 
             ServerLogger.LogInfo("Enter the game: account: " + (account != null ? account.ToString() : "null"));
             if (account == null) return;
@@ -98,7 +94,6 @@ public class Gate
                 picId = 0,
                 tag = 1,
             });
-            
             
             var characterFullData = new cometScene.Ntf_CharacterFullData
             {
@@ -146,18 +141,20 @@ public class Gate
             });
         });
         
-        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_CreateCharacter + 1000, (byte[] msgContent) =>
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_CreateCharacter + 1000, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo("Creating a new character!");
             var data = Serializer.Deserialize<cometGate.CreateCharacter>(new MemoryStream(msgContent));
-            var account = Server.Database.CreateAccount();
+            var account = Server.Database.GetAccount(sessionId);
 
             account.name = data.name;
             account.selectCharId = data.selectCharId;
             account.language = data.language;
             account.country = data.country;
             account.headId = data.selectCharId;
-            
+            account.charId = (long)Math.Round((double)(account.accId + 40000000000));
+            ServerLogger.LogInfo($"New account id: {account.accId}, new character id: {account.charId}");
+
             Server.Database.UpdateAccount(account);
             
             var announcementData = new cometScene.AnnouncementData();
@@ -217,7 +214,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Event_Info, (byte[] msgContent) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Event_Info, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo($"Shop information");
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
@@ -228,7 +225,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Social_PublishDynamics, (byte[] msgContent) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Social_PublishDynamics, (byte[] msgContent, long sessionId) =>
         {
             cometScene.Req_Social_PublishDynamics data = Serializer.Deserialize<cometScene.Req_Social_PublishDynamics>(new MemoryStream(msgContent));
             ServerLogger.LogInfo($"Public Activity");
@@ -243,11 +240,11 @@ public class Gate
         });
     }
 
-    public bool Dispatch(uint mainCmd, uint paraCmd, byte[] msgContent)
+    public bool Dispatch(uint mainCmd, uint paraCmd, byte[] msgContent, long sessionId)
     {
         if (!Handlers.ContainsKey((uint)(paraCmd + (mainCmd is 1 or 3 ? 1000 : 0)))) return false;
 
-        Handlers[(uint)(paraCmd + (mainCmd is 1 or 3 ? 1000 : 0))](msgContent);
+        Handlers[(uint)(paraCmd + (mainCmd is 1 or 3 ? 1000 : 0))](msgContent, sessionId);
         return true;
     }
 }

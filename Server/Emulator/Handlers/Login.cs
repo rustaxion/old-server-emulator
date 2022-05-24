@@ -60,20 +60,15 @@ public class Login
 
             var accountData = Server.Database.GetAccount(data.openId);
 
-            uint accId;
             if (accountData == null)
             {
                 accountData = Server.Database.CreateAccount();
                 accountData.steamId = data.openId;
                 accountData.token = token;
                 Server.Database.UpdateAccount(accountData);
-
-                accId = accountData.accId;
             }
-            else
-            {
-                accId = accountData.accId;
-            }
+            
+            var accId = accountData.accId;
 
             ServerLogger.LogInfo($"AccId: {accId}");
 

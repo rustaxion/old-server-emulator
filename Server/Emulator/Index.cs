@@ -26,6 +26,7 @@ public class Index
 
         using MemoryStream data = new();
         Serializer.Serialize(data, obj);
+        
         return data.ToArray();
     }
 
@@ -46,8 +47,12 @@ public class Index
     public bool Dispatch(uint mainCmd, uint paraCmd, byte[] msgContent, int tag)
     {
         ServerLogger.LogInfo($"Handler request! mainCmd: {mainCmd}, paraCmd: {paraCmd}");
+        var sessionId = EagleTcpPatches.EagleTcpClient.Sessions[tag];
+        
         bool found = false;
-        found = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? Login.Dispatch(mainCmd, paraCmd, msgContent) : Gate.Dispatch(mainCmd, paraCmd, msgContent);
+        found = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ?
+            Login.Dispatch(mainCmd, paraCmd, msgContent) :
+            Gate.Dispatch(mainCmd, paraCmd, msgContent, sessionId);
         if (!found) ServerLogger.LogError($"Handler not found!");
         if (!found) Server.MustImplement.Add($"tag: {tag}, mainCmd: {mainCmd}, paraCmd: {paraCmd}");
         
