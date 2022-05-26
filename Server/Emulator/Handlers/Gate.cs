@@ -56,7 +56,7 @@ public class Gate
             var account = Server.Database.GetAccount(accId);
             if (account == null) return;
 
-            account.sessionId = sessionId;
+            account.sessionId = (uint)sessionId;
             Server.Database.UpdateAccount(account);
             
             var userInfoList = new cometGate.SelectUserInfoList();

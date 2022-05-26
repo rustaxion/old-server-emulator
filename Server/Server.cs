@@ -10,19 +10,31 @@ namespace Server;
 public class Server : BaseUnityPlugin
 {
     public static BepInEx.Logging.ManualLogSource logger;
-    public static Emulator.Database.Database Database = new();
+    public static Emulator.Database.Database Database;
     public static List<string> MustImplement = new();
 
     private void Awake()
     {
-        Server.logger = Logger;
+        logger = Logger;
+        Database = new Emulator.Database.Database();
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+        
         HookManager.Instance.Create();
     }
 
     private void OnApplicationQuit()
     {
-        var output = MustImplement.Aggregate("", (current, line) => current + $"{line}\n");
+        var commands = new List<string>();
+
+        foreach (var command in MustImplement)
+        {
+            if (!commands.Contains(command))
+            {
+                commands.Add($"{command} (x{MustImplement.Count(command.Equals)})");
+            }
+        }
+        
+        var output = commands.Aggregate("", (current, line) => current + $"{line}\n");
         File.WriteAllText("must-implement.txt", output);
     }
 }
