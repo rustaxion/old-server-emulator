@@ -60,8 +60,6 @@ public class Login
             
             ServerLogger.LogInfo($"Token: {token}");
             ServerLogger.LogError($"OpenId: {data.openId}");
-            ServerLogger.LogError(Server.Database.Accounts.Values.Select(acc => acc.steamId).ToList().Join(delimiter: ", "));
-            ServerLogger.LogError($"Accounts saved: {Server.Database.Accounts.Count}");
             
             var accountData = Server.Database.GetAccount(data.openId);
 
