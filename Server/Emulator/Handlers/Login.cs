@@ -70,6 +70,8 @@ public class Login
                 accountData.token = token;
                 Server.Database.UpdateAccount(accountData);
             }
+
+            accountData.onlineTime = 0;
             
             var accId = accountData.accId;
 
@@ -92,6 +94,10 @@ public class Login
             };
 
             Index.Instance.LoginPackageQueue.Enqueue(gamePackage);
+            Tools.Run.Every(20f, 1f, () =>
+            {
+                accountData.onlineTime += 1;
+            });
         });
     }
     

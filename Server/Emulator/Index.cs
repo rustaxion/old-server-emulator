@@ -49,7 +49,7 @@ public class Index
         ServerLogger.LogInfo($"Handler request! mainCmd: {mainCmd}, paraCmd: {paraCmd}");
         var sessionId = EagleTcpPatches.EagleTcpClient.Sessions[tag];
         
-        bool found = false;
+        var found = false;
         found = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ?
             Login.Dispatch(mainCmd, paraCmd, msgContent) :
             Gate.Dispatch(mainCmd, paraCmd, msgContent, sessionId);

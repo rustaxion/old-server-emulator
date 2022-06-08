@@ -89,7 +89,7 @@ public class EagleTcpClient
     {
         ServerLogger.LogInfo("Connected to the '" + (tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? "login" : "gate") + "' server");
         ConnectedClients[tag] = true;
-        Sessions[tag] = (long)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+        Sessions[tag] = TimeHelper.getCurUnixTimeOfSec();
         return true;
     }
 

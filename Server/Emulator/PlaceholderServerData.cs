@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using LitJson;
-using SharpCompress;
+using System;
+using System.Reflection;
+using Server.Emulator.Tools;
 
 namespace Server.Emulator;
 
-public class PlaceholderServerData
+public static class PlaceholderServerData
 {
-    public static int[] songList = {
+    public static int[] SongList = {
         20000, 20001, 20002, 20003, 20005, 20006, 20007, 20008, 20009,
         20010, 20011, 20012, 20013, 20014, 20015, 62001, 62003, 62004,
         62005, 62006, 62007, 62008, 62010, 62011, 62012, 62013, 62016,
@@ -164,27 +166,32 @@ public class PlaceholderServerData
        }
     }
     
-    public static cometScene.CharacterList characterList
+    public static cometScene.CharacterList CharacterList
        {
           get
           {
              var characterList = new cometScene.CharacterList();
              (new uint[]
              {
-                20060, 40090, 40130, 50010, 40010,
-                40040, 10050, 10010, 10020, 20040,
-                40220, 10040, 20050, 30070, 20020,
-                20090, 40320, 20030, 10030, 30050,
-                40150, 40260, 30040, 40330, 40120,
-                20170, 10060, 30090, 40250, 30100,
-                30110, 1006010, 50050, 3004010, 30060
-             }).Select(i => new cometScene.CharData()
+                 20060, 40090, 40130, 50010, 40010,
+                 40040, 10050, 10010, 10020, 20040,
+                 40220, 10040, 20050, 30070, 20020,
+                 20090, 40320, 20030, 10030, 30050,
+                 40150, 40260, 30040, 40330, 40120,
+                 20170, 10060, 30090, 40250, 30100,
+                 30110, 1006010, 50050, 3004010, 30060
+             }).Select(i =>
              {
-                charId = i,
-                level = 30,
-                exp = 0,
-                playCount = 0,
-             }).ForEach(character => characterList.list.Add(character));
+                 var charData = new cometScene.CharData()
+                 {
+                     charId = i,
+                     level = 30,
+                     exp = 0,
+                     playCount = 0,
+                 };
+                 characterList.list.Add(charData);
+                 return charData;
+             });
              return characterList;
           }
        }
@@ -260,4 +267,78 @@ public class PlaceholderServerData
           return shopInfo;
        }
     }
+    
+    public static Tuple<List<cometScene.SingleSongData>, List<cometScene.SingleSongData>, List<cometScene.SingleSongData>> ArcadeInfoList
+    {
+        get
+        {
+            var diffList = new Dictionary<string, uint> { {"easy", 0 }, { "normal", 1 }, { "hard", 2 } };
+            var arcadeList = new Tuple<List<cometScene.SingleSongData>, List<cometScene.SingleSongData>, List<cometScene.SingleSongData>>(new(), new(), new());
+
+            try
+            {
+               foreach (var (songId, song) in Songs.SongData.Select(kvp => (kvp.Key, kvp.Value)))
+               {
+                  if (song.songType == 0) continue;
+
+                  foreach (var diff in song.IterateDifficulties())
+                  {
+                     if (diff.Item1 == null) continue;
+                     var diffInfo = new cometScene.SingleSongData { songId = song.id, difficulty = diffList[diff.Item2], mode = diff.Item3 };
+                     if (diff.Item1 is >= 1 and <= 9) arcadeList.Item1.Add(diffInfo);
+                     if (diff.Item1 is >= 5 and <= 13) arcadeList.Item2.Add(diffInfo);
+                     if ((diff.Item1 is >= 9 and <= 17) || diff.Item1 == 99) arcadeList.Item3.Add(diffInfo);
+                  }
+               }
+            } catch (Exception e)
+            {
+               ServerLogger.LogError("ArcadeInfoList: " + e.Message);
+            }
+            
+            return arcadeList;
+        }
+    }
+}
+
+public class SongInfo
+{
+   public uint id;
+   public string name;
+   public string composer;
+   public int songType;
+   public int param;
+   public uint? key4_easy_diff;
+   public uint? key4_normal_diff;
+   public uint? key4_hard_diff;
+   public uint? key6_easy_diff;
+   public uint? key6_normal_diff;
+   public uint? key6_hard_diff;
+   public uint? key8_normal_diff;
+   public uint? key8_hard_diff;
+   public int? key4_easy_note;
+   public int? key4_normal_note;
+   public int? key4_hard_note;
+   public int? key6_easy_note;
+   public int? key6_normal_note;
+   public int? key6_hard_note;
+   public int? key8_normal_note;
+   public int? key8_hard_note;
+   public int? minBPM;
+   public int? maxBPM;
+
+   public IEnumerable<Tuple<uint?, string, uint>> IterateDifficulties()
+   {
+      var diffList = new Dictionary<string, uint?>
+      {
+         { "key4_easy_diff", key4_easy_diff }, { "key4_normal_diff", key4_normal_diff }, { "key4_hard_diff", key4_hard_diff },
+         { "key6_easy_diff", key6_easy_diff }, { "key6_normal_diff", key6_normal_diff }, { "key6_hard_diff", key6_hard_diff },
+         { "key8_normal_diff", key8_normal_diff }, { "key8_hard_diff", key8_hard_diff }
+      };
+      var keyNumToId = new Dictionary<char, uint>() { { '4', 1 }, { '6', 2 }, { '8', 3 } };
+
+      foreach (var diff in diffList)
+      {
+         yield return new Tuple<uint?, string, uint>(diff.Value, diff.Key.Split(new char[] { '_' })[1], keyNumToId[diff.Key[3]]);
+      }
+   }
 }
