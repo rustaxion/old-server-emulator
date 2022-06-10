@@ -32,18 +32,6 @@ public class Server : BaseUnityPlugin
         {
             Logger.LogInfo("Current Scene: " + GlobalsHelper.CurrentScene);
         });
-
-        Emulator.Tools.Run.After(60f, () =>
-        {
-            Logger.LogInfo("Attempting to dump the language file...");
-            var output = new StringBuilder();
-            Aquatrax.GlobalConfig.getInstance().languageList.ToList().ForEach(kv =>
-            {
-                output.Append(kv.Key);
-                output.Append("\n");
-            });
-            File.WriteAllText("language.txt", output.ToString());
-        });
     }
 
     private void OnApplicationQuit()
