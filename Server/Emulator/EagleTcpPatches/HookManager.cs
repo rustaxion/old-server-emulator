@@ -43,6 +43,10 @@ public class HookManager
             var methodInfo10 = AccessTools.Method(typeof(EagleTcp), "ParseCmd");
             var methodInfo11 = AccessTools.Method(typeof(EagleTcpHook), "ParseCmdTranspiler");
             harmonyInstance.Patch(methodInfo10, transpiler: new HarmonyMethod(methodInfo11));
+            
+            var backToLogin = AccessTools.Method(typeof(Aquatrax.NetManager), "backToLogin");
+            var backToLoginPatch = AccessTools.Method(typeof(NetManagerPatch), "backToLoginPatch");
+            harmonyInstance.Patch(backToLogin, prefix: new HarmonyMethod(backToLoginPatch));
 
             ServerLogger.LogInfo("Hooker: All OK!");
         }
@@ -50,5 +54,13 @@ public class HookManager
         {
             ServerLogger.LogError(e.ToString());
         }
+    }
+}
+
+public class NetManagerPatch
+{
+    public static bool backToLoginPatch()
+    {
+        return false; // skip the original method
     }
 }

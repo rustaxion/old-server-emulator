@@ -4,6 +4,9 @@ using System.Linq;
 using System.IO;
 using BepInEx;
 using System;
+using System.Text;
+using HarmonyLib;
+
 // ReSharper disable All
 
 namespace Server;
@@ -28,6 +31,18 @@ public class Server : BaseUnityPlugin
         Emulator.Tools.Run.Every(20f, 10f, () =>
         {
             Logger.LogInfo("Current Scene: " + GlobalsHelper.CurrentScene);
+        });
+
+        Emulator.Tools.Run.After(60f, () =>
+        {
+            Logger.LogInfo("Attempting to dump the language file...");
+            var output = new StringBuilder();
+            Aquatrax.GlobalConfig.getInstance().languageList.ToList().ForEach(kv =>
+            {
+                output.Append(kv.Key);
+                output.Append("\n");
+            });
+            File.WriteAllText("language.txt", output.ToString());
         });
     }
 

@@ -72,7 +72,6 @@ public class Login
             }
 
             accountData.onlineTime = 0;
-            
             var accId = accountData.accId;
 
             ServerLogger.LogInfo($"AccId: {accId}");
@@ -94,10 +93,6 @@ public class Login
             };
 
             Index.Instance.LoginPackageQueue.Enqueue(gamePackage);
-            Tools.Run.Every(20f, 1f, () =>
-            {
-                accountData.onlineTime += 1;
-            });
         });
     }
     

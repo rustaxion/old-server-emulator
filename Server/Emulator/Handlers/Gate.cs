@@ -130,9 +130,33 @@ public class Gate
             Server.Database.SaveAll();
         });
         
-        Handlers.Add(1003, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_Ret_UserGameTime, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo($"Reported game time.");
+        });
+        
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_BeginSong, (byte[] msgContent, long sessionId) =>
+        {
+            ServerLogger.LogInfo($"Start playing song!");
+        });
+        
+        // +2000 to prevent it from being called.
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_FinishSong + 2000, (byte[] msgContent, long sessionId) =>
+        {
+            ServerLogger.LogInfo($"Finished playing song!");
+            var data = Serializer.Deserialize<cometScene.Req_FinishSong>(new MemoryStream(msgContent)).data;
+            var account = Server.Database.GetAccount(sessionId);
+            if (account == null) return;
+
+            account.totalScore = data.totalScore;
+            account.total4KScore = data.total4KScore;
+            account.total6KScore = data.total6KScore;
+            account.total8KScore = data.total8KScore;
+            
+            Server.Database.UpdateAccount(account);
+
+            var songInfo = data.playData;
+            // TODO: Finish this.
         });
 
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeLanguage, (byte[] msgContent, long sessionId) =>
@@ -144,7 +168,6 @@ public class Gate
                 Data = new byte[0],
             });
         });
-        
         
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopInfo, (byte[] msgContent, long sessionId) =>
         {

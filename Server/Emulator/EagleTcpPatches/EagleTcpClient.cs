@@ -20,15 +20,9 @@ public class EagleTcpClient
         ServerLogger.LogInfo($"SendCmd: tag: {tag}, mainCmd: {mainCmd}, paraCmd: {paraCmd}, size: {size}");
         try
         {
-            if (!IsConnected(tag))
-                return (int)EagleStatus.ES_Disconnect;
             if (Index.Instance.Dispatch(mainCmd, paraCmd, msgContent, tag))
             {
                 return (int)EagleStatus.ES_OK;
-            }
-            else
-            {
-                return (int)EagleStatus.ES_Disconnect;
             }
         }
         catch (Exception e)
