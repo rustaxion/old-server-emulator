@@ -47,6 +47,10 @@ public class HookManager
             var backToLogin = AccessTools.Method(typeof(Aquatrax.NetManager), "backToLogin");
             var backToLoginPatch = AccessTools.Method(typeof(NetManagerPatch), "backToLoginPatch");
             harmonyInstance.Patch(backToLogin, prefix: new HarmonyMethod(backToLoginPatch));
+            
+            var hasForbidWord = AccessTools.Method(typeof(Aquatrax.GlobalConfig), "hasForbidWord");
+            var hasForbidWordPatch = AccessTools.Method(typeof(GlobalConfigPatches), "hasForbidWord");
+            harmonyInstance.Patch(hasForbidWord, prefix: new HarmonyMethod(hasForbidWordPatch));
 
             ServerLogger.LogInfo("Hooker: All OK!");
         }
@@ -61,6 +65,16 @@ public class NetManagerPatch
 {
     public static bool backToLoginPatch()
     {
+        return false; // skip the original method
+    }
+}
+
+public class GlobalConfigPatches
+{
+    public static bool hasForbidWord(string str, ref bool __result)
+    {
+        // Allow people to use swear words in the username for fuck's sake.
+        __result = false;
         return false; // skip the original method
     }
 }
