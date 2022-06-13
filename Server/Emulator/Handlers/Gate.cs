@@ -187,7 +187,7 @@ public class Gate
             };
 
             var singleSongInfo = difficultyList.Find(song => song.songId == data.songId);
-            if (singleSongInfo.songId != data.songId)
+            if (singleSongInfo == null || singleSongInfo.songId != data.songId)
             {
                 singleSongInfo = new SingleSongInfo() { songId = data.songId, playCount = 0 };
                 difficultyList.Add(singleSongInfo);
@@ -337,13 +337,15 @@ public class Gate
         {
             var data = Serializer.Deserialize<cometScene.Req_Social_PublishDynamics>(new MemoryStream(msgContent));
             ServerLogger.LogInfo($"Public Activity");
+
+            var activity = new cometScene.Ret_Social_PublishDynamics();
+            activity.contentList.AddRange(data.contentList);
+            
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
                 ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_Social_PublishDynamics,
-                Data = Index.ObjectToByteArray(JsonMapper.ToObject<cometScene.Ret_Social_PublishDynamics>(
-                    @"{ ""contentList"": " + JsonMapper.ToJson(data.contentList) + "}"
-                )),
+                Data = Index.ObjectToByteArray(activity),
             });
         });
         
