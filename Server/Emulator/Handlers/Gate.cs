@@ -186,14 +186,12 @@ public class Gate
                 _ => throw new NotSupportedException($"Difficulty `{_difficultyLink[data.difficulty]} ({data.difficulty})` not supported."),
             };
 
-            SingleSongInfo InitSingleSongInfo()
+            var singleSongInfo = difficultyList.Find(song => song.songId == data.songId);
+            if (singleSongInfo.songId != data.songId)
             {
-                var song = new cometScene.SingleSongInfo() { songId = data.songId, playCount = 0 };
-                difficultyList.Add(song);
-                return song;
+                singleSongInfo = new SingleSongInfo() { songId = data.songId, playCount = 0 };
+                difficultyList.Add(singleSongInfo);
             }
-
-            var singleSongInfo = difficultyList.FirstOrDefault(song => song.songId == data.songId) ?? InitSingleSongInfo();
 
             singleSongInfo.miss = songInfo.miss;
             if (songInfo.score > singleSongInfo.score) singleSongInfo.score = songInfo.score;
