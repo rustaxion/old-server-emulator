@@ -69,7 +69,7 @@ public class Gate
                 vipInfo = account.vipInfo,
                 arcadeData = account.arcadeData,
                 team = account.team,
-                charList = PlaceholderServerData.CharacterList,
+                charList = account.CharacterList,
                 scoreList = account.scoreList,
                 songList = account.songList,
             }
@@ -309,6 +309,17 @@ public class Gate
             account.headId = data.selectCharId;
             account.charId = (long)Math.Round((double)(account.accId + 40000000000));
             ServerLogger.LogInfo($"New account id: {account.accId}, new character id: {account.charId}");
+            
+            account.CharacterList = new() { list = {
+                new cometScene.CharData()
+                     {
+                         charId = data.selectCharId,
+                         level = 1,
+                         exp = 0,
+                         playCount = 0,
+                     }
+                }
+            };
 
             Server.Database.UpdateAccount(account);
 
@@ -331,6 +342,68 @@ public class Gate
                 ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_Event_Info,
                 Data = Index.ObjectToByteArray(PlaceholderServerData.EventInfo),
             });
+        });
+        
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopBuy, (byte[] msgContent, long sessionId) =>
+        {
+            // TODO: Actually finish this.
+            ServerLogger.LogInfo($"Buy item from shop.");
+            var data = Serializer.Deserialize<cometScene.Req_ShopBuy>(new MemoryStream(msgContent));
+            var account = Server.Database.GetAccount(sessionId);
+            
+            switch (data.shopType)
+            {
+                case (uint)Aquatrax.eShopType.eShopType_Character:
+                {
+                    account.CharacterList.list.Add(new CharData()
+                    {
+                        charId = data.itemId,
+                        level = 1,
+                        exp = 0,
+                        playCount = 0,
+                    });
+                    
+                    account.level = 420;
+                    account.curExp = 50;
+                    account.maxExp = 100;
+                    
+                    Server.Database.UpdateAccount(account);
+                    Server.Database.SaveAll();
+                    Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+                    {
+                        MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                        ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ShopBuy,
+                        Data = Index.ObjectToByteArray(new cometScene.Ret_ShopBuy
+                        {
+                            settleData = new SettleData()
+                            {
+                                expData = new PlayerExpData()
+                                {
+                                    level = 420,
+                                    curExp = 50,
+                                    maxExp = 100,
+                                }
+                            }
+                        }),
+                    });
+                    break;
+                }
+                case (uint)Aquatrax.eShopType.eShopType_Member:
+                {
+                    
+                    break;
+                }
+                case (uint)Aquatrax.eShopType.eShopType_Song:
+                {
+                    
+                    break;
+                }
+                case (uint)Aquatrax.eShopType.eShopType_Theme:
+                {
+                    
+                    break;
+                }
+            }
         });
 
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Social_PublishDynamics, (byte[] msgContent, long sessionId) =>

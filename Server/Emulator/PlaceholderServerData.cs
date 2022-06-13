@@ -185,7 +185,7 @@ public static class PlaceholderServerData
                  var charData = new cometScene.CharData()
                  {
                      charId = i,
-                     level = 30,
+                     level = 1,
                      exp = 0,
                      playCount = 0,
                  };
