@@ -18,6 +18,7 @@ public class Server : BaseUnityPlugin
     public static Emulator.Database.Database Database;
     public static List<string> MustImplement = new();
     private GlobalsHelper _globalsHelperInstance;
+    public static bool Debug = true;
 
     private void Awake()
     {

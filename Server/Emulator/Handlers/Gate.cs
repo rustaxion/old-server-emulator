@@ -3,6 +3,7 @@ using System.IO;
 using LitJson;
 using System;
 using System.Linq;
+using cometScene;
 using Server.Emulator.Database;
 using Serializer = ProtoBuf.Serializer;
 
@@ -11,7 +12,21 @@ namespace Server.Emulator.Handlers;
 public class Gate
 {
     private Dictionary<uint, Action<byte[], long>> Handlers = new();
-
+    
+    private readonly Dictionary<uint, string> _modeLink = new()
+    {
+        { 1, "4k" },
+        { 2, "6k" },
+        { 3, "8k" }
+    };
+    
+    private readonly Dictionary<uint, string> _difficultyLink = new()
+    {
+        { 1, "ez" },
+        { 2, "nm" },
+        { 3, "hd" }
+    };
+    
     private static cometScene.Ntf_CharacterFullData GetFullCharacterData(types.AccountData account)
     {
         var announcementData = new cometScene.AnnouncementData();
@@ -130,18 +145,17 @@ public class Gate
             Server.Database.SaveAll();
         });
         
-        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_Ret_UserGameTime, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_Ret_UserGameTime + 1000, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo($"Reported game time.");
         });
         
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_BeginSong, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_BeginSong + 1000, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo($"Start playing song!");
         });
         
-        // +2000 to prevent it from being called.
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_FinishSong + 2000, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_FinishSong, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo($"Finished playing song!");
             var data = Serializer.Deserialize<cometScene.Req_FinishSong>(new MemoryStream(msgContent)).data;
@@ -152,13 +166,58 @@ public class Gate
             account.total4KScore = data.total4KScore;
             account.total6KScore = data.total6KScore;
             account.total8KScore = data.total8KScore;
-            
+
             Server.Database.UpdateAccount(account);
 
             var songInfo = data.playData;
-            // TODO: Finish this.
-        });
 
+            var scoreList = _modeLink[data.mode] switch
+            {
+                "4k" => account.scoreList._key4List,
+                "6k" => account.scoreList._key6List,
+                "8k" => account.scoreList._key8List,
+                _ => throw new NotSupportedException($"Mode `{_modeLink[data.mode]} ({data.mode})` not supported."),
+            };
+
+            var difficultyList = _difficultyLink[data.difficulty] switch
+            {
+                "ez" => scoreList._easyList,
+                "nm" => scoreList._normalList,
+                "hd" => scoreList._hardList,
+                _ => throw new NotSupportedException($"Difficulty `{_difficultyLink[data.difficulty]} ({data.difficulty})` not supported."),
+            };
+
+            SingleSongInfo InitSingleSongInfo()
+            {
+                var song = new cometScene.SingleSongInfo() { songId = data.songId, playCount = 0 };
+                difficultyList.Add(song);
+                return song;
+            }
+
+            var singleSongInfo = difficultyList.FirstOrDefault(song => song.songId == data.songId) ?? InitSingleSongInfo();
+
+            singleSongInfo.miss = songInfo.miss;
+            if (songInfo.score > singleSongInfo.score) singleSongInfo.score = songInfo.score;
+            singleSongInfo.playCount += 1;
+            singleSongInfo.isAllMax = (songInfo.maxPercent == 100) ? 1u : 0u;
+            singleSongInfo.isFullCombo = (songInfo.miss == 0) ? 1u : 0u;
+
+            Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+            {
+                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_FinishSong,
+                Data = Index.ObjectToByteArray(new cometScene.Ret_FinishSong()
+                {
+                    songInfo = singleSongInfo,
+                    settleData = new()
+                    {
+                        changeList = { new() { type = 9, count = 450, id = 0 }, },
+                        expData = new() { level = 2, curExp = 0, maxExp = 100 }
+                    }
+                }),
+            });
+        });
+        
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeLanguage, (byte[] msgContent, long sessionId) =>
         {
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
