@@ -149,7 +149,7 @@ public class Gate
             ServerLogger.LogInfo($"Reported game time.");
         });
         
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_BeginSong + 1000, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_BeginSong, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo($"Start playing song!");
         });
@@ -200,7 +200,8 @@ public class Gate
             singleSongInfo.playCount += 1;
             singleSongInfo.isAllMax = (songInfo.maxPercent == 100) ? 1u : 0u;
             singleSongInfo.isFullCombo = (songInfo.miss == 0) ? 1u : 0u;
-            
+
+            account.level = 69;
             Server.Database.SaveAll();
 
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
