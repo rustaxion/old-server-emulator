@@ -20,7 +20,7 @@ public class Login
             string gameVersion = Aquatrax.GlobalConfig.getInstance().getGameVersion();
             ServerLogger.LogInfo($"GameVersion: {gameVersion}");
 
-            Index.GamePackage gamePackage = new()
+            Index.Instance.LoginPackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometLogin.MainCmd.MainCmd_Login,
                 ParaCmd = (uint)cometLogin.ParaCmd.ParaCmd_Ret_GameVersion,
@@ -31,9 +31,7 @@ public class Login
                     announcementTitle = "",
                     serverState = 2
                 }),
-            };
-
-            Index.Instance.LoginPackageQueue.Enqueue(gamePackage);
+            });
         });
         
         Handlers.Add((uint)cometLogin.ParaCmd.ParaCmd_Req_ThirdLogin, (byte[] msgContent) =>
@@ -59,7 +57,7 @@ public class Login
             }
             
             ServerLogger.LogInfo($"Token: {token}");
-            ServerLogger.LogError($"OpenId: {data.openId}");
+            ServerLogger.LogInfo($"OpenId: {data.openId}");
             
             var accountData = Server.Database.GetAccount(data.openId);
 
@@ -71,12 +69,11 @@ public class Login
                 Server.Database.UpdateAccount(accountData);
             }
 
-            accountData.onlineTime = 0;
             var accId = accountData.accId;
 
             ServerLogger.LogInfo($"AccId: {accId}");
 
-            var gamePackage = new Index.GamePackage()
+            Index.Instance.LoginPackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometLogin.MainCmd.MainCmd_Login,
                 ParaCmd = (uint)cometLogin.ParaCmd.ParaCmd_Ret_ThirdLogin,
@@ -90,9 +87,7 @@ public class Login
                         accId = accId
                     },
                 }),
-            };
-
-            Index.Instance.LoginPackageQueue.Enqueue(gamePackage);
+            });
         });
     }
     
