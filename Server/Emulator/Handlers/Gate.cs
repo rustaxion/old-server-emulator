@@ -12,7 +12,6 @@ namespace Server.Emulator.Handlers;
 public class Gate
 {
     private Dictionary<uint, Action<byte[], long>> Handlers = new();
-    
     private readonly Dictionary<uint, string> _modeLink = new()
     {
         { 1, "4k" },
@@ -201,6 +200,8 @@ public class Gate
             singleSongInfo.playCount += 1;
             singleSongInfo.isAllMax = (songInfo.maxPercent == 100) ? 1u : 0u;
             singleSongInfo.isFullCombo = (songInfo.miss == 0) ? 1u : 0u;
+            
+            Server.Database.SaveAll();
 
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
@@ -212,7 +213,7 @@ public class Gate
                     settleData = new()
                     {
                         changeList = { new() { type = 9, count = 450, id = 0 }, },
-                        expData = new() { level = 2, curExp = 0, maxExp = 100 }
+                        expData = new() { level = 69, curExp = 0, maxExp = 100 }
                     }
                 }),
             });

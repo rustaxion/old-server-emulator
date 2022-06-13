@@ -5,7 +5,9 @@ using System.IO;
 using BepInEx;
 using System;
 using System.Text;
+using Aquatrax;
 using HarmonyLib;
+using LitJson;
 
 // ReSharper disable All
 
@@ -59,7 +61,6 @@ public class GlobalsHelper
     {
         get { return _instance ??= new GlobalsHelper(); }
     }
-
     public static string CurrentScene;
 
     private GlobalsHelper()
