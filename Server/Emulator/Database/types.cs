@@ -59,5 +59,7 @@ public class types
                     64005, 69018, 68002, 68001, 82005, 82006, 82007, 82011, 65102, 68106, 64003, 62021, 65036
                 }.Select(i => new cometScene.SongData { songId = (uint)i })
                 .ToList()) + @", ""favoriteList"": []" + "}");
+
+        public cometScene.CharacterList CharacterList;
     }
 }
