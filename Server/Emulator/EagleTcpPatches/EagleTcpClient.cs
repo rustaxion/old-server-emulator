@@ -38,7 +38,7 @@ public class EagleTcpClient
         {
             return -1;
         }
-        if (tag == (int)EagleTcp.CSocketType.SOCKET_GATEWAY && Index.Instance.GatePackageQueue.Count == 0) ServerLogger.LogError($"Expected a 'gate' packet..");
+        // if (tag == (int)EagleTcp.CSocketType.SOCKET_GATEWAY && Index.Instance.GatePackageQueue.Count == 0) ServerLogger.LogError($"Expected a 'gate' packet..");
 
         var queue = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? Index.Instance.LoginPackageQueue : Index.Instance.GatePackageQueue;
         var socket = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? EagleTcp.loginSocket : EagleTcp.gateSocket;
