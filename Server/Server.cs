@@ -1,5 +1,7 @@
-﻿using Server.Emulator.EagleTcpPatches;
+﻿using System;
+using Server.Emulator.EagleTcpPatches;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using BepInEx;
@@ -15,6 +17,7 @@ public class Server : BaseUnityPlugin
     public static Emulator.Database.Database Database;
     public static List<string> MustImplement = new();
     public static bool Debug = true;
+    private static Process _process;
 
     private void Awake()
     {
@@ -24,6 +27,20 @@ public class Server : BaseUnityPlugin
         
         HookManager.Instance.Create();
         DiscordRichPresence.Data.Init();
+
+        if (File.Exists("BepInEx/watch_logs.py") && Debug)
+        {
+            _process = new Process()
+            {
+                StartInfo =
+                {
+                    FileName = "python.exe",
+                    Arguments = "watch_logs.py",
+                    WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory(), "BepInEx"),
+                }
+            };
+            _process.Start();
+        }
     }
 
     private static long timeDelta = TimeHelper.getCurUnixTimeOfSec();
@@ -41,6 +58,12 @@ public class Server : BaseUnityPlugin
 
     private void OnApplicationQuit()
     {
+        if (Debug && _process != null)
+        {
+            _process.Kill();
+            _process = null;
+        }
+        
         var commands = new List<string>();
 
         foreach (var command in MustImplement)
