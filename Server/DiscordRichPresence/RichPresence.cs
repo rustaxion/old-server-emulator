@@ -58,7 +58,7 @@ public class Data
     {
         if (discord == null)
         {
-            discord = new Discord.Discord((long)621251246631813120, (Int64)Discord.CreateFlags.Default);
+            discord = new Discord.Discord(979470905535250443, (UInt64)Discord.CreateFlags.Default);
             discord.SetLogHook(Discord.LogLevel.Debug, (level, message) =>
             {
                 switch (level)
@@ -94,7 +94,7 @@ public class Data
         if (activityManager == null)
         {
             activityManager = discord.GetActivityManager();
-            activityManager.RegisterCommand("D:\\Directories\\Downloads\\INVAXION\\INVAXION.exe");
+            // activityManager.RegisterCommand("D:\\Directories\\Downloads\\INVAXION\\INVAXION.exe");
         }
         if (lobbyManager == null)
         {
