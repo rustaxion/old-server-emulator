@@ -31,4 +31,6 @@ public class GameState
             }
         }
     }
+
+    public static string CurrentScene;
 }

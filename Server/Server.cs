@@ -41,6 +41,13 @@ public class Server : BaseUnityPlugin
             };
             _process.Start();
         }
+        
+        DiscordRichPresence.GameEventHooks.Hook();
+        DiscordRichPresence.GameEvents.switchScene += () =>
+        {
+            // warning so that it is yellow :)
+            Logger.LogWarning($"Scene changed! {DiscordRichPresence.GameState.CurrentScene}");
+        };
     }
 
     private static long timeDelta = TimeHelper.getCurUnixTimeOfSec();
