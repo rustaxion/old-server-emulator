@@ -1,153 +1,99 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using Discord;
+﻿using Discord;
+
 namespace Server.DiscordRichPresence;
 
 public class Data
 {
-    public static Discord.Discord discord;
-    public static Discord.ActivityManager activityManager;
-    public static Discord.ApplicationManager applicationManager;
-    public static Discord.LobbyManager lobbyManager;
-    static void UpdateActivity(Discord.Discord discord, string State, string Details)
-    {
-        var activityManager = discord.GetActivityManager();
-        var lobbyManager = discord.GetLobbyManager();
-        long epochTicks = new DateTime(1970, 1, 1).Ticks;
-        long unixTime = ((DateTime.UtcNow.Ticks - epochTicks) / TimeSpan.TicksPerSecond);
-        var activity = new Discord.Activity
-        {
-            State = State,
-            Details = Details,
+    private static Discord.Discord _discord;
+    private static Discord.ActivityManager _activityManager;
+    private static Discord.ApplicationManager _applicationManager;
+    private static Discord.LobbyManager _lobbyManager;
+    private static Discord.Activity _activity;
+    private static bool _hasInit = false;
 
-            Timestamps =
+    public static void Init()
+    {
+        _discord = new Discord.Discord(979470905535250443, (ulong)Discord.CreateFlags.Default);
+        _discord.SetLogHook(Discord.LogLevel.Debug, (level, message) =>
+        {
+            switch (level)
             {
-                Start = unixTime
-            },
+                case Discord.LogLevel.Error:
+                    RichPresenceLogger.LogError(message);
+                    break;
+                case Discord.LogLevel.Warn:
+                    RichPresenceLogger.LogWarning(message);
+                    break;
+                case Discord.LogLevel.Debug:
+                    RichPresenceLogger.LogDebug(message);
+                    break; 
+                default:
+                    RichPresenceLogger.LogInfo(message);
+                    break; 
+            }
+        });
+        
+        
+        _activityManager = _discord.GetActivityManager();
+        _lobbyManager = _discord.GetLobbyManager();
+        _applicationManager = _discord.GetApplicationManager();
+        _lobbyManager = _discord.GetLobbyManager();
+
+        
+        // Get the current locale. This can be used to determine what text or audio the user wants.
+        RichPresenceLogger.LogInfo("Current Locale: " + _applicationManager.GetCurrentLocale());
+        // Get the current branch. For example alpha or beta.
+        RichPresenceLogger.LogInfo("Current Branch: " + _applicationManager.GetCurrentBranch());
+
+        _activity = new Activity()
+        {
+            State = "Idle",
+            Details = "",
             Assets =
             {
-                LargeImage = "useful",
-                LargeText = "Invaxion",
-                SmallImage = "test",
-                SmallText = "testing",
-            },
-            Party = {
-               Id = null,
-               Size = {
-                    CurrentSize = 1,
-                    MaxSize = 1
-                },
-            },
-            Secrets = {
-                Join = "",
-            },
-            Instance = true,
+                LargeImage = "invaxion",
+                LargeText = "音灵 INVAXION"
+            }
         };
-
-        activityManager.UpdateActivity(activity, result =>
+        
+        _activityManager.UpdateActivity(_activity, (result =>
         {
-            RichPresenceLogger.LogInfo("Update Activity  " + result);
-        });
+            RichPresenceLogger.LogInfo("Update activity: " + result);
+        }));
 
+        _hasInit = true;
     }
-    public static void Update()
+    
+    public static void UpdateActivity()
     {
-        if (discord == null)
+        if (!_hasInit) return;
+        if (DiscordRichPresence.GameState.IsPaused)
         {
-            discord = new Discord.Discord(979470905535250443, (UInt64)Discord.CreateFlags.Default);
-            discord.SetLogHook(Discord.LogLevel.Debug, (level, message) =>
+            _activity.State = "Paused";
+            _activityManager.UpdateActivity(_activity, result =>
             {
-                switch (level)
-                {
-                    case Discord.LogLevel.Error:
-                        RichPresenceLogger.LogError(message);
-                        break;
-                    case Discord.LogLevel.Warn:
-                        RichPresenceLogger.LogWarning(message);
-                        break;
-                    case Discord.LogLevel.Info:
-                        RichPresenceLogger.LogInfo(message);
-                        break;
-                    case Discord.LogLevel.Debug:
-                        RichPresenceLogger.LogDebug(message);
-                        break;
-                    default:
-                        RichPresenceLogger.LogInfo(message);
-                        break;
-                }
+                RichPresenceLogger.LogInfo("Update activity: " + result);
             });
-        }
-        if (applicationManager == null)
-        {
-            applicationManager = discord.GetApplicationManager();
+            return;
         }
 
-        // Get the current locale. This can be used to determine what text or audio the user wants.
-        RichPresenceLogger.LogInfo("Current Locale: " + applicationManager.GetCurrentLocale());
-        // Get the current branch. For example alpha or beta.
-        RichPresenceLogger.LogInfo("Current Branch: " + applicationManager.GetCurrentBranch());
+        _activityManager.UpdateActivity(_activity, (result =>
+        {
+            RichPresenceLogger.LogInfo("Update activity: " + result);
+        }));
+    }
 
-        if (activityManager == null)
-        {
-            activityManager = discord.GetActivityManager();
-            // activityManager.RegisterCommand("D:\\Directories\\Downloads\\INVAXION\\INVAXION.exe");
-        }
-        if (lobbyManager == null)
-        {
-            lobbyManager = discord.GetLobbyManager();
-        }
-        // Received when someone accepts a request to join or invite.
-        // Use secrets to receive back the information needed to add the user to the group/party/match
-        activityManager.OnActivityJoin += secret =>
-        {
-            RichPresenceLogger.LogInfo("OnJoin " + secret);
-            lobbyManager.ConnectLobbyWithActivitySecret(secret, (Discord.Result result, ref Discord.Lobby lobby) =>
-            {
-                RichPresenceLogger.LogInfo("Connected to lobby: " + lobby.Id);
-                lobbyManager.ConnectNetwork(lobby.Id);
-                lobbyManager.OpenNetworkChannel(lobby.Id, 0, true);
-                foreach (var user in lobbyManager.GetMemberUsers(lobby.Id))
-                {
-                    lobbyManager.SendNetworkMessage(lobby.Id, user.Id, 0,
-                        Encoding.UTF8.GetBytes(String.Format("Hello, " + user.Username + "!")));
-                }
-                string gamePaused;
-                if (false)
-                {
-                    gamePaused = "Paused";
-                }
-                else
-                {
-                    gamePaused = "Playing";
-                }
-                UpdateActivity(discord, gamePaused, "testing");
-            });
-        };
-
-        // Pump the event look to ensure all callbacks continue to get fired.
-        string gamePaused;
-        if (false)
-        {
-            gamePaused = "Paused";
-        }
-        else
-        {
-            gamePaused = "Playing";
-        }
-        UpdateActivity(discord, gamePaused, "testing");
+    public static void Poll()
+    {
+        if (!_hasInit) return;
         try
         {
-            discord.RunCallbacks();
+            _discord.RunCallbacks();
         }
         catch (System.Exception e)
         {
             RichPresenceLogger.LogDebug(e.ToString());
-            throw;
+            _hasInit = false;
         }
-
     }
 }

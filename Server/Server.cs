@@ -23,6 +23,20 @@ public class Server : BaseUnityPlugin
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         
         HookManager.Instance.Create();
+        DiscordRichPresence.Data.Init();
+    }
+
+    private static long timeDelta = TimeHelper.getCurUnixTimeOfSec();
+    private void Update()
+    {
+        if (TimeHelper.getCurUnixTimeOfSec() - timeDelta >= 10)
+        {
+            // Updates the presence every 10 seconds
+            timeDelta = TimeHelper.getCurUnixTimeOfSec();
+            DiscordRichPresence.Data.UpdateActivity();
+        }
+        
+        DiscordRichPresence.Data.Poll();
     }
 
     private void OnApplicationQuit()

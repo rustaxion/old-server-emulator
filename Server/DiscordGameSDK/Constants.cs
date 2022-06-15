@@ -4,6 +4,6 @@ namespace Discord
 {
     static class Constants
     {
-        public const string DllName = "./BepinEx/plugins/discord_game_sdk";
+        public const string DllName = "./INVAXION_Data/plugins/discord_game_sdk";
     }
 }
