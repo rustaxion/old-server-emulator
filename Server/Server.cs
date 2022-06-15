@@ -29,9 +29,9 @@ public class Server : BaseUnityPlugin
     private static long timeDelta = TimeHelper.getCurUnixTimeOfSec();
     private void Update()
     {
-        if (TimeHelper.getCurUnixTimeOfSec() - timeDelta >= 10)
+        if (TimeHelper.getCurUnixTimeOfSec() - timeDelta >= 5)
         {
-            // Updates the presence every 10 seconds
+            // Updates the presence every 5 seconds
             timeDelta = TimeHelper.getCurUnixTimeOfSec();
             DiscordRichPresence.Data.UpdateActivity();
         }
