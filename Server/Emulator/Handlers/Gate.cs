@@ -147,13 +147,11 @@ public class Gate
 
         Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_Ret_UserGameTime + 1000, (byte[] msgContent, long sessionId) =>
         {
-            Data.Update();
             ServerLogger.LogInfo($"Reported game time.");
         });
 
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_BeginSong, (byte[] msgContent, long sessionId) =>
         {
-            Data.Update();
             ServerLogger.LogInfo($"Start playing song!");
         });
 
@@ -219,8 +217,6 @@ public class Gate
                     }
                 }),
             });
-
-            Data.Update();
         });
 
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeLanguage, (byte[] msgContent, long sessionId) =>

@@ -74,7 +74,6 @@ public class Login
 
             ServerLogger.LogInfo($"AccId: {accId}");
 
-            Data.Update();
             Index.Instance.LoginPackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometLogin.MainCmd.MainCmd_Login,
