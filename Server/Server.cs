@@ -21,7 +21,6 @@ public class Server : BaseUnityPlugin
         logger = Logger;
         Database = new Emulator.Database.Database();
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
-        
         HookManager.Instance.Create();
     }
 
