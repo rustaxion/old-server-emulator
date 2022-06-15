@@ -11,10 +11,12 @@ public static class RichPresenceLogger
     {
         Server.logger.LogError($"[RichPresence]: {message}");
     }
+
     public static void LogWarning(string message)
     {
         Server.logger.LogWarning($"[RichPresence]: {message}");
     }
+
     public static void LogDebug(string message)
     {
         Server.logger.LogDebug($"[RichPresence]: {message}");
