@@ -31,4 +31,25 @@ public class GameState
             }
         }
     }
+    public static Aquatrax.AQDiffLevel Difficulty
+    {
+        get
+        {
+            return Aquatrax.ShortCut.SelectData.Level;
+
+        }
+    }
+    public static string keyCount
+    {
+        get
+        {
+            return Aquatrax.ShortCut.SelectData.keyCount switch
+            {
+                Aquatrax.eKeyMode.key4 => "4Key",
+                Aquatrax.eKeyMode.key6 => "6Key",
+                Aquatrax.eKeyMode.key8 => "8Key",
+                _ => "Unknown Key"
+            };
+        }
+    }
 }

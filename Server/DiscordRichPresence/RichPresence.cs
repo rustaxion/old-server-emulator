@@ -1,5 +1,4 @@
 ﻿using Discord;
-
 namespace Server.DiscordRichPresence;
 
 public class Data
@@ -26,20 +25,20 @@ public class Data
                     break;
                 case Discord.LogLevel.Debug:
                     RichPresenceLogger.LogDebug(message);
-                    break; 
+                    break;
                 default:
                     RichPresenceLogger.LogInfo(message);
-                    break; 
+                    break;
             }
         });
-        
-        
+
+
         _activityManager = _discord.GetActivityManager();
         _lobbyManager = _discord.GetLobbyManager();
         _applicationManager = _discord.GetApplicationManager();
         _lobbyManager = _discord.GetLobbyManager();
 
-        
+
         // Get the current locale. This can be used to determine what text or audio the user wants.
         RichPresenceLogger.LogInfo("Current Locale: " + _applicationManager.GetCurrentLocale());
         // Get the current branch. For example alpha or beta.
@@ -55,7 +54,7 @@ public class Data
                 LargeText = "音灵 INVAXION"
             }
         };
-        
+
         _activityManager.UpdateActivity(_activity, (result =>
         {
             RichPresenceLogger.LogInfo("Update activity: " + result);
@@ -63,18 +62,24 @@ public class Data
 
         _hasInit = true;
     }
-    
+
     public static void UpdateActivity()
     {
         if (!_hasInit) return;
         if (DiscordRichPresence.GameState.IsPaused)
         {
-            _activity.State = "Paused";
+            _activity.State = "";
+            _activity.Details = "Idle";
             _activityManager.UpdateActivity(_activity, result =>
             {
                 RichPresenceLogger.LogInfo("Update activity: " + result);
             });
             return;
+        }
+        else
+        {
+            _activity.Details = DiscordRichPresence.GameState.Difficulty + " - " + DiscordRichPresence.GameState.keyCount;
+            _activity.State = DiscordRichPresence.GameState.CurrentSong.name + " - " + DiscordRichPresence.GameState.CurrentSong.composer;
         }
 
         _activityManager.UpdateActivity(_activity, (result =>
