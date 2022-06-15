@@ -4,28 +4,29 @@ namespace Server.DiscordRichPresence;
 public class Data
 {
     private static Discord.Discord _discord;
-    private static Discord.ActivityManager _activityManager;
-    private static Discord.ApplicationManager _applicationManager;
-    private static Discord.LobbyManager _lobbyManager;
-    private static Discord.Activity _activity;
+    private static ActivityManager _activityManager;
+    private static ApplicationManager _applicationManager;
+    private static LobbyManager _lobbyManager;
+    private static Activity _activity;
     private static bool _hasInit = false;
 
     public static void Init()
     {
-        _discord = new Discord.Discord(979470905535250443, (ulong)Discord.CreateFlags.Default);
-        _discord.SetLogHook(Discord.LogLevel.Debug, (level, message) =>
+        _discord = new Discord.Discord(979470905535250443, (ulong)CreateFlags.Default);
+        _discord.SetLogHook(LogLevel.Debug, (level, message) =>
         {
             switch (level)
             {
-                case Discord.LogLevel.Error:
+                case LogLevel.Error:
                     RichPresenceLogger.LogError(message);
                     break;
-                case Discord.LogLevel.Warn:
+                case LogLevel.Warn:
                     RichPresenceLogger.LogWarning(message);
                     break;
-                case Discord.LogLevel.Debug:
+                case LogLevel.Debug:
                     RichPresenceLogger.LogDebug(message);
                     break;
+                case LogLevel.Info:
                 default:
                     RichPresenceLogger.LogInfo(message);
                     break;
@@ -55,12 +56,16 @@ public class Data
             }
         };
 
+        Update();
+        _hasInit = true;
+    }
+
+    private static void Update()
+    {
         _activityManager.UpdateActivity(_activity, (result =>
         {
             RichPresenceLogger.LogInfo("Update activity: " + result);
         }));
-
-        _hasInit = true;
     }
 
     public static void UpdateActivity()
@@ -74,6 +79,7 @@ public class Data
             {
                 RichPresenceLogger.LogInfo("Update activity: " + result);
             });
+            Update();
             return;
         }
         else
@@ -82,10 +88,7 @@ public class Data
             _activity.State = DiscordRichPresence.GameState.CurrentSong.name + " - " + DiscordRichPresence.GameState.CurrentSong.composer;
         }
 
-        _activityManager.UpdateActivity(_activity, (result =>
-        {
-            RichPresenceLogger.LogInfo("Update activity: " + result);
-        }));
+        Update();
     }
 
     public static void Poll()
