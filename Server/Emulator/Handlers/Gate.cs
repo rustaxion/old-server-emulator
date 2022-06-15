@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using LitJson;
-using System;
 using System.Linq;
 using cometScene;
+using LitJson;
+using Server.DiscordRichPresence;
 using Server.Emulator.Database;
 using Serializer = ProtoBuf.Serializer;
 
@@ -18,14 +19,14 @@ public class Gate
         { 2, "6k" },
         { 3, "8k" }
     };
-    
+
     private readonly Dictionary<uint, string> _difficultyLink = new()
     {
         { 1, "ez" },
         { 2, "nm" },
         { 3, "hd" }
     };
-    
+
     private static cometScene.Ntf_CharacterFullData GetFullCharacterData(types.AccountData account)
     {
         var announcementData = new cometScene.AnnouncementData();
@@ -83,45 +84,45 @@ public class Gate
             // TODO: Finish this, as it is not called right now I'll ignore it.
             ServerLogger.LogInfo("Single song chart.");
             var data = Serializer.Deserialize<cometScene.Req_SingleSongRank>(new MemoryStream(msgContent));
-            
+
             ServerLogger.LogError($"mode: {data.mode}, isWeek: {data.isWeek}, difficulty: {data.difficulty}");
         });
-        
+
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeHeadIcon, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo($"Change head Icon.");
             var data = Serializer.Deserialize<cometScene.Req_ChangeHeadIcon>(new MemoryStream(msgContent));
-            
+
             var account = Server.Database.GetAccount(sessionId);
             if (account == null) return;
             account.headId = data.id;
-            
+
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
                 ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ChangeHeadIcon,
                 Data = Index.ObjectToByteArray(new cometScene.Ret_ChangeHeadIcon { id = data.id }),
             });
-            
+
             Server.Database.SaveAll();
         });
-        
+
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeCharacter, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo($"Change character.");
             var data = Serializer.Deserialize<cometScene.Req_ChangeCharacter>(new MemoryStream(msgContent));
-            
+
             var account = Server.Database.GetAccount(sessionId);
             if (account == null) return;
             account.selectCharId = data.id;
-            
+
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
                 ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ChangeCharacter,
                 Data = Index.ObjectToByteArray(new cometScene.Ret_ChangeCharacter { id = data.id }),
             });
-            
+
             Server.Database.SaveAll();
         });
 
@@ -129,31 +130,33 @@ public class Gate
         {
             ServerLogger.LogInfo($"Change theme.");
             var data = Serializer.Deserialize<cometScene.Req_ChangeTheme>(new MemoryStream(msgContent));
-            
+
             var account = Server.Database.GetAccount(sessionId);
             if (account == null) return;
             account.selectThemeId = data.id;
-            
+
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
                 ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ChangeTheme,
                 Data = Index.ObjectToByteArray(new cometScene.Ret_ChangeTheme { id = data.id }),
             });
-            
+
             Server.Database.SaveAll();
         });
-        
+
         Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_Ret_UserGameTime + 1000, (byte[] msgContent, long sessionId) =>
         {
+            Data.Update();
             ServerLogger.LogInfo($"Reported game time.");
         });
-        
+
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_BeginSong, (byte[] msgContent, long sessionId) =>
         {
+            Data.Update();
             ServerLogger.LogInfo($"Start playing song!");
         });
-        
+
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_FinishSong, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo($"Finished playing song!");
@@ -216,8 +219,10 @@ public class Gate
                     }
                 }),
             });
+
+            Data.Update();
         });
-        
+
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeLanguage, (byte[] msgContent, long sessionId) =>
         {
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
@@ -227,7 +232,7 @@ public class Gate
                 Data = new byte[0],
             });
         });
-        
+
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopInfo, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo("Sent shop info.");
@@ -259,7 +264,7 @@ public class Gate
 
             account.sessionId = (uint)sessionId;
             Server.Database.UpdateAccount(account);
-            
+
             var userInfoList = new cometGate.SelectUserInfoList();
 
             if (account.charId != 0)
@@ -270,8 +275,8 @@ public class Gate
                     accStates = 0,
                 });
             }
-            
-            ServerLogger.LogInfo($"LoginGateVerify: [{((userInfoList.userList.Count > 0) ? ("{ charId: " + account.charId + ", accStates: 0 }") : "") }]");
+
+            ServerLogger.LogInfo($"LoginGateVerify: [{((userInfoList.userList.Count > 0) ? ("{ charId: " + account.charId + ", accStates: 0 }") : "")}]");
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometGate.MainCmd.MainCmd_Select,
@@ -279,7 +284,7 @@ public class Gate
                 Data = Index.ObjectToByteArray(userInfoList),
             });
         });
-        
+
         Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_EnterGame + 1000, (byte[] msgContent, long sessionId) =>
         {
             var account = Server.Database.GetAccount(sessionId);
@@ -295,7 +300,7 @@ public class Gate
                 Data = Index.ObjectToByteArray(characterFullData),
             });
         });
-        
+
         Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_CreateCharacter + 1000, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo("Creating a new character!");
@@ -309,8 +314,10 @@ public class Gate
             account.headId = data.selectCharId;
             account.charId = (long)Math.Round((double)(account.accId + 40000000000));
             ServerLogger.LogInfo($"New account id: {account.accId}, new character id: {account.charId}");
-            
-            account.CharacterList = new() { list = {
+
+            account.CharacterList = new()
+            {
+                list = {
                 new cometScene.CharData()
                      {
                          charId = data.selectCharId,
@@ -343,66 +350,66 @@ public class Gate
                 Data = Index.ObjectToByteArray(PlaceholderServerData.EventInfo),
             });
         });
-        
+
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopBuy, (byte[] msgContent, long sessionId) =>
         {
             // TODO: Actually finish this.
             ServerLogger.LogInfo($"Buy item from shop.");
             var data = Serializer.Deserialize<cometScene.Req_ShopBuy>(new MemoryStream(msgContent));
             var account = Server.Database.GetAccount(sessionId);
-            
+
             switch (data.shopType)
             {
                 case (uint)Aquatrax.eShopType.eShopType_Character:
-                {
-                    account.CharacterList.list.Add(new CharData()
                     {
-                        charId = data.itemId,
-                        level = 1,
-                        exp = 0,
-                        playCount = 0,
-                    });
-                    
-                    account.level = 420;
-                    account.curExp = 50;
-                    account.maxExp = 100;
-                    
-                    Server.Database.UpdateAccount(account);
-                    Server.Database.SaveAll();
-                    Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
-                    {
-                        MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                        ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ShopBuy,
-                        Data = Index.ObjectToByteArray(new cometScene.Ret_ShopBuy
+                        account.CharacterList.list.Add(new CharData()
                         {
-                            settleData = new SettleData()
+                            charId = data.itemId,
+                            level = 1,
+                            exp = 0,
+                            playCount = 0,
+                        });
+
+                        account.level = 420;
+                        account.curExp = 50;
+                        account.maxExp = 100;
+
+                        Server.Database.UpdateAccount(account);
+                        Server.Database.SaveAll();
+                        Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+                        {
+                            MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                            ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ShopBuy,
+                            Data = Index.ObjectToByteArray(new cometScene.Ret_ShopBuy
                             {
-                                expData = new PlayerExpData()
+                                settleData = new SettleData()
                                 {
-                                    level = 420,
-                                    curExp = 50,
-                                    maxExp = 100,
+                                    expData = new PlayerExpData()
+                                    {
+                                        level = 420,
+                                        curExp = 50,
+                                        maxExp = 100,
+                                    }
                                 }
-                            }
-                        }),
-                    });
-                    break;
-                }
+                            }),
+                        });
+                        break;
+                    }
                 case (uint)Aquatrax.eShopType.eShopType_Member:
-                {
-                    
-                    break;
-                }
+                    {
+
+                        break;
+                    }
                 case (uint)Aquatrax.eShopType.eShopType_Song:
-                {
-                    
-                    break;
-                }
+                    {
+
+                        break;
+                    }
                 case (uint)Aquatrax.eShopType.eShopType_Theme:
-                {
-                    
-                    break;
-                }
+                    {
+
+                        break;
+                    }
             }
         });
 
@@ -413,7 +420,7 @@ public class Gate
 
             var activity = new cometScene.Ret_Social_PublishDynamics();
             activity.contentList.AddRange(data.contentList);
-            
+
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
@@ -421,7 +428,7 @@ public class Gate
                 Data = Index.ObjectToByteArray(activity),
             });
         });
-        
+
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Arcade_Info, (byte[] msgContent, long sessionId) =>
         {
             ServerLogger.LogInfo("Arcade Mode");
@@ -437,13 +444,13 @@ public class Gate
                     1 => PlaceholderServerData.ArcadeInfoList.Item2,
                     _ => PlaceholderServerData.ArcadeInfoList.Item3,
                 }).OrderBy(x => rnd.Next()).ToArray();
-                
+
                 var songList = new List<cometScene.SingleSongData>();
                 for (var j = 0; j < 8; j++)
                 {
                     songList.Add(arcadeInfoList[j]);
                 }
-                
+
                 stageList.Add(new cometScene.ArcadeStageData { stageId = (uint)(i + 1) });
                 stageList.Last().songList.AddRange(songList);
             }

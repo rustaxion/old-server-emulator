@@ -6,7 +6,8 @@ using System.Security.Cryptography;
 using System.Text;
 using HarmonyLib;
 using ProtoBuf;
-
+using Server.DiscordRichPresence;
+using Server.Emulator.Tools;
 namespace Server.Emulator.Handlers;
 
 public class Login
@@ -33,7 +34,7 @@ public class Login
                 }),
             });
         });
-        
+
         Handlers.Add((uint)cometLogin.ParaCmd.ParaCmd_Req_ThirdLogin, (byte[] msgContent) =>
         {
             ServerLogger.LogInfo($"ThirdLogin");
@@ -55,10 +56,10 @@ public class Login
 
                 token = sBuilder.ToString();
             }
-            
+
             ServerLogger.LogInfo($"Token: {token}");
             ServerLogger.LogInfo($"OpenId: {data.openId}");
-            
+
             var accountData = Server.Database.GetAccount(data.openId);
 
             if (accountData == null)
@@ -73,6 +74,7 @@ public class Login
 
             ServerLogger.LogInfo($"AccId: {accId}");
 
+            Data.Update();
             Index.Instance.LoginPackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometLogin.MainCmd.MainCmd_Login,
@@ -89,8 +91,9 @@ public class Login
                 }),
             });
         });
+
     }
-    
+
     public bool Dispatch(uint mainCmd, uint paraCmd, byte[] msgContent)
     {
         if (!Handlers.ContainsKey(paraCmd)) return false;
