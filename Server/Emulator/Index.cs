@@ -18,7 +18,7 @@ public class Index
     }
 
     private static Index _instance;
-    
+
     public static byte[] ObjectToByteArray(object obj)
     {
         if (obj == null)
@@ -26,7 +26,7 @@ public class Index
 
         using MemoryStream data = new();
         Serializer.Serialize(data, obj);
-        
+
         return data.ToArray();
     }
 
@@ -40,22 +40,28 @@ public class Index
 
     private Handlers.Login Login = new();
     private Handlers.Gate Gate = new();
-    
+
     public Queue<GamePackage> LoginPackageQueue = new();
     public Queue<GamePackage> GatePackageQueue = new();
-    
+
     public bool Dispatch(uint mainCmd, uint paraCmd, byte[] msgContent, int tag)
     {
         ServerLogger.LogInfo($"Handler request! mainCmd: {mainCmd}, paraCmd: {paraCmd}");
         var sessionId = EagleTcpPatches.EagleTcpClient.Sessions[tag];
-        
         var found = false;
-        found = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ?
-            Login.Dispatch(mainCmd, paraCmd, msgContent) :
-            Gate.Dispatch(mainCmd, paraCmd, msgContent, sessionId);
+        try
+        {
+            found = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ?
+                Login.Dispatch(mainCmd, paraCmd, msgContent) :
+                Gate.Dispatch(mainCmd, paraCmd, msgContent, sessionId);
+        }
+        catch (System.Exception e)
+        {
+            ServerLogger.LogError(e.ToString());
+        }
         if (!found) ServerLogger.LogError($"Handler not found!");
         if (!found) Server.MustImplement.Add($"tag: {tag}, mainCmd: {mainCmd}, paraCmd: {paraCmd}");
-        
+
         return found;
     }
 }

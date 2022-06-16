@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using System;
+using Discord;
 namespace Server.DiscordRichPresence;
 
 public class Data
@@ -7,7 +8,7 @@ public class Data
     private static ActivityManager _activityManager;
     private static ApplicationManager _applicationManager;
     private static LobbyManager _lobbyManager;
-    private static Activity _activity;
+    public static Activity activity;
     private static bool _hasInit = false;
 
     public static void Init()
@@ -44,8 +45,9 @@ public class Data
         RichPresenceLogger.LogInfo("Current Locale: " + _applicationManager.GetCurrentLocale());
         // Get the current branch. For example alpha or beta.
         RichPresenceLogger.LogInfo("Current Branch: " + _applicationManager.GetCurrentBranch());
-
-        _activity = new Activity()
+        long epochTicks = new DateTime(1970, 1, 1).Ticks;
+        long presenceStartTime = ((DateTime.UtcNow.Ticks - epochTicks) / TimeSpan.TicksPerSecond);
+        activity = new Activity()
         {
             State = "Idle",
             Details = "",
@@ -53,6 +55,9 @@ public class Data
             {
                 LargeImage = "invaxion",
                 LargeText = "音灵 INVAXION"
+            },
+            Timestamps = {
+                Start =presenceStartTime
             }
         };
 
@@ -60,9 +65,9 @@ public class Data
         _hasInit = true;
     }
 
-    private static void Update()
+    public static void Update()
     {
-        _activityManager.UpdateActivity(_activity, (result =>
+        _activityManager.UpdateActivity(activity, (result =>
         {
             RichPresenceLogger.LogInfo("Update activity: " + result);
         }));
@@ -73,22 +78,63 @@ public class Data
         if (!_hasInit) return;
         if (DiscordRichPresence.GameState.IsPaused)
         {
-            _activity.State = "";
-            _activity.Details = "Idle";
-            _activityManager.UpdateActivity(_activity, result =>
-            {
-                RichPresenceLogger.LogInfo("Update activity: " + result);
-            });
+            activity.State = "";
+            activity.Details = "Paused";
             Update();
             return;
         }
         else
         {
-            _activity.Details = DiscordRichPresence.GameState.Difficulty + " - " + DiscordRichPresence.GameState.keyCount;
-            _activity.State = DiscordRichPresence.GameState.CurrentSong.name + " - " + DiscordRichPresence.GameState.CurrentSong.composer;
-        }
+            switch (DiscordRichPresence.GameState.CurrentScene)
+            {
+                case "MenuScene":
+                    {
+                        activity.Details = "In menu";
+                        activity.State = "";
+                        Update();
+                        break;
+                    }
+                case "PC_newQuickPlayView":
+                    {
+                        activity.Details = "Selecting song";
+                        activity.State = $"{DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
+                        Update();
+                        break;
+                    }
+                case "ActivityScene":
+                    {
+                        activity.Details = "Selecting song";
+                        activity.State = $"{DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
+                        Update();
+                        break;
+                    }
+                case "PlayView":
+                    {
+                        activity.Details = $"Playing {DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
+                        activity.State = $"{DiscordRichPresence.GameState.Difficulty} ({DiscordRichPresence.GameState.DifficultyNumber.ToString()}) - {DiscordRichPresence.GameState.keyCount}";
+                        Update();
+                        break;
+                    }
+                case "GameOverView":
+                    {
+                        Update();
+                        break;
+                    }
 
-        Update();
+                case "ResultScene_Single":
+                    {
+                        Update();
+                        break;
+                    }
+                default:
+                    {
+                        activity.Details = $"Listening to {DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
+                        activity.State = "";
+                        Update();
+                        break;
+                    }
+            }
+        }
     }
 
     public static void Poll()
@@ -100,7 +146,7 @@ public class Data
         }
         catch (System.Exception e)
         {
-            RichPresenceLogger.LogDebug(e.ToString());
+            RichPresenceLogger.LogInfo(e.ToString());
             _hasInit = false;
         }
     }

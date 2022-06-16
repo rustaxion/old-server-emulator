@@ -199,7 +199,9 @@ public class Gate
             singleSongInfo.playCount += 1;
             singleSongInfo.isAllMax = (songInfo.maxPercent == 100) ? 1u : 0u;
             singleSongInfo.isFullCombo = (songInfo.miss == 0) ? 1u : 0u;
-
+            DiscordRichPresence.Data.activity.Details = $"Finished {DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
+            DiscordRichPresence.Data.activity.State = $"{DiscordRichPresence.GameState.Difficulty} ({DiscordRichPresence.GameState.DifficultyNumber.ToString()}) - {DiscordRichPresence.GameState.keyCount}";
+            DiscordRichPresence.Data.Update();
             account.level = 69;
             Server.Database.SaveAll();
 
