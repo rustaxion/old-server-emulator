@@ -19,11 +19,7 @@ public class Database
         try
         {
             var json = UnityEngine.PlayerPrefs.GetString("ServerEmulator/UserDatabase");
-            var accs = JsonMapper.ToObject<List<types.AccountData>>(json);
-            foreach (var acc in accs)
-            {
-                Accounts.Add(acc.accId, acc);
-            }
+            ParseAccounts(json);
         }
         catch (Exception e)
         {
@@ -35,6 +31,60 @@ public class Database
         ServerLogger.LogInfo($"Accounts loaded: {Accounts.Count}");
     }
 
+    private void ParseAccounts(string json)
+    {
+        // Note: ReSharper thinks there are 24 errors here, when in reality there are none.
+        // The code works fine, if you can fix the ambiguity warnings that appear as errors I would be thankful.
+        var accounts = JsonMapper.ToObject<List<types.AccountData>>(json);
+        var accs = JsonMapper.ToObject(json);
+        
+        for (var j=0; j < accounts.Count; j++)
+        {
+            // I have to do this mumbo jumbo because LitJson doesn't properly construct lists that are within objects,
+            // it does actually make the list, and if you use a debugger, you will see the items inside
+            // the problem is that it is not properly instantiated, because the Count is 0 and the list itself thinks it's empty.
+            // so you literally can't access the items in the list, and you just have an empty list pretty much
+            // LitJson might have fixed this in a newer version, but I don't have the choice to upgrade the bundled version of LitJson
+            // thank you for listening to my TED talk.
+            // *clapping sounds*
+            var acc = accs[j];
+            var account = accounts[j];
+            
+            // ===========ThemeList==============
+            account.themeList.list.AddRange(JsonMapper.ToObject<List<cometScene.ThemeData>>(acc["themeList"]["list"].ToJson()));
+            // ===========CharacterList==============
+            account.CharacterList.list.AddRange(JsonMapper.ToObject<List<cometScene.CharData>>(acc["CharacterList"]["list"].ToJson()));
+            
+            // ==========Team BuffList===============
+            account.team.buffList.AddRange(JsonMapper.ToObject<List<cometScene.BuffData>>(acc["team"]["buffList"].ToJson()));
+            // ==========scoreList===============
+            account.scoreList.key4List.easyList.AddRange(JsonMapper.ToObject<List<cometScene.SingleSongInfo>>(acc["scoreList"]["key4List"]["easyList"].ToJson()));
+            account.scoreList.key4List.normalList.AddRange(JsonMapper.ToObject<List<cometScene.SingleSongInfo>>(acc["scoreList"]["key4List"]["normalList"].ToJson()));
+            account.scoreList.key4List.hardList.AddRange(JsonMapper.ToObject<List<cometScene.SingleSongInfo>>(acc["scoreList"]["key4List"]["hardList"].ToJson()));
+            account.scoreList.key6List.easyList.AddRange(JsonMapper.ToObject<List<cometScene.SingleSongInfo>>(acc["scoreList"]["key6List"]["easyList"].ToJson()));
+            account.scoreList.key6List.normalList.AddRange(JsonMapper.ToObject<List<cometScene.SingleSongInfo>>(acc["scoreList"]["key6List"]["normalList"].ToJson()));
+            account.scoreList.key6List.hardList.AddRange(JsonMapper.ToObject<List<cometScene.SingleSongInfo>>(acc["scoreList"]["key6List"]["hardList"].ToJson()));
+            account.scoreList.key8List.easyList.AddRange(JsonMapper.ToObject<List<cometScene.SingleSongInfo>>(acc["scoreList"]["key8List"]["easyList"].ToJson()));
+            account.scoreList.key8List.normalList.AddRange(JsonMapper.ToObject<List<cometScene.SingleSongInfo>>(acc["scoreList"]["key8List"]["normalList"].ToJson()));
+            account.scoreList.key8List.hardList.AddRange(JsonMapper.ToObject<List<cometScene.SingleSongInfo>>(acc["scoreList"]["key8List"]["hardList"].ToJson()));
+            // ==========Arcade list===============
+            account.arcadeData.key4List.easyList.AddRange(JsonMapper.ToObject<List<cometScene.ArcadeSongInfo>>(acc["arcadeData"]["key4List"]["easyList"].ToJson()));
+            account.arcadeData.key4List.normalList.AddRange(JsonMapper.ToObject<List<cometScene.ArcadeSongInfo>>(acc["arcadeData"]["key4List"]["normalList"].ToJson()));
+            account.arcadeData.key4List.hardList.AddRange(JsonMapper.ToObject<List<cometScene.ArcadeSongInfo>>(acc["arcadeData"]["key4List"]["hardList"].ToJson()));
+            account.arcadeData.key6List.easyList.AddRange(JsonMapper.ToObject<List<cometScene.ArcadeSongInfo>>(acc["arcadeData"]["key6List"]["easyList"].ToJson()));
+            account.arcadeData.key6List.normalList.AddRange(JsonMapper.ToObject<List<cometScene.ArcadeSongInfo>>(acc["arcadeData"]["key6List"]["normalList"].ToJson()));
+            account.arcadeData.key6List.hardList.AddRange(JsonMapper.ToObject<List<cometScene.ArcadeSongInfo>>(acc["arcadeData"]["key6List"]["hardList"].ToJson()));
+            account.arcadeData.key8List.easyList.AddRange(JsonMapper.ToObject<List<cometScene.ArcadeSongInfo>>(acc["arcadeData"]["key8List"]["easyList"].ToJson()));
+            account.arcadeData.key8List.normalList.AddRange(JsonMapper.ToObject<List<cometScene.ArcadeSongInfo>>(acc["arcadeData"]["key8List"]["normalList"].ToJson()));
+            account.arcadeData.key8List.hardList.AddRange(JsonMapper.ToObject<List<cometScene.ArcadeSongInfo>>(acc["arcadeData"]["key8List"]["hardList"].ToJson()));
+            // ===========Song list==============
+            account.songList.list.AddRange(JsonMapper.ToObject<List<cometScene.SongData>>(acc["songList"]["list"].ToJson()));
+            account.songList.favoriteList.AddRange(JsonMapper.ToObject<List<uint>>(acc["songList"]["favoriteList"].ToJson()));
+
+            Accounts[account.accId] = account;
+        }
+    }
+    
     private void LoadAccountsLocal()
     {
         Accounts = new();
@@ -42,11 +92,7 @@ public class Database
         try
         {
             var json = File.ReadAllText("ServerEmu_UserDatabase.json");
-            var accs = JsonMapper.ToObject<List<types.AccountData>>(json);
-            foreach (var acc in accs)
-            {
-                Accounts.Add(acc.accId, acc);
-            }
+            ParseAccounts(json);
         }
         catch (Exception e)
         {
