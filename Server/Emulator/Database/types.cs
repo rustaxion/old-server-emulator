@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using LitJson;
+﻿using LitJson;
+using System.Linq;
 
 namespace Server.Emulator.Database;
 
@@ -27,21 +27,23 @@ public class types
         public uint total6KScore = 0;
         public uint total8KScore = 0;
         public long charId = 0000000000;
-        
-        public cometScene.TeamData team  = new() { teamId = 0, teamName = "", uploadSongCount = 3, canUploadSong = 0, };
-        
-        public cometScene.ArcadeData arcadeData = new() {
+
+        public cometScene.TeamData team = new() { teamId = 0, teamName = "", uploadSongCount = 3, canUploadSong = 0, };
+
+        public cometScene.ArcadeData arcadeData = new()
+        {
             key4List = new cometScene.ArcadeDiffList(),
             key6List = new cometScene.ArcadeDiffList(),
-            key8List = new cometScene.ArcadeDiffList(), };
-        
+            key8List = new cometScene.ArcadeDiffList(),
+        };
+
         public cometScene.ScoreList scoreList = new()
         {
             key4List = new(),
             key6List = new(),
             key8List = new(),
         };
-        
+
         public cometScene.PlayerVIPInfo vipInfo = new() { level = 0, exp = 0, levelUpExp = 100, inSubscription = 0, };
 
         public cometScene.ThemeList themeList = JsonMapper.ToObject<cometScene.ThemeList>("{ \"list\": " +
@@ -58,5 +60,21 @@ public class types
                 .ToList()) + @", ""favoriteList"": []" + "}");
 
         public cometScene.CharacterList CharacterList;
+
+        public uint GetTotalArcadeScore()
+        {
+            var key4Easy = arcadeData.key4List.easyList.Select((i) => (int)i.score).Sum();
+            var key4Normal = arcadeData.key4List.normalList.Select((i) => (int)i.score).Sum();
+            var key4Hard = arcadeData.key4List.hardList.Select((i) => (int)i.score).Sum();
+
+            var key6Easy = arcadeData.key6List.easyList.Select((i) => (int)i.score).Sum();
+            var key6Normal = arcadeData.key6List.normalList.Select((i) => (int)i.score).Sum();
+            var key6Hard = arcadeData.key6List.hardList.Select((i) => (int)i.score).Sum();
+
+            var key8Easy = arcadeData.key8List.easyList.Select((i) => (int)i.score).Sum();
+            var key8Normal = arcadeData.key8List.normalList.Select((i) => (int)i.score).Sum();
+            var key8Hard = arcadeData.key8List.hardList.Select((i) => (int)i.score).Sum();
+            return (uint)(key4Easy + key4Normal + key4Hard + key6Easy + key6Normal + key6Hard + key8Easy + key8Normal + key8Hard);
+        }
     }
 }

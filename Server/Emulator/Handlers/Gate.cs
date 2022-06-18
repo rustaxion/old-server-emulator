@@ -1,11 +1,8 @@
-﻿using System;
+﻿using Server.Emulator.Database;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using cometScene;
-using LitJson;
-using Server.DiscordRichPresence;
-using Server.Emulator.Database;
 using Serializer = ProtoBuf.Serializer;
 
 namespace Server.Emulator.Handlers;
@@ -81,11 +78,255 @@ public class Gate
     {
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_SingleSongRank, (byte[] msgContent, long sessionId) =>
         {
-            // TODO: Finish this, as it is not called right now I'll ignore it.
-            ServerLogger.LogInfo("Single song chart.");
             var data = Serializer.Deserialize<cometScene.Req_SingleSongRank>(new MemoryStream(msgContent));
+            var ranks = new List<cometScene.SingleSongRankData>();
 
-            ServerLogger.LogError($"mode: {data.mode}, isWeek: {data.isWeek}, difficulty: {data.difficulty}");
+            foreach (var account in Server.Database.Accounts.Values.ToArray())
+            {
+                var scoreList = _modeLink[data.mode] switch
+                {
+                    "4k" => account.scoreList._key4List,
+                    "6k" => account.scoreList._key6List,
+                    "8k" => account.scoreList._key8List,
+                    _ => throw new NotSupportedException($"Mode `{_modeLink[data.mode]} ({data.mode})` not supported."),
+                };
+
+                var difficultyList = _difficultyLink[data.difficulty] switch
+                {
+                    "ez" => scoreList._easyList,
+                    "nm" => scoreList._normalList,
+                    "hd" => scoreList._hardList,
+                    _ => throw new NotSupportedException($"Difficulty `{_difficultyLink[data.difficulty]} ({data.difficulty})` not supported."),
+                };
+
+                var singleSongInfo = difficultyList.Find(song => song.songId == data.songId);
+                if (singleSongInfo == null) continue;
+
+                ranks.Add(new()
+                {
+                    rank = 0,
+                    charName = account.name,
+                    score = singleSongInfo.score,
+                    headId = account.headId,
+                    charId = (ulong)account.charId,
+                    teamName = account.team.teamName,
+                    country = account.country,
+                    titleId = account.titleId,
+                });
+            }
+
+            ranks.Sort(delegate (cometScene.SingleSongRankData x, cometScene.SingleSongRankData y)
+             {
+                 return x.score.CompareTo(y.score);
+             });
+
+            for (var i = 1; i <= ranks.Count; i++)
+            {
+                ranks[i - 1].rank = (uint)i;
+            }
+
+            var ranklist = new cometScene.Ret_SingleSongRank();
+            ranklist.list.AddRange(ranks);
+
+            if (ranklist.list.Count == 0)
+            {
+                ranklist.list.AddRange(new List<cometScene.SingleSongRankData>()
+                {
+                    new cometScene.SingleSongRankData
+                    {
+                        rank = 1,
+                        charName = "No one is playing this song",
+                        score = 3,
+                        headId = 10010,
+                        charId = 000000000,
+                        teamName = "Server",
+                        country = 1,
+                        titleId = 10001
+                    },
+                    new cometScene.SingleSongRankData
+                    {
+                        rank = 2,
+                        charName = "Come and compete for the top",
+                        score = 2,
+                        headId = 10010,
+                        charId = 000000000,
+                        teamName = "Server",
+                        country = 1,
+                        titleId = 10001
+                    },
+                    new cometScene.SingleSongRankData
+                    {
+                        rank = 3,
+                        charName = "spot on the leaderboard!",
+                        score = 1,
+                        headId = 10010,
+                        charId = 000000000,
+                        teamName = "Server",
+                        country = 1,
+                        titleId = 10001
+                    }
+                });
+            }
+
+            Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+            {
+                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_SingleSongRank,
+                Data = Index.ObjectToByteArray(ranklist),
+            });
+        });
+
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_RankInfo, (byte[] msgContent, long sessionId) =>
+        {
+            // Progress: mostly done, must investigate an error from the game's code...
+
+            ServerLogger.LogInfo($"Leaderboard");
+            var data = Serializer.Deserialize<cometScene.Req_RankInfo>(new MemoryStream(msgContent));
+            var rankInfo = new cometScene.Ret_RankInfo { type = data.type };
+            var defaultRanks = new List<cometScene.TotalSongRankData> {
+                new()
+                {
+                    rank = 1,
+                    charName = "No one is playing right now.",
+                    score = 2,
+                    headId = 10010,
+                    country = 1,
+                    teamName = "Server",
+                    titleId = 10001
+                },
+                new()
+                {
+                    rank = 2,
+                    charName = "Come and be the first!",
+                    score = 1,
+                    headId = 10010,
+                    country = 1,
+                    teamName = "Server",
+                    titleId = 10001
+                }
+            };
+
+            var scores = new Dictionary<types.AccountData, uint>();
+
+            switch (data.type)
+            {
+                case 0: // totalScore
+                    {
+                        foreach (var account in Server.Database.Accounts.Values.ToArray())
+                        {
+                            scores.Add(account, account.totalScore);
+                        }
+                        break;
+                    }
+                case 4: // preRank
+                    {
+                        // TODO: Figure out what this shit is.
+                        rankInfo.list.AddRange(defaultRanks);
+                        Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+                        {
+                            MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                            ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
+                            Data = Index.ObjectToByteArray(rankInfo),
+                        });
+                        break;
+                    }
+                case 5: // total4KScore
+                    {
+                        foreach (var account in Server.Database.Accounts.Values.ToArray())
+                        {
+                            scores.Add(account, account.total4KScore);
+                        }
+                        break;
+                    }
+                case 6: // total6KScore
+                    {
+                        foreach (var account in Server.Database.Accounts.Values.ToArray())
+                        {
+                            scores.Add(account, account.total6KScore);
+                        }
+                        break;
+                    }
+                case 7: // total8KScore
+                    {
+                        foreach (var account in Server.Database.Accounts.Values.ToArray())
+                        {
+                            scores.Add(account, account.total8KScore);
+                        }
+                        break;
+                    }
+                case 8: // totalArcadeScore
+                    {
+                        foreach (var account in Server.Database.Accounts.Values.ToArray())
+                        {
+                            scores.Add(account, account.GetTotalArcadeScore());
+                        }
+                        break;
+                    }
+                case 9: // preRank4k && preRank4kParam
+                    {
+                        // TODO: Figure out what this shit is.
+                        rankInfo.list.AddRange(defaultRanks);
+                        Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+                        {
+                            MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                            ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
+                            Data = Index.ObjectToByteArray(rankInfo),
+                        });
+                        break;
+                    }
+                case 10: // preRank6k && preRank6kParam
+                    {
+                        // TODO: Figure out what this shit is.
+                        rankInfo.list.AddRange(defaultRanks);
+                        Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+                        {
+                            MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                            ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
+                            Data = Index.ObjectToByteArray(rankInfo),
+                        });
+                        break;
+                    }
+                default:
+                    {
+                        rankInfo.list.AddRange(defaultRanks);
+                        Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+                        {
+                            MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                            ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
+                            Data = Index.ObjectToByteArray(rankInfo),
+                        });
+                        return;
+                    }
+            }
+
+            var scoresList = scores.ToList();
+            scoresList.Sort(delegate (KeyValuePair<types.AccountData, uint> x, KeyValuePair<types.AccountData, uint> y)
+            {
+                return x.Value.CompareTo(y.Value);
+            });
+
+            for (var i = 0; i < scoresList.Count; i++)
+            {
+                var score = scoresList[i];
+                rankInfo.list.Add(new()
+                {
+                    rank = (uint)(i + 1),
+                    charName = score.Key.name,
+                    score = score.Value,
+                    headId = score.Key.headId,
+                    country = score.Key.country,
+                    teamName = score.Key.team.teamName,
+                    titleId = score.Key.titleId,
+                });
+            }
+
+            if (rankInfo.list.Count == 0) rankInfo.list.AddRange(defaultRanks);
+            Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+            {
+                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
+                Data = Index.ObjectToByteArray(rankInfo),
+            });
         });
 
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeHeadIcon, (byte[] msgContent, long sessionId) =>
@@ -190,7 +431,7 @@ public class Gate
             var singleSongInfo = difficultyList.Find(song => song.songId == data.songId);
             if (singleSongInfo == null || singleSongInfo.songId != data.songId)
             {
-                singleSongInfo = new SingleSongInfo() { songId = data.songId, playCount = 0 };
+                singleSongInfo = new cometScene.SingleSongInfo() { songId = data.songId, playCount = 0 };
                 difficultyList.Add(singleSongInfo);
             }
 
@@ -360,7 +601,7 @@ public class Gate
             {
                 case (uint)Aquatrax.eShopType.eShopType_Character:
                     {
-                        account.CharacterList.list.Add(new CharData()
+                        account.CharacterList.list.Add(new cometScene.CharData()
                         {
                             charId = data.itemId,
                             level = 1,
@@ -380,9 +621,9 @@ public class Gate
                             ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ShopBuy,
                             Data = Index.ObjectToByteArray(new cometScene.Ret_ShopBuy
                             {
-                                settleData = new SettleData()
+                                settleData = new cometScene.SettleData()
                                 {
-                                    expData = new PlayerExpData()
+                                    expData = new cometScene.PlayerExpData()
                                     {
                                         level = 420,
                                         curExp = 50,
