@@ -1,59 +1,58 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net35</TargetFramework>
+    <AssemblyName>ServerEmulator</AssemblyName>
+    <Description>INVAXION Server Emulator</Description>
+    <Version>1.0.0</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <TargetFramework>net35</TargetFramework>
-        <AssemblyName>ServerEmulator</AssemblyName>
-        <Description>INVAXION Server Emulator</Description>
-        <Version>1.0.1</Version>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <LangVersion>latest</LangVersion>
-    </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
+    <PackageReference Include="UnityEngine.Modules" Version="5.6.0" IncludeAssets="compile" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
-        <PackageReference Include="BepInEx.Core" Version="5.*" />
-        <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-        <PackageReference Include="UnityEngine.Modules" Version="5.6.0" IncludeAssets="compile" />
-    </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
-    </ItemGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\libs\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\libs\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\libs\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx">
+      <HintPath>..\libs\BepInEx.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween">
+      <HintPath>..\libs\DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween43">
+      <HintPath>..\libs\DOTween43.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween46">
+      <HintPath>..\libs\DOTween46.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween50">
+      <HintPath>..\libs\DOTween50.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\libs\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\libs\UnityEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
-    <ItemGroup>
-      <Reference Include="0Harmony">
-        <HintPath>..\libs\0Harmony.dll</HintPath>
-      </Reference>
-      <Reference Include="Assembly-CSharp">
-        <HintPath>..\libs\Assembly-CSharp.dll</HintPath>
-      </Reference>
-      <Reference Include="Assembly-CSharp-firstpass">
-        <HintPath>..\libs\Assembly-CSharp-firstpass.dll</HintPath>
-      </Reference>
-      <Reference Include="BepInEx">
-        <HintPath>..\libs\BepInEx.dll</HintPath>
-      </Reference>
-      <Reference Include="DOTween">
-        <HintPath>..\libs\DOTween.dll</HintPath>
-      </Reference>
-      <Reference Include="DOTween43">
-        <HintPath>..\libs\DOTween43.dll</HintPath>
-      </Reference>
-      <Reference Include="DOTween46">
-        <HintPath>..\libs\DOTween46.dll</HintPath>
-      </Reference>
-      <Reference Include="DOTween50">
-        <HintPath>..\libs\DOTween50.dll</HintPath>
-      </Reference>
-      <Reference Include="Mono.Cecil">
-        <HintPath>..\libs\Mono.Cecil.dll</HintPath>
-      </Reference>
-      <Reference Include="UnityEngine">
-        <HintPath>..\libs\UnityEngine.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="xcopy /y &quot;$(TargetPath)&quot; C:\Games\INVAXION\BepInEx\plugins" />
-    </Target>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="python -c &quot;os = __import__('os'); copy = __import__('shutil').copy; arg= __import__('sys').argv[1]; a = r'D:\Directories\Downloads\INVAXION Development\INVAXION\BepInEx\plugins'; b = r'C:\Games\INVAXION\BepInEx\plugins'; path = (a if os.path.exists(a) else b); copy(arg, path); print('Copied the file!')&quot; &quot;$(TargetPath)&quot;&#xA;&#xA;rem This is evil, I know..." />
+  </Target>
 </Project>
