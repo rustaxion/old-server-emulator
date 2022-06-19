@@ -77,7 +77,7 @@ public class Data
             activity.Assets.SmallImage = default;
             activity.Assets.SmallText = default;
         }
-        
+
         _activityManager.UpdateActivity(activity, (result =>
         {
             RichPresenceLogger.LogInfo("Update activity: " + result);
@@ -94,81 +94,81 @@ public class Data
 
             activity.Assets.SmallImage = "pause";
             activity.Assets.SmallText = "Paused";
-            
+
             Update(true, true);
             return;
         }
-        
+
         switch (GameState.CurrentScene)
         {
             case "MenuScene":
-            {
-                activity.Details = "In menu";
-                activity.State = "";
-                Update();
-                break;
-            }
+                {
+                    activity.Details = "In menu";
+                    activity.State = "";
+                    Update();
+                    break;
+                }
 
             case "LoginScene":
-            {
-                activity.Details = "Logging in";
-                activity.State = "";
-                Update();
-                break;
-            }
-            
-            case "PC_newQuickPlayView":
-            {
-                activity.Details = "Selecting song";
-                activity.State = $"{DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
-                Update();
-                break;
-            }
-            
-            case "ActivityScene":
-            {
-                activity.Details = "Selecting song";
-                activity.State = $"{DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
-                Update();
-                break;
-            }
-            
-            case "PlayView":
-            {
-                var timeRemaining = (Aquatrax.ShortCut.PlayData.MusicLen - Aquatrax.ShortCut.PlayController.currentTime) / 1000;
-                var currentTime = (DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).Ticks) / TimeSpan.TicksPerSecond;
-                        
-                activity.Details = $"{GameState.CurrentSong.name} - {GameState.CurrentSong.composer}";
-                activity.State = $"{GameState.Difficulty} ({GameState.DifficultyNumber.ToString()}) - {GameState.keyCount}";
-                activity.Timestamps.End = currentTime + timeRemaining;
-                activity.Timestamps.Start = default;
+                {
+                    activity.Details = "Logging in";
+                    activity.State = "";
+                    Update();
+                    break;
+                }
 
-                activity.Assets.SmallImage = "play";
-                activity.Assets.SmallText = "Playing";
-                
-                Update(false, true);
-                break;
-            }
-            
+            case "PC_newQuickPlayView":
+                {
+                    activity.Details = "Selecting song";
+                    activity.State = $"{DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
+                    Update();
+                    break;
+                }
+
+            case "ActivityScene":
+                {
+                    activity.Details = "Selecting song";
+                    activity.State = $"{DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
+                    Update();
+                    break;
+                }
+
+            case "PlayView":
+                {
+                    var timeRemaining = (Aquatrax.ShortCut.PlayData.MusicLen - Aquatrax.ShortCut.PlayController.currentTime) / 1000;
+                    var currentTime = (DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).Ticks) / TimeSpan.TicksPerSecond;
+
+                    activity.Details = $"{GameState.CurrentSong.name} - {GameState.CurrentSong.composer}";
+                    activity.State = $"{GameState.Difficulty} ({GameState.DifficultyNumber.ToString()}) - {GameState.keyCount}";
+                    activity.Timestamps.End = currentTime + timeRemaining;
+                    activity.Timestamps.Start = default;
+
+                    activity.Assets.SmallImage = "play";
+                    activity.Assets.SmallText = "Playing";
+
+                    Update(false, true);
+                    break;
+                }
+
             case "GameOverView":
-            {
-                Update();
-                break;
-            }
+                {
+                    Update();
+                    break;
+                }
 
             case "ResultScene_Single":
-            {
-                Update();
-                break;
-            }
-            
+                {
+                    Update();
+                    break;
+                }
+
             default:
-            {
-                activity.Details = $"Listening to {DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
-                activity.State = "";
-                Update();
-                break;
-            }
+                {
+                    activity.Details = $"Listening to {DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
+                    activity.State = "";
+                    Update();
+                    break;
+                }
         }
     }
 
