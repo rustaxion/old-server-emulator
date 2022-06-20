@@ -1,6 +1,6 @@
 name: Build and Deploy
 
-end:
+env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
 on:
