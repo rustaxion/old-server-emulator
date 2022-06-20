@@ -41,4 +41,4 @@ jobs:
         prerelease: true
         title: "Automatic Build"
         files: |
-          *\ServerEmulator.dll
+          invaxion-server-emulator\Server\bin\Release\net35\ServerEmulator.dll
