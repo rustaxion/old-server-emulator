@@ -12,13 +12,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Setup MSBuild path
-      uses: microsoft/setup-msbuild@v1.1
+    - uses: actions/setup-dotnet@v2
       with:
-        vs-version: "[17.1.5)"
+        dotnet-version: '3.5'
     
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.2
     
     - name: Build
-      run: msbuild Server\Server.csproj -t:rebuild -verbosity:diag -property:Configuration=Release
+      run: dotnet publish -c=Release
