@@ -37,8 +37,8 @@ jobs:
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "pre-release"
+        automatic_release_tag: "latest"
         prerelease: true
         title: "Automatic Build"
         files: |
-          invaxion-server-emulator\Server\bin\Release\net35\ServerEmulator.dll
+          Server\bin\Release\net35\ServerEmulator.dll
