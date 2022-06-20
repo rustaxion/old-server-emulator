@@ -33,10 +33,6 @@ jobs:
     - name: Build
       run: dotnet publish -c=Release
 
-    - name: whatever
-      run: |
-        tree /f
-
     - name: Publish the build
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
@@ -45,4 +41,4 @@ jobs:
         prerelease: true
         title: "Automatic Build"
         files: |
-          *\Release\net35\ServerEmulator.dll
+          Server/bin/Release/ServerEmulator.dll
