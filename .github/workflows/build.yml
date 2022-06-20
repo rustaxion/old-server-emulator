@@ -33,6 +33,10 @@ jobs:
     - name: Build
       run: dotnet publish -c=Release
 
+    - name: whatever
+      run: |
+        tree /f
+
     - name: Publish the build
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
@@ -41,4 +45,4 @@ jobs:
         prerelease: true
         title: "Automatic Build"
         files: |
-          invaxion-server-emulator\Server\bin\Release\net35\ServerEmulator.dll
+          *\Release\net35\ServerEmulator.dll
