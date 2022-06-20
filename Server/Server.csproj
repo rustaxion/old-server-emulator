@@ -52,7 +52,7 @@
     </Reference>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == 'true'">
     <Exec Command="python -c &quot;os = __import__('os'); copy = __import__('shutil').copy; arg= __import__('sys').argv[1]; a = r'D:\Directories\Downloads\INVAXION Development\INVAXION\BepInEx\plugins'; b = r'C:\Games\INVAXION\BepInEx\plugins'; path = (a if os.path.exists(a) else b); copy(arg, path); print('Copied the file!')&quot; &quot;$(TargetPath)&quot;&#xA;&#xA;rem This is evil, I know..." />
   </Target>
 </Project>
