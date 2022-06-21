@@ -76,7 +76,7 @@ public class Gate
 
     public Gate()
     {
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_SingleSongRank, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_SingleSongRank, (msgContent, _) =>
         {
             var data = Serializer.Deserialize<cometScene.Req_SingleSongRank>(new MemoryStream(msgContent));
             var ranks = new List<cometScene.SingleSongRankData>();
@@ -115,10 +115,7 @@ public class Gate
                 });
             }
 
-            ranks.Sort(delegate (cometScene.SingleSongRankData x, cometScene.SingleSongRankData y)
-             {
-                 return x.score.CompareTo(y.score);
-             });
+            ranks.Sort((x, y) => x.score.CompareTo(y.score));
 
             for (var i = 1; i <= ranks.Count; i++)
             {
@@ -176,7 +173,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_RankInfo, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_RankInfo, (msgContent, _) =>
         {
             // Progress: mostly done, must investigate an error from the game's code...
 
@@ -258,7 +255,7 @@ public class Gate
                     {
                         foreach (var account in Server.Database.Accounts.Values.ToArray())
                         {
-                            scores.Add(account, account.GetTotalArcadeScore());
+                            scores.Add(account, account.totalArcadeScore);
                         }
                         break;
                     }
@@ -300,10 +297,7 @@ public class Gate
             }
 
             var scoresList = scores.ToList();
-            scoresList.Sort(delegate (KeyValuePair<types.AccountData, uint> x, KeyValuePair<types.AccountData, uint> y)
-            {
-                return x.Value.CompareTo(y.Value);
-            });
+            scoresList.Sort((x, y) => x.Value.CompareTo(y.Value));
 
             for (var i = 0; i < scoresList.Count; i++)
             {
@@ -329,7 +323,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeHeadIcon, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeHeadIcon, (msgContent, sessionId) =>
         {
             ServerLogger.LogInfo($"Change head Icon.");
             var data = Serializer.Deserialize<cometScene.Req_ChangeHeadIcon>(new MemoryStream(msgContent));
@@ -348,7 +342,34 @@ public class Gate
             Server.Database.SaveAll();
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeCharacter, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_SetFavorite, (msgContent, sessionId) =>
+        {
+            var data = Serializer.Deserialize<cometScene.Req_SetFavorite>(new MemoryStream(msgContent));
+            ServerLogger.LogInfo($"Set Favourite: {data.songId}");
+            
+            Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+            {
+                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_SetFavorite,
+                Data = Index.ObjectToByteArray(new cometScene.Ret_SetFavorite{ songId = data.songId, isFavorite = data.isFavorite }),
+            });
+
+            var account = Server.Database.GetAccount(sessionId);
+            if (account == null) return;
+            var isFavorite = Convert.ToBoolean(data.isFavorite);
+
+            if (account.songList.favoriteList.Contains(data.songId) && !isFavorite)
+            {
+                account.songList.favoriteList.Remove(data.songId);
+            } else if (!account.songList.favoriteList.Contains(data.songId) && isFavorite)
+            {
+                account.songList.favoriteList.Add(data.songId);
+            }
+
+            Server.Database.SaveAll();
+        });
+        
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeCharacter, (msgContent, sessionId) =>
         {
             ServerLogger.LogInfo($"Change character.");
             var data = Serializer.Deserialize<cometScene.Req_ChangeCharacter>(new MemoryStream(msgContent));
@@ -367,7 +388,7 @@ public class Gate
             Server.Database.SaveAll();
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeTheme, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeTheme, (msgContent, sessionId) =>
         {
             ServerLogger.LogInfo($"Change theme.");
             var data = Serializer.Deserialize<cometScene.Req_ChangeTheme>(new MemoryStream(msgContent));
@@ -386,22 +407,40 @@ public class Gate
             Server.Database.SaveAll();
         });
 
-        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_Ret_UserGameTime + 1000, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_Ret_UserGameTime + 1000, (_, _) =>
         {
             ServerLogger.LogInfo($"Reported game time.");
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_BeginSong, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_BeginSong, (_, _) =>
         {
             ServerLogger.LogInfo($"Start playing song!");
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_FinishSong, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_FinishSong, (msgContent, sessionId) =>
         {
             ServerLogger.LogInfo($"Finished playing song!");
             var data = Serializer.Deserialize<cometScene.Req_FinishSong>(new MemoryStream(msgContent)).data;
             var account = Server.Database.GetAccount(sessionId);
             if (account == null) return;
+            
+            var character = account.CharacterList.list.Find(character => character.charId == account.selectCharId);
+            if (character == null)
+            {
+                character = new()
+                {
+                    level = 1,
+                    playCount = 1,
+                    charId = account.selectCharId,
+                };
+                account.CharacterList.list.Add(character);
+            }
+            
+            if (Convert.ToBoolean(data.playData.finishLevel))
+            {
+                character.playCount++;
+                character.exp++;
+            }
 
             account.totalScore = data.totalScore;
             account.total4KScore = data.total4KScore;
@@ -411,20 +450,41 @@ public class Gate
             Server.Database.UpdateAccount(account);
 
             var songInfo = data.playData;
+            
+            // EXP to reward
+            var expToReward = 0u;
+            if (songInfo.maxPercent == 100)
+            {
+                expToReward += (uint)Math.Round(account.curExp * 0.15f, 0);
+            }
+            
+            expToReward += _modeLink[data.mode] switch
+            {
+                "4k" => 5,
+                "6k" => 7,
+                _ => 15
+            };
+
+            expToReward += _difficultyLink[data.difficulty] switch
+            {
+                "ez" => 5,
+                "nm" => 10,
+                _ => 15
+            };
 
             var scoreList = _modeLink[data.mode] switch
             {
-                "4k" => account.scoreList._key4List,
-                "6k" => account.scoreList._key6List,
-                "8k" => account.scoreList._key8List,
+                "4k" => account.scoreList.key4List,
+                "6k" => account.scoreList.key6List,
+                "8k" => account.scoreList.key8List,
                 _ => throw new NotSupportedException($"Mode `{_modeLink[data.mode]} ({data.mode})` not supported."),
             };
 
             var difficultyList = _difficultyLink[data.difficulty] switch
             {
-                "ez" => scoreList._easyList,
-                "nm" => scoreList._normalList,
-                "hd" => scoreList._hardList,
+                "ez" => scoreList.easyList,
+                "nm" => scoreList.normalList,
+                "hd" => scoreList.hardList,
                 _ => throw new NotSupportedException($"Difficulty `{_difficultyLink[data.difficulty]} ({data.difficulty})` not supported."),
             };
 
@@ -434,18 +494,95 @@ public class Gate
                 singleSongInfo = new cometScene.SingleSongInfo() { songId = data.songId, playCount = 0 };
                 difficultyList.Add(singleSongInfo);
             }
+            
+            uint goldGained = 0;
+            var charExpGiven = 1;
+            if (singleSongInfo.score == 0 && songInfo.accuracy > 50)
+            {
+                // First clear of the map with accuracy > 50%
+                // so we reward the player with 100 currency
+                goldGained += 100;
+                
+                // and we also give some good exp to the pilot/character
+                character.exp += 5;
+                charExpGiven += 5;
+            }
+            
+            while (character.exp >= 30)
+            {
+                character.level++;
+                character.exp -= 30;
+                charExpGiven += 30;
+            }
+            
+            if (singleSongInfo.score != 0 && songInfo.score > singleSongInfo.score)
+            {
+                expToReward += (uint)Math.Round(expToReward * 0.8f, 0);
+            }
+            
+            if (songInfo.score > singleSongInfo.score) singleSongInfo.score = songInfo.score;
 
             singleSongInfo.miss = songInfo.miss;
-            if (songInfo.score > singleSongInfo.score) singleSongInfo.score = songInfo.score;
-            singleSongInfo.playCount += 1;
-            singleSongInfo.isAllMax = (songInfo.maxPercent == 100) ? 1u : 0u;
+            singleSongInfo.playCount++;
+            singleSongInfo.isAllMax = songInfo.isAllMax;
             singleSongInfo.isFullCombo = (songInfo.miss == 0) ? 1u : 0u;
+            singleSongInfo.finishLevel = songInfo.finishLevel;
+            
+            if (Convert.ToBoolean(singleSongInfo.isFullCombo))
+            {
+                expToReward += (uint)Math.Round(expToReward * 0.5f, 0);
+            }
+
+            if (Convert.ToBoolean(singleSongInfo.isAllMax))
+            {
+                expToReward += (uint)Math.Round(expToReward * 0.3f, 0);
+            }
+            
             DiscordRichPresence.Data.activity.Details = $"Finished {DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
             DiscordRichPresence.Data.activity.State = $"{DiscordRichPresence.GameState.Difficulty} ({DiscordRichPresence.GameState.DifficultyNumber.ToString()}) - {DiscordRichPresence.GameState.keyCount}";
             DiscordRichPresence.Data.Update();
-            account.level = 69;
-            Server.Database.SaveAll();
 
+            if (!Convert.ToBoolean(songInfo.finishLevel)) expToReward /= 2;
+
+            account.curExp += expToReward;
+            while (account.curExp >= account.maxExp)
+            {
+                account.level++;
+                if (account.level % 5 == 0)
+                {
+                    goldGained += (uint)Math.Floor(Math.Pow(account.level, 0.8)) * 60;
+                }
+                account.curExp -= account.maxExp;
+                account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
+            }
+
+            account.currencyInfo.gold += goldGained;
+            account.currencyInfo.diamond += goldGained;
+
+            var settleData = new cometScene.SettleData
+            {
+                changeList = {
+                    new() { type = 9, count = (int)expToReward, id = 0 },
+                    new() { type = 3, count = charExpGiven, id = character.charId }
+                },
+                expData = new()
+                {
+                    level = account.level,
+                    curExp = account.curExp,
+                    maxExp = account.maxExp
+                }
+            };
+            if (goldGained > 0)
+            {
+                settleData.changeList.Add(new()
+                {
+                    type = 1,
+                    count = (int)goldGained,
+                    id = 420,
+                });
+            }
+            
+            Server.Database.SaveAll();
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
                 MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
@@ -453,16 +590,63 @@ public class Gate
                 Data = Index.ObjectToByteArray(new cometScene.Ret_FinishSong()
                 {
                     songInfo = singleSongInfo,
-                    settleData = new()
-                    {
-                        changeList = { new() { type = 9, count = 450, id = 0 }, },
-                        expData = new() { level = 69, curExp = 0, maxExp = 100 }
-                    }
+                    settleData = settleData,
                 }),
             });
         });
+        
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Arcade_Finish, (msgContent, sessionId) =>
+        {
+            ServerLogger.LogInfo("Arcade Finish");
+            var data = Serializer.Deserialize<cometScene.Req_Arcade_Finish>(new MemoryStream(msgContent));
+            var totalScore = data.finishList.Select(x => (int)x.finishData.totalScore).Sum();
+            
+            var account = Server.Database.GetAccount(sessionId);
+            if (account.totalArcadeScore < totalScore) account.totalArcadeScore = (uint)totalScore;
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeLanguage, (byte[] msgContent, long sessionId) =>
+            foreach (var fData in data.finishList)
+            {
+                var finishData = fData.finishData;
+                var playData = finishData.playData;
+             
+                var arcadeList = _modeLink[finishData.mode] switch
+                {
+                    "4k" => account.arcadeData.key4List,
+                    "6k" => account.arcadeData.key6List,
+                    "8k" => account.arcadeData.key8List,
+                    _ => throw new NotSupportedException($"Mode `{_modeLink[finishData.mode]} ({finishData.mode})` not supported."),
+                };
+
+                var difficultyList = _difficultyLink[finishData.difficulty] switch
+                {
+                    "ez" => arcadeList.easyList,
+                    "nm" => arcadeList.normalList,
+                    "hd" => arcadeList.hardList,
+                    _ => throw new NotSupportedException($"Difficulty `{_difficultyLink[finishData.difficulty]} ({finishData.difficulty})` not supported."),
+                };
+                
+                var arcadeSongInfo = difficultyList.Find(song => song.songId == finishData.songId);
+                if (arcadeSongInfo == null || arcadeSongInfo.songId != finishData.songId)
+                {
+                    arcadeSongInfo = new cometScene.ArcadeSongInfo { songId = finishData.songId };
+                    difficultyList.Add(arcadeSongInfo);
+                }
+
+                arcadeSongInfo.miss = playData.miss;
+                arcadeSongInfo.score = arcadeSongInfo.score;
+                arcadeSongInfo.songId = finishData.songId;
+            }
+
+            Server.Database.SaveAll();
+            Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
+            {
+                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_Arcade_Finish,
+                Data = new byte[0],
+            });
+        });
+
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ChangeLanguage, (_, _) =>
         {
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
             {
@@ -472,7 +656,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopInfo, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopInfo, (_, _) =>
         {
             ServerLogger.LogInfo("Sent shop info.");
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
@@ -483,7 +667,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_LoginGateVerify + 1000, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_LoginGateVerify + 1000, (msgContent, sessionId) =>
         {
             var data = Serializer.Deserialize<cometGate.LoginGateVerify>(new MemoryStream(msgContent));
             var accId = data.accId;
@@ -524,7 +708,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_EnterGame + 1000, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_EnterGame + 1000, (_, sessionId) =>
         {
             var account = Server.Database.GetAccount(sessionId);
 
@@ -540,7 +724,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_CreateCharacter + 1000, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_CreateCharacter + 1000, (msgContent, sessionId) =>
         {
             ServerLogger.LogInfo("Creating a new character!");
             var data = Serializer.Deserialize<cometGate.CreateCharacter>(new MemoryStream(msgContent));
@@ -579,7 +763,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Event_Info, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Event_Info, (_, _) =>
         {
             ServerLogger.LogInfo($"Shop information");
             Index.Instance.GatePackageQueue.Enqueue(new Index.GamePackage()
@@ -590,7 +774,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopBuy, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopBuy, (msgContent, sessionId) =>
         {
             // TODO: Actually finish this.
             ServerLogger.LogInfo($"Buy item from shop.");
@@ -652,7 +836,7 @@ public class Gate
             }
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Social_PublishDynamics, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Social_PublishDynamics, (msgContent, _) =>
         {
             var data = Serializer.Deserialize<cometScene.Req_Social_PublishDynamics>(new MemoryStream(msgContent));
             ServerLogger.LogInfo($"Public Activity");
@@ -668,7 +852,7 @@ public class Gate
             });
         });
 
-        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Arcade_Info, (byte[] msgContent, long sessionId) =>
+        Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_Arcade_Info, (_, _) =>
         {
             ServerLogger.LogInfo("Arcade Mode");
             var stageList = new List<cometScene.ArcadeStageData>();
@@ -682,7 +866,7 @@ public class Gate
                     0 => PlaceholderServerData.ArcadeInfoList.Item1,
                     1 => PlaceholderServerData.ArcadeInfoList.Item2,
                     _ => PlaceholderServerData.ArcadeInfoList.Item3,
-                }).OrderBy(x => rnd.Next()).ToArray();
+                }).OrderBy(_ => rnd.Next()).ToArray();
 
                 var songList = new List<cometScene.SingleSongData>();
                 for (var j = 0; j < 8; j++)
