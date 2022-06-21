@@ -19,7 +19,7 @@ public class Server : BaseUnityPlugin
     public static bool Debug = true;
     private static Process _process;
     private static bool ShuttingDown = false;
-    
+
     private void Awake()
     {
         logger = Logger;
@@ -52,9 +52,11 @@ public class Server : BaseUnityPlugin
     }
 
     private static long timeDelta = TimeHelper.getCurUnixTimeOfSec();
+
     private void Update()
     {
-        if (ShuttingDown) return;
+        if (ShuttingDown)
+            return;
         if (TimeHelper.getCurUnixTimeOfSec() - timeDelta >= 5)
         {
             // Updates the presence every 5 seconds
@@ -68,12 +70,16 @@ public class Server : BaseUnityPlugin
     private void OnApplicationQuit()
     {
         ShuttingDown = true;
-        DiscordRichPresence.Data._activityManager.ClearActivity((result =>
-        {
-            // why is a callback required? 
-        }));
+        DiscordRichPresence.Data._activityManager.ClearActivity(
+            (
+                result =>
+                {
+                    // why is a callback required?
+                }
+            )
+        );
         DiscordRichPresence.Data.Poll();
-        
+
         if (Debug && _process != null)
         {
             _process.Kill();

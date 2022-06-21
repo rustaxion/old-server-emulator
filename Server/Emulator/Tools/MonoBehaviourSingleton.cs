@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Server.Emulator.Tools;
 
-public class MonoBehaviourSingleton< TSelfType > : MonoBehaviour where TSelfType : MonoBehaviour
+public class MonoBehaviourSingleton<TSelfType> : MonoBehaviour where TSelfType : MonoBehaviour
 {
     private static TSelfType m_Instance = null;
     public static TSelfType Instance

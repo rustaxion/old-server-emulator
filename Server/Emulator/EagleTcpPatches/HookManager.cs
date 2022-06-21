@@ -10,21 +10,16 @@ public class HookManager
     {
         get { return _instance ??= new HookManager(); }
     }
-    
+
     private static HookManager _instance;
-    
+
     public void Create()
     {
         try
         {
             Harmony harmonyInstance = new("server-emulator-hook");
 
-            var constructorInfo = AccessTools.Constructor(typeof(EagleTcp), new Type[]
-            {
-                typeof(EagleTcp.CSocketType),
-                typeof(string),
-                typeof(uint)
-            });
+            var constructorInfo = AccessTools.Constructor(typeof(EagleTcp), new Type[] { typeof(EagleTcp.CSocketType), typeof(string), typeof(uint) });
             var methodInfo3 = AccessTools.Method(typeof(EagleTcpHook), "DotCtorTranspiler");
             harmonyInstance.Patch(constructorInfo, transpiler: new HarmonyMethod(methodInfo3));
 
@@ -43,11 +38,11 @@ public class HookManager
             var methodInfo10 = AccessTools.Method(typeof(EagleTcp), "ParseCmd");
             var methodInfo11 = AccessTools.Method(typeof(EagleTcpHook), "ParseCmdTranspiler");
             harmonyInstance.Patch(methodInfo10, transpiler: new HarmonyMethod(methodInfo11));
-            
+
             var backToLogin = AccessTools.Method(typeof(Aquatrax.NetManager), "backToLogin");
             var backToLoginPatch = AccessTools.Method(typeof(NetManagerPatch), "backToLoginPatch");
             harmonyInstance.Patch(backToLogin, prefix: new HarmonyMethod(backToLoginPatch));
-            
+
             var hasForbidWord = AccessTools.Method(typeof(Aquatrax.GlobalConfig), "hasForbidWord");
             var hasForbidWordPatch = AccessTools.Method(typeof(GlobalConfigPatches), "hasForbidWord");
             harmonyInstance.Patch(hasForbidWord, prefix: new HarmonyMethod(hasForbidWordPatch));

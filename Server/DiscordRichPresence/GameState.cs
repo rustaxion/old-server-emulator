@@ -4,7 +4,6 @@ namespace Server.DiscordRichPresence;
 
 public class GameState
 {
-
     public static bool IsPaused
     {
         get
@@ -36,11 +35,7 @@ public class GameState
     }
     public static Aquatrax.AQDiffLevel Difficulty
     {
-        get
-        {
-            return Aquatrax.ShortCut.SelectData.Level;
-
-        }
+        get { return Aquatrax.ShortCut.SelectData.Level; }
     }
     public static int DifficultyNumber
     {

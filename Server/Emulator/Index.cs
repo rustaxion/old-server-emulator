@@ -51,16 +51,16 @@ public class Index
         var found = false;
         try
         {
-            found = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ?
-                Login.Dispatch(mainCmd, paraCmd, msgContent) :
-                Gate.Dispatch(mainCmd, paraCmd, msgContent, sessionId);
+            found = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? Login.Dispatch(mainCmd, paraCmd, msgContent) : Gate.Dispatch(mainCmd, paraCmd, msgContent, sessionId);
         }
         catch (System.Exception e)
         {
             ServerLogger.LogError(e.ToString());
         }
-        if (!found) ServerLogger.LogError($"Handler not found!");
-        if (!found) Server.MustImplement.Add($"tag: {tag}, mainCmd: {mainCmd}, paraCmd: {paraCmd}");
+        if (!found)
+            ServerLogger.LogError($"Handler not found!");
+        if (!found)
+            Server.MustImplement.Add($"tag: {tag}, mainCmd: {mainCmd}, paraCmd: {paraCmd}");
 
         return found;
     }

@@ -10,7 +10,7 @@ internal class EagleTcpHook
 {
     private static readonly Type HookTargetType = typeof(EagleTcp);
     private static readonly Type HookType = typeof(EagleTcpClient);
-    
+
     private static IEnumerable<CodeInstruction> GeneralTranspiler(IEnumerable<CodeInstruction> instructions, MethodInfo method, MethodInfo method2)
     {
         foreach (var instruction in instructions)
@@ -21,7 +21,7 @@ internal class EagleTcpHook
                 yield return instruction;
         }
     }
-    
+
     public static IEnumerable<CodeInstruction> DotCtorTranspiler(IEnumerable<CodeInstruction> instructions)
     {
         var method = AccessTools.Method(HookTargetType, "contectServer");
@@ -53,7 +53,7 @@ internal class EagleTcpHook
 
         return GeneralTranspiler(instructions, method, method2);
     }
-    
+
     public static IEnumerable<CodeInstruction> ParseCmdTranspiler(IEnumerable<CodeInstruction> instructions)
     {
         var method = AccessTools.Method(HookTargetType, "parseCmd");
