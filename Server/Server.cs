@@ -15,6 +15,7 @@ public class Server : BaseUnityPlugin
 {
     public static BepInEx.Logging.ManualLogSource logger;
     public static Emulator.Database.Database Database;
+    public static Emulator.PlaceholderServerData PlaceholderServerData;
     public static List<string> MustImplement = new();
     public static bool Debug = true;
     private static Process _process;
@@ -24,6 +25,7 @@ public class Server : BaseUnityPlugin
     {
         logger = Logger;
         Database = new Emulator.Database.Database();
+        PlaceholderServerData = new();
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
 
         HookManager.Instance.Create();
