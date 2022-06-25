@@ -210,100 +210,100 @@ public class Gate
                 switch (data.type)
                 {
                     case 0: // totalScore
-                    {
-                        foreach (var account in Server.Database.Accounts.Values.ToArray())
                         {
-                            scores.Add(account, account.totalScore);
+                            foreach (var account in Server.Database.Accounts.Values.ToArray())
+                            {
+                                scores.Add(account, account.totalScore);
+                            }
+                            break;
                         }
-                        break;
-                    }
                     case 4: // preRank
-                    {
-                        // TODO: Figure out what this shit is.
-                        rankInfo.list.AddRange(defaultRanks);
-                        Index.Instance.GatePackageQueue.Enqueue(
-                            new Index.GamePackage()
-                            {
-                                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
-                                Data = Index.ObjectToByteArray(rankInfo),
-                            }
-                        );
-                        break;
-                    }
+                        {
+                            // TODO: Figure out what this shit is.
+                            rankInfo.list.AddRange(defaultRanks);
+                            Index.Instance.GatePackageQueue.Enqueue(
+                                new Index.GamePackage()
+                                {
+                                    MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                                    ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
+                                    Data = Index.ObjectToByteArray(rankInfo),
+                                }
+                            );
+                            break;
+                        }
                     case 5: // total4KScore
-                    {
-                        foreach (var account in Server.Database.Accounts.Values.ToArray())
                         {
-                            scores.Add(account, account.total4KScore);
+                            foreach (var account in Server.Database.Accounts.Values.ToArray())
+                            {
+                                scores.Add(account, account.total4KScore);
+                            }
+                            break;
                         }
-                        break;
-                    }
                     case 6: // total6KScore
-                    {
-                        foreach (var account in Server.Database.Accounts.Values.ToArray())
                         {
-                            scores.Add(account, account.total6KScore);
+                            foreach (var account in Server.Database.Accounts.Values.ToArray())
+                            {
+                                scores.Add(account, account.total6KScore);
+                            }
+                            break;
                         }
-                        break;
-                    }
                     case 7: // total8KScore
-                    {
-                        foreach (var account in Server.Database.Accounts.Values.ToArray())
                         {
-                            scores.Add(account, account.total8KScore);
+                            foreach (var account in Server.Database.Accounts.Values.ToArray())
+                            {
+                                scores.Add(account, account.total8KScore);
+                            }
+                            break;
                         }
-                        break;
-                    }
                     case 8: // totalArcadeScore
-                    {
-                        foreach (var account in Server.Database.Accounts.Values.ToArray())
                         {
-                            scores.Add(account, account.totalArcadeScore);
+                            foreach (var account in Server.Database.Accounts.Values.ToArray())
+                            {
+                                scores.Add(account, account.totalArcadeScore);
+                            }
+                            break;
                         }
-                        break;
-                    }
                     case 9: // preRank4k && preRank4kParam
-                    {
-                        // TODO: Figure out what this shit is.
-                        rankInfo.list.AddRange(defaultRanks);
-                        Index.Instance.GatePackageQueue.Enqueue(
-                            new Index.GamePackage()
-                            {
-                                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
-                                Data = Index.ObjectToByteArray(rankInfo),
-                            }
-                        );
-                        break;
-                    }
+                        {
+                            // TODO: Figure out what this shit is.
+                            rankInfo.list.AddRange(defaultRanks);
+                            Index.Instance.GatePackageQueue.Enqueue(
+                                new Index.GamePackage()
+                                {
+                                    MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                                    ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
+                                    Data = Index.ObjectToByteArray(rankInfo),
+                                }
+                            );
+                            break;
+                        }
                     case 10: // preRank6k && preRank6kParam
-                    {
-                        // TODO: Figure out what this shit is.
-                        rankInfo.list.AddRange(defaultRanks);
-                        Index.Instance.GatePackageQueue.Enqueue(
-                            new Index.GamePackage()
-                            {
-                                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
-                                Data = Index.ObjectToByteArray(rankInfo),
-                            }
-                        );
-                        break;
-                    }
+                        {
+                            // TODO: Figure out what this shit is.
+                            rankInfo.list.AddRange(defaultRanks);
+                            Index.Instance.GatePackageQueue.Enqueue(
+                                new Index.GamePackage()
+                                {
+                                    MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                                    ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
+                                    Data = Index.ObjectToByteArray(rankInfo),
+                                }
+                            );
+                            break;
+                        }
                     default:
-                    {
-                        rankInfo.list.AddRange(defaultRanks);
-                        Index.Instance.GatePackageQueue.Enqueue(
-                            new Index.GamePackage()
-                            {
-                                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
-                                Data = Index.ObjectToByteArray(rankInfo),
-                            }
-                        );
-                        return;
-                    }
+                        {
+                            rankInfo.list.AddRange(defaultRanks);
+                            Index.Instance.GatePackageQueue.Enqueue(
+                                new Index.GamePackage()
+                                {
+                                    MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                                    ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
+                                    Data = Index.ObjectToByteArray(rankInfo),
+                                }
+                            );
+                            return;
+                        }
                 }
 
                 var scoresList = scores.ToList();
@@ -451,7 +451,7 @@ public class Gate
                 ServerLogger.LogInfo($"Start playing song!");
             }
         );
-        
+
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_BattleFieldInfo, (_, _) =>
             {
                 ServerLogger.LogInfo($"Start playing song!");
@@ -853,7 +853,6 @@ public class Gate
 
         Handlers.Add((uint)cometScene.ParaCmd.ParaCmd_Req_ShopBuy, (msgContent, sessionId) =>
             {
-                // TODO: Actually finish this.
                 ServerLogger.LogInfo($"Buy item from shop.");
                 var data = Serializer.Deserialize<cometScene.Req_ShopBuy>(new MemoryStream(msgContent));
                 var account = Server.Database.GetAccount(sessionId);
@@ -862,97 +861,197 @@ public class Gate
                 switch (data.shopType)
                 {
                     case (uint)Aquatrax.eShopType.eShopType_Character:
-                    {
-                        if (account.CharacterList.list.Any(character => character.charId == data.itemId))
                         {
-                            ServerLogger.LogError("You already have a character with that ID!");
-                            return;
-                        }
-
-                        var price = shopInfo.characterList.First(item => item.id == data.itemId).discountPrice;
-                        if (account.currencyInfo.gold < price)
-                        {
-                            ServerLogger.LogError("You don't have enough money to make this purchase!");
-                            return;
-                        }
-
-                        account.currencyInfo.gold -= (uint)price;
-                        account.currencyInfo.diamond -= (uint)price;
-                        
-                        account.CharacterList.list.Add(
-                            new cometScene.CharData()
+                            if (account.CharacterList.list.Any(character => character.charId == data.itemId))
                             {
-                                charId = data.itemId,
-                                level = 1,
-                                exp = 0,
-                                playCount = 0,
+                                ServerLogger.LogError("You already have a character with that ID!");
+                                break;
                             }
-                        );
-                        
-                        account.curExp += 20;
 
-                        while (account.curExp >= account.maxExp)
-                        {
-                            account.curExp -= account.maxExp;
-                            account.level++;
-                            account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
-                        }
-
-                        Server.Database.UpdateAccount(account);
-                        Server.Database.SaveAll();
-                        Index.Instance.GatePackageQueue.Enqueue(
-                            new Index.GamePackage()
+                            var price = shopInfo.characterList.First(item => item.id == data.itemId).discountPrice;
+                            if (account.currencyInfo.gold < price)
                             {
-                                MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                                ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ShopBuy,
-                                Data = Index.ObjectToByteArray(
-                                    new cometScene.Ret_ShopBuy
-                                    {
-                                        settleData = new cometScene.SettleData()
+                                ServerLogger.LogError("You don't have enough money to make this purchase!");
+                                break;
+                            }
+
+                            account.currencyInfo.gold -= (uint)price;
+                            account.currencyInfo.diamond -= (uint)price;
+
+                            account.CharacterList.list.Add(
+                                new cometScene.CharData()
+                                {
+                                    charId = data.itemId,
+                                    level = 1,
+                                    exp = 0,
+                                    playCount = 0,
+                                }
+                            );
+
+                            account.curExp += 20;
+
+                            while (account.curExp >= account.maxExp)
+                            {
+                                account.curExp -= account.maxExp;
+                                account.level++;
+                                account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
+                            }
+
+                            Server.Database.UpdateAccount(account);
+                            Server.Database.SaveAll();
+                            Index.Instance.GatePackageQueue.Enqueue(
+                                new Index.GamePackage()
+                                {
+                                    MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                                    ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ShopBuy,
+                                    Data = Index.ObjectToByteArray(
+                                        new cometScene.Ret_ShopBuy
                                         {
-                                            changeList =
+                                            settleData = new cometScene.SettleData()
                                             {
+                                                changeList =
+                                                {
                                                 new()
                                                 {
                                                     type = 5,
                                                     count = 1,
                                                     id = data.itemId,
                                                 }
-                                            },
-                                            expData = new cometScene.PlayerExpData()
-                                            {
-                                                level = account.level,
-                                                curExp = account.curExp,
-                                                maxExp = account.maxExp,
+                                                },
+                                                expData = new cometScene.PlayerExpData()
+                                                {
+                                                    level = account.level,
+                                                    curExp = account.curExp,
+                                                    maxExp = account.maxExp,
+                                                }
                                             }
                                         }
-                                    }
-                                ),
-                            }
-                        );
-                        break;
-                    }
+                                    ),
+                                }
+                            );
+                            break;
+                        }
                     case (uint)Aquatrax.eShopType.eShopType_Member:
-                    {
-                        break;
-                    }
+                        {
+                            // might be related to the VIP stuff
+                            break;
+                        }
                     case (uint)Aquatrax.eShopType.eShopType_Song:
-                    {
-                        break;
-                    }
+                        {
+                            if (account.songList.list.Any(song => song.songId == data.itemId))
+                            {
+                                ServerLogger.LogError("You already have a song with that ID!");
+                                break;
+                            }
+
+                            var price = shopInfo.songList.First(item => item.id == data.itemId).discountPrice;
+                            if (account.currencyInfo.gold < price)
+                            {
+                                ServerLogger.LogError("You don't have enough money to make this purchase!");
+                                break;
+                            }
+
+                            account.currencyInfo.gold -= (uint)price;
+                            account.currencyInfo.diamond -= (uint)price;
+                            account.curExp += 20;
+                            account.songList.list.Add(new() { songId = data.itemId });
+
+                            while (account.curExp >= account.maxExp)
+                            {
+                                account.curExp -= account.maxExp;
+                                account.level++;
+                                account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
+                            }
+
+                            Server.Database.UpdateAccount(account);
+                            Server.Database.SaveAll();
+
+                            Index.Instance.GatePackageQueue.Enqueue(
+                                new Index.GamePackage()
+                                {
+                                    MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                                    ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ShopBuy,
+                                    Data = Index.ObjectToByteArray(
+                                        new cometScene.Ret_ShopBuy
+                                        {
+                                            settleData = new cometScene.SettleData()
+                                            {
+                                                changeList = { new() { type = 6, count = 1, id = data.itemId } },
+                                                expData = new cometScene.PlayerExpData()
+                                                {
+                                                    level = account.level,
+                                                    curExp = account.curExp,
+                                                    maxExp = account.maxExp,
+                                                }
+                                            }
+                                        }
+                                    ),
+                                }
+                            );
+                            break;
+                        }
                     case (uint)Aquatrax.eShopType.eShopType_Theme:
-                    {
-                        break;
-                    }
+                        {
+                            if (account.themeList.list.Any(theme => theme.themeId == data.itemId))
+                            {
+                                ServerLogger.LogError("You already have a theme with that ID!");
+                                break;
+                            }
+
+                            var price = shopInfo.themeList.First(item => item.id == data.itemId).discountPrice;
+                            if (account.currencyInfo.gold < price)
+                            {
+                                ServerLogger.LogError("You don't have enough money to make this purchase!");
+                                break;
+                            }
+
+                            account.currencyInfo.gold -= (uint)price;
+                            account.currencyInfo.diamond -= (uint)price;
+                            account.curExp += 20;
+                            account.themeList.list.Add(new() { themeId = data.itemId });
+
+                            while (account.curExp >= account.maxExp)
+                            {
+                                account.curExp -= account.maxExp;
+                                account.level++;
+                                account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
+                            }
+
+                            Server.Database.UpdateAccount(account);
+                            Server.Database.SaveAll();
+
+                            Index.Instance.GatePackageQueue.Enqueue(
+                                new Index.GamePackage()
+                                {
+                                    MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                                    ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_ShopBuy,
+                                    Data = Index.ObjectToByteArray(
+                                        new cometScene.Ret_ShopBuy
+                                        {
+                                            settleData = new cometScene.SettleData()
+                                            {
+                                                changeList = { new() { type = 4, count = 1, id = data.itemId } },
+                                                expData = new cometScene.PlayerExpData()
+                                                {
+                                                    level = account.level,
+                                                    curExp = account.curExp,
+                                                    maxExp = account.maxExp,
+                                                }
+                                            }
+                                        }
+                                    ),
+                                }
+                            );
+                            break;
+                        }
                 }
 
-                var characterFullData = GetFullCharacterData(account);
                 Index.Instance.GatePackageQueue.Enqueue(
                     new Index.GamePackage()
                     {
                         MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
                         ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ntf_CharacterFullData,
-                        Data = Index.ObjectToByteArray(characterFullData),
+                        Data = Index.ObjectToByteArray(GetFullCharacterData(account)),
                     }
                 );
             }
