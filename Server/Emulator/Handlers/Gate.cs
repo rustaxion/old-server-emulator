@@ -19,7 +19,7 @@ public class Gate
             {
                 title = "Operation Announcement",
                 content =
-                    "<b><color=#ffa500ff>《音灵INVAXION》Closing notice</color></b>\n\t\t  \n\n　　It's been a long wait, guardians of the sound.\n\t\t  \n　　Welcome to the<color=#ffa500ff>《音灵INVAXION》</color>world.",
+                    "<b><color=#ffa500ff>《音灵INVAXION》Closing notice</color></b>\n\t\t  \n\n　　It's been a long wait, guardians of the sound.\n\t\t  \n　　Welcome to the<color=#ffa500ff>《音灵INVAXION》</color> world.",
                 picId = 0,
                 tag = 1,
             }
@@ -48,7 +48,7 @@ public class Gate
                     country = account.country,
                     preRankId4K = 0,
                     preRankId6K = 0,
-                    titleId = account.titleId,
+                    titleId = account.titleId
                 },
                 currencyInfo = account.currencyInfo,
                 socialData = new cometScene.SocialData(),
@@ -59,7 +59,7 @@ public class Gate
                 team = account.team,
                 charList = account.CharacterList,
                 scoreList = account.scoreList,
-                songList = account.songList,
+                songList = account.songList
             }
         };
     }
@@ -69,6 +69,7 @@ public class Gate
         Handlers.AddAll(GateHandlers.Shop.Handlers);
         Handlers.AddAll(GateHandlers.Beatmaps.Handlers);
         Handlers.AddAll(GateHandlers.Accounts.Handlers);
+        Handlers.AddAll(GateHandlers.CosmicTour.Handlers);
 
         Handlers.Add((uint)cometGate.ParaCmd.ParaCmd_Ret_UserGameTime + 1000, (_, _) =>
             {

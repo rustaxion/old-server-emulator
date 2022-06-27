@@ -1,8 +1,8 @@
-﻿using System;
+﻿using LitJson;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using LitJson;
 
 // ReSharper disable All
 
@@ -80,6 +80,18 @@ public class Database
             // ===========Song list==============
             account.songList.list.AddRange(JsonMapper.ToObject<List<cometScene.SongData>>(acc["songList"]["list"].ToJson()));
             account.songList.favoriteList.AddRange(JsonMapper.ToObject<List<uint>>(acc["songList"]["favoriteList"].ToJson()));
+            // ===========Cosmic Tour============
+            account.cosmicTourData.storyData = JsonMapper.ToObject<List<cometScene.StoryData>>(acc["cosmicTourData"]["storyData"].ToJson());
+            for (var i = 0; i < account.cosmicTourData.storyData.Count; i++)
+            {
+                account.cosmicTourData.storyData[i].missionList.AddRange(JsonMapper.ToObject<List<uint>>(acc["cosmicTourData"]["storyData"][i]["missionList"].ToJson()));
+            }
+            foreach (var storyData in account.cosmicTourData.storyData)
+            {
+                var missions = storyData.missionList.ToList().Distinct();
+                storyData.missionList.RemoveAll(e => true);
+                storyData.missionList.AddRange(missions);
+            }
 
             Accounts[account.accId] = account;
         }

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using ProtoBuf;
+using System.Collections.Generic;
 using System.IO;
-using ProtoBuf;
 
 namespace Server.Emulator;
 
@@ -15,6 +15,8 @@ public class Index
     private Index()
     {
         EagleTcpPatches.HookManager.Instance.Create();
+        var hookmanager = new Patches.HookManager();
+        hookmanager.Init();
     }
 
     private static Index _instance;

@@ -52,7 +52,6 @@ public static class Shop
                             }
 
                             account.currencyInfo.gold -= (uint)price;
-                            account.currencyInfo.diamond -= (uint)price;
 
                             account.CharacterList.list.Add(
                                 new cometScene.CharData()
@@ -128,7 +127,6 @@ public static class Shop
                             }
 
                             account.currencyInfo.gold -= (uint)price;
-                            account.currencyInfo.diamond -= (uint)price;
                             account.curExp += 20;
                             account.songList.list.Add(new() { songId = data.itemId });
 
@@ -182,7 +180,6 @@ public static class Shop
                             }
 
                             account.currencyInfo.gold -= (uint)price;
-                            account.currencyInfo.diamond -= (uint)price;
                             account.curExp += 20;
                             account.themeList.list.Add(new() { themeId = data.itemId });
 

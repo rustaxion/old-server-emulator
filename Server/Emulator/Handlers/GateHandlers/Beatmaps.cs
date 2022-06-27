@@ -427,7 +427,7 @@ public static class Beatmaps
 
                 DiscordRichPresence.Data.activity.Details = $"Finished {DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
                 DiscordRichPresence.Data.activity.State =
-                    $"{DiscordRichPresence.GameState.Difficulty} ({DiscordRichPresence.GameState.DifficultyNumber.ToString()}) - {DiscordRichPresence.GameState.keyCount}";
+                    $"{DiscordRichPresence.GameState.Difficulty} ({DiscordRichPresence.GameState.DifficultyNumber}) - {DiscordRichPresence.GameState.keyCount}";
                 DiscordRichPresence.Data.Update();
 
                 if (!Convert.ToBoolean(songInfo.finishLevel))
@@ -446,7 +446,6 @@ public static class Beatmaps
                 }
 
                 account.currencyInfo.gold += goldGained;
-                account.currencyInfo.diamond += goldGained;
 
                 var settleData = new cometScene.SettleData
                 {
