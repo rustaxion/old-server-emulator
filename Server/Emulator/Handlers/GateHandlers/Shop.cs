@@ -45,13 +45,13 @@ public static class Shop
                             }
 
                             var price = shopInfo.characterList.First(item => item.id == data.itemId).discountPrice;
-                            if (account.currencyInfo.gold < price)
+                            if (account.currencyInfo.diamond < price)
                             {
                                 ServerLogger.LogError("You don't have enough money to make this purchase!");
                                 break;
                             }
 
-                            account.currencyInfo.gold -= (uint)price;
+                            account.currencyInfo.diamond -= (uint)price;
 
                             account.CharacterList.list.Add(
                                 new cometScene.CharData()
@@ -120,13 +120,13 @@ public static class Shop
                             }
 
                             var price = shopInfo.songList.First(item => item.id == data.itemId).discountPrice;
-                            if (account.currencyInfo.gold < price)
+                            if (account.currencyInfo.diamond < price)
                             {
                                 ServerLogger.LogError("You don't have enough money to make this purchase!");
                                 break;
                             }
 
-                            account.currencyInfo.gold -= (uint)price;
+                            account.currencyInfo.diamond -= (uint)price;
                             account.curExp += 20;
                             account.songList.list.Add(new() { songId = data.itemId });
 
@@ -173,13 +173,13 @@ public static class Shop
                             }
 
                             var price = shopInfo.themeList.First(item => item.id == data.itemId).discountPrice;
-                            if (account.currencyInfo.gold < price)
+                            if (account.currencyInfo.diamond < price)
                             {
                                 ServerLogger.LogError("You don't have enough money to make this purchase!");
                                 break;
                             }
 
-                            account.currencyInfo.gold -= (uint)price;
+                            account.currencyInfo.diamond -= (uint)price;
                             account.curExp += 20;
                             account.themeList.list.Add(new() { themeId = data.itemId });
 

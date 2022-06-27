@@ -1,10 +1,9 @@
-﻿using System;
+﻿using BepInEx;
+using Server.Emulator.EagleTcpPatches;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using BepInEx;
-using Server.Emulator.EagleTcpPatches;
 
 // ReSharper disable All
 
@@ -46,11 +45,6 @@ public class Server : BaseUnityPlugin
         }
 
         DiscordRichPresence.GameEventHooks.Hook();
-        DiscordRichPresence.GameEvents.switchScene += () =>
-        {
-            // warning so that it is yellow :)
-            Logger.LogWarning($"Scene changed! {DiscordRichPresence.GameState.CurrentScene}");
-        };
     }
 
     private static long timeDelta = TimeHelper.getCurUnixTimeOfSec();
