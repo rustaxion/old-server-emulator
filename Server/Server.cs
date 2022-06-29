@@ -22,6 +22,7 @@ public class Server : BaseUnityPlugin
 
     private void Awake()
     {
+        _instance = this;
         logger = Logger;
         Database = new Emulator.Database.Database();
         PlaceholderServerData = new();
@@ -48,6 +49,17 @@ public class Server : BaseUnityPlugin
     }
 
     private static long timeDelta = TimeHelper.getCurUnixTimeOfSec();
+
+    public static Server Instance
+    {
+        get => _instance;
+    }
+    private static Server _instance;
+
+    public void startCoroutine(System.Collections.IEnumerator routine)
+    {
+        StartCoroutine(routine);
+    }
 
     private void Update()
     {
