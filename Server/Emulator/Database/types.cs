@@ -1,5 +1,4 @@
-﻿using LitJson;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Server.Emulator.Database;
@@ -92,7 +91,7 @@ public class types
         public uint selectCharId;
         public uint language = 2;
         public uint sessionId = 0;
-        public uint titleId = 1001;
+        public uint titleId = 10001;
         public uint totalScore = 0;
         public uint totalArcadeScore = 0;
         public uint onlineTime = 0;
@@ -137,10 +136,7 @@ public class types
                 inSubscription = 0,
             };
 
-        public cometScene.ThemeList themeList = JsonMapper.ToObject<cometScene.ThemeList>(
-            "{ \"list\": " + JsonMapper.ToJson(Enumerable.Range(1, 14).Select(i => new cometScene.ThemeData { themeId = (uint)i }).ToList()) + "}"
-        );
-
+        public cometScene.ThemeList themeList = new();
         public cometScene.PlayerCurrencyInfo currencyInfo =
             new()
             {
@@ -150,57 +146,7 @@ public class types
                 maxStamina = 10,
                 honourPoint = 0,
             };
-
-        public cometScene.SongList songList = JsonMapper.ToObject<cometScene.SongList>(
-            "{ \"list\": "
-                + JsonMapper.ToJson(
-                    new int[]
-                    {
-                        80031,
-                        80008,
-                        80011,
-                        80012,
-                        80010,
-                        80034,
-                        80007,
-                        80015,
-                        80013,
-                        80009,
-                        80014,
-                        80019,
-                        80020,
-                        80018,
-                        63122,
-                        63123,
-                        63204,
-                        62005,
-                        62006,
-                        63103,
-                        69008,
-                        68008,
-                        68108,
-                        80002,
-                        64005,
-                        69018,
-                        68002,
-                        68001,
-                        82005,
-                        82006,
-                        82007,
-                        82011,
-                        65102,
-                        68106,
-                        64003,
-                        62021,
-                        65036
-                    }
-                        .Select(i => new cometScene.SongData { songId = (uint)i })
-                        .ToList()
-                )
-                + @", ""favoriteList"": []"
-                + "}"
-        );
-
+        public cometScene.SongList songList = new();
         public cometScene.CharacterList CharacterList;
     }
 }

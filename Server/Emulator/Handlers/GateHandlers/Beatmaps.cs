@@ -165,20 +165,6 @@ public static class Beatmaps
                             }
                             break;
                         }
-                    case 4: // preRank
-                        {
-                            // TODO: Figure out what this shit is.
-                            rankInfo.list.AddRange(defaultRanks);
-                            Index.Instance.GatePackageQueue.Enqueue(
-                                new Index.GamePackage()
-                                {
-                                    MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                                    ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
-                                    Data = Index.ObjectToByteArray(rankInfo),
-                                }
-                            );
-                            break;
-                        }
                     case 5: // total4KScore
                         {
                             foreach (var account in Server.Database.Accounts.Values.ToArray())
@@ -209,34 +195,6 @@ public static class Beatmaps
                             {
                                 scores.Add(account, account.totalArcadeScore);
                             }
-                            break;
-                        }
-                    case 9: // preRank4k && preRank4kParam
-                        {
-                            // TODO: Figure out what this shit is.
-                            rankInfo.list.AddRange(defaultRanks);
-                            Index.Instance.GatePackageQueue.Enqueue(
-                                new Index.GamePackage()
-                                {
-                                    MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                                    ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
-                                    Data = Index.ObjectToByteArray(rankInfo),
-                                }
-                            );
-                            break;
-                        }
-                    case 10: // preRank6k && preRank6kParam
-                        {
-                            // TODO: Figure out what this shit is.
-                            rankInfo.list.AddRange(defaultRanks);
-                            Index.Instance.GatePackageQueue.Enqueue(
-                                new Index.GamePackage()
-                                {
-                                    MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                                    ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_RankInfo,
-                                    Data = Index.ObjectToByteArray(rankInfo),
-                                }
-                            );
                             break;
                         }
                     default:
