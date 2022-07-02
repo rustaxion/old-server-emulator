@@ -6,5 +6,5 @@
 
 # Installation
 
-For now there is a video tutorial [here](https://youtu.be/Wbln3GQ928U), but there will be a comprehensive text guide soon. <br/>
-An automatic installer is also in the workings, so please be patient.
+There is a video tutorial [here](https://youtu.be/Wbln3GQ928U), but there will be a comprehensive text guide soon. <br/>
+There is also an [installer](https://github.com/Invaxion-Server-Emulator/installer/releases/tag/v1.0) (beta) that does the job for you.
