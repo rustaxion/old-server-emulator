@@ -29,6 +29,27 @@ public class Server : BaseUnityPlugin
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
 
         HookManager.Instance.Create();
+        var currentVersion = new AutoUpdater.Tag(PluginInfo.PLUGIN_VERSION);
+
+        var releasesApiLink = "https://api.github.com/repos/Invaxion-Server-Emulator/invaxion-server-emulator/releases";
+        var headers = new Dictionary<string, string> { {"Accept", "application/vnd.github.v3+json"} };
+        var checkUpdateReq = new Networking.Request(releasesApiLink, headers);
+        StartCoroutine(checkUpdateReq.Download(((request, success) =>
+        {
+            if (success)
+            {
+                var releases = LitJson.JsonMapper.ToObject<AutoUpdater.GithubReleases.Release[]>(request._www.text);
+                foreach (var release in releases)
+                {
+                    var releaseVersion = new AutoUpdater.Tag(release.tag_name);
+                    if (releaseVersion > currentVersion)
+                    {
+                        logger.LogInfo($"A new version is available on GitHub! (v{releaseVersion.ToString()})");
+                    }
+                }
+            }
+        })));
+        
         DiscordRichPresence.Data.Init();
 
         if (File.Exists("BepInEx/watch_logs.py") && Debug)
