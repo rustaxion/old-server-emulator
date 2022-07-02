@@ -137,18 +137,30 @@ public static class CosmicTour
                 };
 
                 var settleData = new cometScene.SettleData();
+                
+                var storyData = account.cosmicTourData.storyData.FirstOrDefault(story => story.chapterId == chapter.Id && story.levelId == level.Sequence);
+                if (storyData == null)
+                {
+                    storyData = new(){
+                        chapterId = (uint)chapter.Id,
+                        levelId = (uint)level.Sequence,
+                        finishLevel = data.data.playData.finishLevel,
+                        curRank = 0,
+                    };
+                    account.cosmicTourData.storyData.Add(storyData);
+                }
 
                 float missionsCompleted = 0;
                 foreach (var mission in level.Missions)
                 {
-                    ServerLogger.LogError($"Mission loop: {level.Missions.IndexOf(mission)}");
-                    if (HasCompletedMission(mission.type, mission.param, mission.paramAdd, data.data.playData))
+                    ServerLogger.LogInfo($"Mission loop: {level.Missions.IndexOf(mission)}");
+                    if (!storyData.missionList.Contains(mission.id) && HasCompletedMission(mission.type, mission.param, mission.paramAdd, data.data.playData))
                     {
-                        ServerLogger.LogError($"Mission '{mission.id}' completed!");
+                        ServerLogger.LogInfo($"Mission '{mission.id}' completed!");
                         missionsCompleted++;
                         cometScene.eItemType rewardType = default;
 
-                        ServerLogger.LogError($"Mission reward: {mission.reward.type}");
+                        ServerLogger.LogInfo($"Mission reward: {mission.reward.type}");
                         switch (mission.reward.type)
                         {
                             case "diamond": {
@@ -175,7 +187,7 @@ public static class CosmicTour
                                     continue;
                             }
                         }
-                        ServerLogger.LogError(rewardType.ToString());
+                        ServerLogger.LogInfo(rewardType.ToString());
 
                         settleData.changeList.Add(new()
                         {
@@ -184,7 +196,7 @@ public static class CosmicTour
                              type = (uint)rewardType,
                         });
                         storyFinish.data.missionList.Add(mission.id);
-                        ServerLogger.LogError("Mission reward added!");
+                        ServerLogger.LogInfo("Mission reward added!");
                     }
                 }
 
@@ -209,18 +221,6 @@ public static class CosmicTour
                 };
 
                 storyFinish.settleData = settleData;
-
-                var storyData = account.cosmicTourData.storyData.FirstOrDefault(story => story.chapterId == chapter.Id && story.levelId == level.Sequence);
-                if (storyData == null)
-                {
-                    storyData = new(){
-                        chapterId = (uint)chapter.Id,
-                        levelId = (uint)level.Sequence,
-                        finishLevel = data.data.playData.finishLevel,
-                        curRank = 0,
-                    };
-                    account.cosmicTourData.storyData.Add(storyData);
-                }
 
                 storyFinish.data.missionList.AddRange(storyData.missionList);
                 storyData.missionList.RemoveAll(e => true);
