@@ -1,4 +1,5 @@
-﻿using Server.Emulator.Database;
+﻿using LitJson;
+using Server.Emulator.Database;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,7 @@ public static class Beatmaps
 
                 foreach (var account in Server.Database.Accounts.Values.ToArray())
                 {
+                    if (Server.useOnlineFeatures) break;
                     var scoreList = _modeLink[data.mode] switch
                     {
                         "4k" => account.scoreList._key4List,
@@ -58,66 +60,68 @@ public static class Beatmaps
                     );
                 }
 
-                ranks.Sort((x, y) => x.score.CompareTo(y.score));
-
-                for (var i = 1; i <= ranks.Count; i++)
+                if (Server.useOnlineFeatures)
                 {
-                    ranks[i - 1].rank = (uint)i;
-                }
-
-                var ranklist = new cometScene.Ret_SingleSongRank();
-                ranklist.list.AddRange(ranks);
-
-                if (ranklist.list.Count == 0)
-                {
-                    ranklist.list.AddRange(
-                        new List<cometScene.SingleSongRankData>()
+                    var req = new Networking.Request(
+                        $"http://localhost:8787/singleSongLeaderboard?songId={data.songId}&mode={_modeLink[data.mode]}&diff={_difficultyLink[data.difficulty]}"
+                    );
+                    Server.Instance.startCoroutine(req.Download((res, success) => {
+                        if (!success) return;
+                        var data = JsonMapper.ToObject(res._www.text);
+                        for (var i=0; i < data.Count; i++)
                         {
-                            new cometScene.SingleSongRankData
-                            {
-                                rank = 1,
-                                charName = "No one is playing this song",
-                                score = 3,
-                                headId = 10010,
-                                charId = 000000000,
-                                teamName = "Server",
-                                country = 1,
-                                titleId = 10001
-                            },
-                            new cometScene.SingleSongRankData
-                            {
-                                rank = 2,
-                                charName = "Come and compete for the top",
-                                score = 2,
-                                headId = 10010,
-                                charId = 000000000,
-                                teamName = "Server",
-                                country = 1,
-                                titleId = 10001
-                            },
-                            new cometScene.SingleSongRankData
-                            {
-                                rank = 3,
-                                charName = "spot on the leaderboard!",
-                                score = 1,
-                                headId = 10010,
-                                charId = 000000000,
-                                teamName = "Server",
-                                country = 1,
-                                titleId = 10001
-                            }
+                            var rank = data[i];
+                            ranks.Add(
+                                new()
+                                {
+                                    charName = rank["charName"].ToString(),
+                                    score = (uint)(int)rank["score"],
+                                    headId = (uint)(int)rank["headId"],
+                                    charId = (ulong)(long)rank["charId"],
+                                    teamName = rank["teamName"].ToString(),
+                                    country = (uint)(int)rank["country"],
+                                    titleId = (uint)(int)rank["titleId"],
+                                }
+                            );
+                        }
+
+                        ranks.Sort((x, y) => x.score.CompareTo(y.score));
+                        for (var i = 1; i <= ranks.Count; i++)
+                        {
+                            ranks[i - 1].rank = (uint)i;
+                            ranks[i-1].titleId = 10001;
+                        }
+                        var rankList = new cometScene.Ret_SingleSongRank();
+                        rankList.list.AddRange(ranks);
+
+                        Index.Instance.GatePackageQueue.Enqueue(
+                        new Index.GamePackage()
+                        {
+                            MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                            ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_SingleSongRank,
+                            Data = Index.ObjectToByteArray(rankList),
+                        }
+                    );
+                    }));
+                } else
+                {
+                    ranks.Sort((x, y) => x.score.CompareTo(y.score));
+                    for (var i = 1; i <= ranks.Count; i++)
+                    {
+                        ranks[i - 1].rank = (uint)i;
+                    }
+                    var ranklist = new cometScene.Ret_SingleSongRank();
+                    ranklist.list.AddRange(ranks);
+
+                    Index.Instance.GatePackageQueue.Enqueue(
+                        new Index.GamePackage()
+                        {
+                            MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                            ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_SingleSongRank,
+                            Data = Index.ObjectToByteArray(ranklist),
                         }
                     );
                 }
-
-                Index.Instance.GatePackageQueue.Enqueue(
-                    new Index.GamePackage()
-                    {
-                        MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
-                        ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_SingleSongRank,
-                        Data = Index.ObjectToByteArray(ranklist),
-                    }
-                );
             }
         },
         {
@@ -404,6 +408,17 @@ public static class Beatmaps
                 }
 
                 account.currencyInfo.gold += goldGained;
+
+                if (Server.useOnlineFeatures)
+                {
+                    var req = new Networking.Request(
+                        $"http://localhost:8787/submitScore?songId={data.songId}&mode={_modeLink[data.mode]}&diff={_difficultyLink[data.difficulty]}" +
+                        $"&charId={account.charId}&charName={account.name}&teamName={account.team.teamName}&score={data.playData.score}&country={account.country}" +
+                        $"&titleId={account.titleId}&headId={account.headId}"
+                    );
+
+                    Server.Instance.startCoroutine(req.Download((res, success) => {}));
+                }
 
                 var settleData = new cometScene.SettleData
                 {

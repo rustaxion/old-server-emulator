@@ -19,6 +19,7 @@ public class Server : BaseUnityPlugin
     public static bool Debug = true;
     private static Process _process;
     private static bool ShuttingDown = false;
+    public static bool useOnlineFeatures = true;
 
     private void Awake()
     {
