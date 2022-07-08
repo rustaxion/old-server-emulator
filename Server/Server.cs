@@ -15,8 +15,9 @@ public class Server : BaseUnityPlugin
     public static BepInEx.Logging.ManualLogSource logger;
     public static Emulator.Database.Database Database;
     public static Emulator.PlaceholderServerData PlaceholderServerData;
+    public static OsuManiaLoader.Loader ManiaBeatmapsLoader;
     public static List<string> MustImplement = new();
-    public static bool Debug = false;
+    public static bool Debug = true;
     private static Process _process;
     private static bool ShuttingDown = false;
 
@@ -32,27 +33,62 @@ public class Server : BaseUnityPlugin
         var currentVersion = new AutoUpdater.Tag(PluginInfo.PLUGIN_VERSION);
 
         var releasesApiLink = "https://api.github.com/repos/Invaxion-Server-Emulator/invaxion-server-emulator/releases";
-        var headers = new Dictionary<string, string> { {"Accept", "application/vnd.github.v3+json"} };
+        var headers = new Dictionary<string, string> { { "Accept", "application/vnd.github.v3+json" } };
         var checkUpdateReq = new Networking.Request(releasesApiLink, headers);
         StartCoroutine(checkUpdateReq.Download(((request, success) =>
         {
             if (success)
             {
+                AutoUpdater.GithubReleases.Release NewVersion = null;
                 var releases = LitJson.JsonMapper.ToObject<AutoUpdater.GithubReleases.Release[]>(request._www.text);
                 foreach (var release in releases)
                 {
                     var releaseVersion = new AutoUpdater.Tag(release.tag_name);
                     if (releaseVersion > currentVersion)
                     {
-                        logger.LogInfo($"A new version is available on GitHub! (v{releaseVersion.ToString()})");
+                        NewVersion = release;
                     }
+                }
+                if (NewVersion != null)
+                {
+                    var releaseVersion = new AutoUpdater.Tag(NewVersion.tag_name);
+                    logger.LogInfo($"A new version is available on GitHub! (v{releaseVersion})");
+                    void ShowUpdateDialog()
+                    {
+                        if (DiscordRichPresence.GameState.CurrentScene == "MenuScene")
+                        {
+                            Emulator.Tools.Run.After(1f, () =>
+                            {
+                                Aquatrax.TipHelper.Instance.InitTipMode(Aquatrax.TipHelper.TipsMode.two);
+                                Aquatrax.TipHelper.Instance.InitText($"An update for ServerEmulator has been found ({currentVersion} -> {releaseVersion}), update now?");
+                                Aquatrax.TipHelper.Instance.Commit = delegate ()
+                                {
+                                    // TODO: Download the update and install it.
+                                    Logger.LogInfo("Clicked yes!");
+                                };
+                                Aquatrax.TipHelper.Instance.Cancel = delegate ()
+                                {
+                                    Logger.LogInfo("Clicked no!");
+                                };
+                            });
+                            DiscordRichPresence.GameEvents.switchScene -= ShowUpdateDialog;
+                        }
+                    }
+                    DiscordRichPresence.GameEvents.switchScene += ShowUpdateDialog;
                 }
             }
         })));
-        
-        DiscordRichPresence.Data.Init();
 
-        if (File.Exists("BepInEx/watch_logs.py") && Debug)
+        ManiaBeatmapsLoader = new OsuManiaLoader.Loader();
+        if (ManiaBeatmapsLoader.BeatmapPacks.Count > 0) Logger.LogInfo($"Loaded {ManiaBeatmapsLoader.BeatmapPacks.Count} osu!mania packs!");
+
+        if (File.Exists(Path.Combine(Path.Combine("INVAXION_Data", "Plugins"), "discord_game_sdk.dll")))
+        {
+            DiscordRichPresence.Data.Init();
+            DiscordRichPresence.GameEventHooks.Hook();
+        }
+
+        if (Debug && File.Exists("BepInEx/watch_logs.py"))
         {
             _process = new Process()
             {
@@ -65,8 +101,6 @@ public class Server : BaseUnityPlugin
             };
             _process.Start();
         }
-
-        DiscordRichPresence.GameEventHooks.Hook();
     }
 
     private static long timeDelta = TimeHelper.getCurUnixTimeOfSec();

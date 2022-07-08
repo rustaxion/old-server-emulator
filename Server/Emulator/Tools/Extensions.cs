@@ -14,3 +14,12 @@ public static partial class Extensions
                 target[_.Key] = _.Value;
     }
 }
+public static class ListExtension
+{
+    public static T Pop<T>(this List<T> list, int index)
+    {
+        var r = list[index];
+        list.RemoveAt(index);
+        return r;
+    }
+}
