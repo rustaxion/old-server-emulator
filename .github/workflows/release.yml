@@ -46,7 +46,7 @@ jobs:
     
     - name: print env
       run: |
-        echo "${{ runs.Set-tag-env.env }}""
+        echo "${{ env.RE_TAG_NAME }}""
 
     # - name: Publish the build
     #   uses: "marvinpinto/action-automatic-releases@latest"
