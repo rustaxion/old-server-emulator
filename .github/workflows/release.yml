@@ -40,13 +40,14 @@ jobs:
     # - name: Build
     #   run: dotnet publish -c=Release
     
-    - name: Set tag env
+    - name: Set-tag-env
       run: |
         python .github/scripts/get_version_tag.py
         echo "RE_TAG_NAME=$(python .github/scripts/get_version_tag.py)" >> $GITHUB_ENV
     
     - name: print env
-      run: echo "${{ env.RE_TAG_NAME }}"
+      run: |
+        echo "${{ runs.Set-tag-env.env }}""
 
     # - name: Publish the build
     #   uses: "marvinpinto/action-automatic-releases@latest"
