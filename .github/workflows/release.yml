@@ -42,8 +42,7 @@ jobs:
     
     - name: Set-tag-env
       run: |
-        python .github/scripts/get_version_tag.py
-        echo "RE_TAG_NAME=$(python .github/scripts/get_version_tag.py)" >> $GITHUB_ENV
+        "RE_TAG_NAME=$(python .github/scripts/get_version_tag.py)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
     
     - name: print env
       run: |
