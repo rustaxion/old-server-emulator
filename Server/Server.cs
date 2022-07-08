@@ -16,7 +16,7 @@ public class Server : BaseUnityPlugin
     public static Emulator.Database.Database Database;
     public static Emulator.PlaceholderServerData PlaceholderServerData;
     public static List<string> MustImplement = new();
-    public static bool Debug = false;
+    public static bool Debug = true;
     private static Process _process;
     private static bool ShuttingDown = false;
 
