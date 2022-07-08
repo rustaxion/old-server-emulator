@@ -12,6 +12,7 @@ on:
       - '*.md'
       - '.idea/*'
       - '.vs/*'
+      - '*.yml'
 
 
 concurrency: 
@@ -50,7 +51,6 @@ jobs:
         repo_token: "${{ secrets.REPO_TOKEN }}"
         automatic_release_tag: "v${{ env.RE_TAG_NAME }}"
         prerelease: false
-        draft: true
         title: "Automatic Build"
         files: |
           Server/bin/*/net35/ServerEmulator.dll
