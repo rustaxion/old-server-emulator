@@ -25,33 +25,36 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '6.0.x'
+    # - uses: actions/setup-dotnet@v2
+    #   with:
+    #     dotnet-version: '6.0.x'
     
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.2
+    # - name: Setup NuGet
+    #   uses: NuGet/setup-nuget@v1.0.2
     
     - uses: actions/setup-python@v4
       with:
         python-version: '3.6.x'
         architecture: 'x64'
     
-    - name: Build
-      run: dotnet publish -c=Release
+    # - name: Build
+    #   run: dotnet publish -c=Release
     
     - name: Set tag env
       run: |
         $tag = $(python .github/scripts/get_version_tag.py)
         echo "RE_TAG_NAME=$tag" >> $GITHUB_ENV
+    
+    - name: print env
+      run: env
 
-    - name: Publish the build
-      uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.REPO_TOKEN }}"
-        automatic_release_tag: "v${{ env.RE_TAG_NAME }}"
-        prerelease: false
-        draft: true
-        title: "Automatic Build"
-        files: |
-          Server/bin/*/net35/ServerEmulator.dll
+    # - name: Publish the build
+    #   uses: "marvinpinto/action-automatic-releases@latest"
+    #   with:
+    #     repo_token: "${{ secrets.REPO_TOKEN }}"
+    #     automatic_release_tag: "v${{ env.RE_TAG_NAME }}"
+    #     prerelease: false
+    #     draft: true
+    #     title: "Automatic Build"
+    #     files: |
+    #       Server/bin/*/net35/ServerEmulator.dll
