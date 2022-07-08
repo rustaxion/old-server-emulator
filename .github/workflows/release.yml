@@ -42,8 +42,7 @@ jobs:
     
     - name: Set tag env
       run: |
-        $tag = $(python .github/scripts/get_version_tag.py)
-        echo "RE_TAG_NAME=$tag" >> $GITHUB_ENV
+        echo "RE_TAG_NAME=$(python .github/scripts/get_version_tag.py)" >> $GITHUB_ENV
     
     - name: print env
       run: env
