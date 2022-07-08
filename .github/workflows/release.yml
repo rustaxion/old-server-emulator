@@ -45,7 +45,7 @@ jobs:
         echo "RE_TAG_NAME=$(python .github/scripts/get_version_tag.py)" >> $GITHUB_ENV
     
     - name: print env
-      run: env
+      run: echo "${{ env.RE_TAG_NAME }}""
 
     # - name: Publish the build
     #   uses: "marvinpinto/action-automatic-releases@latest"
