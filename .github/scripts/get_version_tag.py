@@ -2,7 +2,7 @@ import re
 
 version_regex = r"Version>(\d+\.\d+\.\d+)<"
 
-with open("../../Server/Server.csproj") as f:
+with open("Server/Server.csproj") as f:
     text = f.read()
 
 version = re.findall(version_regex, text)
