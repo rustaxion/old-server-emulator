@@ -20,6 +20,7 @@ public class Server : BaseUnityPlugin
     public static bool Debug = true;
     private static Process _process;
     private static bool ShuttingDown = false;
+    private static bool ManiaLoaderDisabled = true;
 
     private void Awake()
     {
@@ -29,6 +30,7 @@ public class Server : BaseUnityPlugin
         PlaceholderServerData = new();
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
 
+        GeneralPatches.TipHelperInputPatches.Hook();
         HookManager.Instance.Create();
         var currentVersion = new AutoUpdater.Tag(PluginInfo.PLUGIN_VERSION);
 
@@ -63,12 +65,7 @@ public class Server : BaseUnityPlugin
                                 Aquatrax.TipHelper.Instance.InitText($"An update for ServerEmulator has been found ({currentVersion} -> {releaseVersion}), update now?");
                                 Aquatrax.TipHelper.Instance.Commit = delegate ()
                                 {
-                                    // TODO: Download the update and install it.
-                                    Logger.LogInfo("Clicked yes!");
-                                };
-                                Aquatrax.TipHelper.Instance.Cancel = delegate ()
-                                {
-                                    Logger.LogInfo("Clicked no!");
+                                    AutoUpdater.Update.Procceed(NewVersion);
                                 };
                             });
                             DiscordRichPresence.GameEvents.switchScene -= ShowUpdateDialog;
@@ -79,8 +76,11 @@ public class Server : BaseUnityPlugin
             }
         })));
 
-        ManiaBeatmapsLoader = new OsuManiaLoader.Loader();
-        if (ManiaBeatmapsLoader.BeatmapPacks.Count > 0) Logger.LogInfo($"Loaded {ManiaBeatmapsLoader.BeatmapPacks.Count} osu!mania packs!");
+        if (!ManiaLoaderDisabled)
+        {
+            ManiaBeatmapsLoader = new OsuManiaLoader.Loader();
+            if (ManiaBeatmapsLoader.BeatmapPacks.Count > 0) Logger.LogInfo($"Loaded {ManiaBeatmapsLoader.BeatmapPacks.Count} osu!mania packs!");
+        }
 
         if (File.Exists(Path.Combine(Path.Combine("INVAXION_Data", "Plugins"), "discord_game_sdk.dll")))
         {
@@ -148,6 +148,8 @@ public class Server : BaseUnityPlugin
             _process.Kill();
             _process = null;
         }
+
+        if (!Debug) return;
 
         var commands = new List<string>();
 
