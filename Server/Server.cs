@@ -17,7 +17,7 @@ public class Server : BaseUnityPlugin
     public static Emulator.PlaceholderServerData PlaceholderServerData;
     public static OsuManiaLoader.Loader ManiaBeatmapsLoader;
     public static List<string> MustImplement = new();
-    public static bool Debug = true;
+    public static bool Debug = false;
     private static Process _process;
     private static bool ShuttingDown = false;
     private static bool ManiaLoaderDisabled = true;
