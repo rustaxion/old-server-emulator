@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using Server.Emulator.EagleTcpPatches;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,13 +18,23 @@ public class Server : BaseUnityPlugin
     public static Emulator.PlaceholderServerData PlaceholderServerData;
     public static OsuManiaLoader.Loader ManiaBeatmapsLoader;
     public static List<string> MustImplement = new();
-    public static bool Debug = true;
     private static Process _process;
     private static bool ShuttingDown = false;
-    private static bool ManiaLoaderDisabled = true;
+
+
+    // Configuration
+    private static ConfigEntry<bool> _EnableManiaLoader;
+    private static ConfigEntry<bool> _Debug;
+
+    public static bool ManiaLoaderDisabled { get => !_EnableManiaLoader.Value; }
+    public static bool Debug { get => _Debug.Value; }
+
 
     private void Awake()
     {
+        _EnableManiaLoader = Config.Bind("General", "EnableManiaLoader", false, "Enables/Disables loading osu!mania beatmaps into the game.");
+        _Debug = Config.Bind("General", "EnableDebug", false, "Enables/Disables debugging messages and utils.");
+
         _instance = this;
         logger = Logger;
         Database = new Emulator.Database.Database();
