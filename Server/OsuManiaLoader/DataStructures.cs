@@ -55,7 +55,7 @@ public abstract class OsuObj
 
 public class OsuTimingPoint : OsuObj
 {
-    public float msPerBeat;
+    public int msPerBeat;
     public int meter;
     public int sampleSet;
     public int sampleIndex;
@@ -162,6 +162,213 @@ public class OsuManiaLongNote : OsuHitObject
     public override int GetTypeValue()
     {
         return this.newCombo ? 132 : 128;
+    }
+}
+
+public class Fraction
+{
+    // https://gist.github.com/fidelsoto/b4c0f14b800c58e137ad5757f35cacd6
+    public float numerator;
+    public float denominator;
+
+    public Fraction(float numerator, float denominator)
+    {
+        this.numerator = numerator;
+        this.denominator = denominator;
+    }
+
+    public Fraction(Fraction fraction)
+    {
+        numerator = fraction.numerator;
+        denominator = fraction.denominator;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj == null) return false;
+
+        Fraction other = obj as Fraction;
+        return (numerator == other.numerator && denominator == other.denominator);
+    }
+
+    public static bool operator ==(Fraction f1, Fraction f2)
+    {
+        return f1.Equals(f2);
+    }
+
+    public static bool operator ==(Fraction f1, int f2)
+    {
+        return f1.Equals(new Fraction(f2, 1));
+    }
+
+    public static bool operator !=(Fraction f1, Fraction f2)
+    {
+        return !(f1 == f2);
+    }
+
+    public static bool operator !=(Fraction f1, int f2)
+    {
+        return !(f1 == f2);
+    }
+
+    public static Fraction operator *(Fraction f1, float f2)
+    {
+        var f3 = new Fraction(f1);
+        f3.numerator *= f2;
+        return f3;
+    }
+
+    public static Fraction operator /(Fraction f1, float f2)
+    {
+        var f3 = new Fraction(f1);
+        f3.numerator /= f2;
+        f3.denominator /= f2;
+        return f3;
+    }
+
+    public static Fraction operator +(Fraction f1, float f2)
+    {
+        var f3 = new Fraction(f1.numerator, f1.denominator);
+        f3.numerator += f2 * f3.denominator;
+        return f3;
+    }
+
+    public static Fraction operator -(Fraction f1, float f2)
+    {
+        var f3 = new Fraction(f1.numerator, f1.denominator);
+        f3.numerator -= f2 * f3.denominator;
+        return f3;
+    }
+
+    public static float operator +(float f1, Fraction f2)
+    {
+        return f1 + f2.ToFloat();
+    }
+
+    public static float operator -(float f1, Fraction f2)
+    {
+        return f1 - f2.ToFloat();
+    }
+
+    public static float operator +(int f1, Fraction f2)
+    {
+        return f1 + f2.ToFloat();
+    }
+
+    public static float operator -(int f1, Fraction f2)
+    {
+        return f1 - f2.ToFloat();
+    }
+
+    public static Fraction operator +(Fraction f1, Fraction f2)
+    {
+        var a = f1.denominator > f2.denominator ? f1 : f2;
+        var b = f1.denominator < f2.denominator ? f1 : f2;
+        var difference = a.denominator / b.denominator;
+
+        return new Fraction(a.numerator + (b.numerator * difference), a.denominator);
+    }
+
+    public static Fraction operator -(Fraction f1, Fraction f2)
+    {
+        var a = f1.denominator > f2.denominator ? f1 : f2;
+        var b = f1.denominator < f2.denominator ? f1 : f2;
+        var difference = a.denominator / b.denominator;
+
+        return new Fraction(a.numerator - (b.numerator * difference), a.denominator);
+    }
+
+    public static bool operator >(Fraction f1, Fraction f2)
+    {
+        return (f1.numerator / f1.denominator) > (f2.numerator / f2.denominator);
+    }
+
+    public static bool operator <(Fraction f1, Fraction f2)
+    {
+        return (f1.numerator / f1.denominator) < (f2.numerator / f2.denominator);
+    }
+
+    public static bool operator <=(Fraction f1, Fraction f2)
+    {
+        return (f1.numerator / f1.denominator) <= (f2.numerator / f2.denominator);
+    }
+
+    public static bool operator >=(Fraction f1, Fraction f2)
+    {
+        return (f1.numerator / f1.denominator) >= (f2.numerator / f2.denominator);
+    }
+
+    public static bool operator >(Fraction f1, float f2)
+    {
+        return (f1.numerator / f1.denominator) > f2;
+    }
+
+    public static bool operator <(Fraction f1, float f2)
+    {
+        return (f1.numerator / f1.denominator) < f2;
+    }
+
+    public static bool operator <=(Fraction f1, float f2)
+    {
+        return (f1.numerator / f1.denominator) <= f2;
+    }
+
+    public static bool operator >=(Fraction f1, float f2)
+    {
+        return (f1.numerator / f1.denominator) >= f2;
+    }
+
+    public static bool operator >(Fraction f1, int f2)
+    {
+        return (f1.numerator / f1.denominator) > f2;
+    }
+
+    public static bool operator <(Fraction f1, int f2)
+    {
+        return (f1.numerator / f1.denominator) < f2;
+    }
+
+    public static bool operator <=(Fraction f1, int f2)
+    {
+        return (f1.numerator / f1.denominator) <= f2;
+    }
+
+    public static bool operator >=(Fraction f1, int f2)
+    {
+        return (f1.numerator / f1.denominator) >= f2;
+    }
+
+    public override int GetHashCode()
+    {
+        // i dunno, some weird stuff, its not like we care
+        return (int)Math.Floor((numerator * denominator) + (numerator - denominator));
+    }
+
+    public override string ToString()
+    {
+        return numerator + "/" + denominator;
+    }
+
+    public float ToFloat()
+    {
+        return numerator / denominator;
+    }
+
+    //Helper function, simplifies a fraction.
+    public Fraction Simplify()
+    {
+        for (float divideBy = denominator; divideBy > 0; divideBy--)
+        {
+            bool divisible = ((int)(numerator / divideBy) * divideBy == numerator) &&
+                ((int)(denominator / divideBy) * divideBy == denominator);
+
+            if (divisible)
+            {
+                numerator /= divideBy;
+                denominator /= divideBy;
+            }
+        }
+        return this;
     }
 }
 
