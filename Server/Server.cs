@@ -25,15 +25,18 @@ public class Server : BaseUnityPlugin
     // Configuration
     private static ConfigEntry<bool> _EnableManiaLoader;
     private static ConfigEntry<bool> _Debug;
+    private static ConfigEntry<bool> _CheckForUpdates;
 
-    public static bool ManiaLoaderDisabled { get => !_EnableManiaLoader.Value; }
+    public static bool EnableManiaLoader { get => _EnableManiaLoader.Value; }
     public static bool Debug { get => _Debug.Value; }
+    public static bool CheckForUpdates { get => _CheckForUpdates.Value; }
 
 
     private void Awake()
     {
         _EnableManiaLoader = Config.Bind("General", "EnableManiaLoader", false, "Enables/Disables loading osu!mania beatmaps into the game.");
         _Debug = Config.Bind("General", "EnableDebug", false, "Enables/Disables debugging messages and utils.");
+        _CheckForUpdates = Config.Bind("General", "CheckForUpdates", true, "Enables/Disables checking for updates.");
 
         _instance = this;
         logger = Logger;
@@ -43,57 +46,20 @@ public class Server : BaseUnityPlugin
 
         GeneralPatches.TipHelperInputPatches.Hook();
         HookManager.Instance.Create();
-        var currentVersion = new AutoUpdater.Tag(PluginInfo.PLUGIN_VERSION);
 
-        var releasesApiLink = "https://api.github.com/repos/Invaxion-Server-Emulator/invaxion-server-emulator/releases";
-        var headers = new Dictionary<string, string> { { "Accept", "application/vnd.github.v3+json" } };
-        var checkUpdateReq = new Networking.Request(releasesApiLink, headers);
-        StartCoroutine(checkUpdateReq.Download(((request, success) =>
+        if (CheckForUpdates)
         {
-            if (success)
-            {
-                AutoUpdater.GithubReleases.Release NewVersion = null;
-                var releases = LitJson.JsonMapper.ToObject<AutoUpdater.GithubReleases.Release[]>(request._www.text);
-                foreach (var release in releases)
-                {
-                    var releaseVersion = new AutoUpdater.Tag(release.tag_name);
-                    if (releaseVersion > currentVersion)
-                    {
-                        NewVersion = release;
-                    }
-                }
-                if (NewVersion != null)
-                {
-                    var releaseVersion = new AutoUpdater.Tag(NewVersion.tag_name);
-                    logger.LogInfo($"A new version is available on GitHub! (v{releaseVersion})");
-                    void ShowUpdateDialog()
-                    {
-                        if (DiscordRichPresence.GameState.CurrentScene == "MenuScene")
-                        {
-                            Emulator.Tools.Run.After(1f, () =>
-                            {
-                                Aquatrax.TipHelper.Instance.InitTipMode(Aquatrax.TipHelper.TipsMode.two);
-                                Aquatrax.TipHelper.Instance.InitText($"An update for ServerEmulator has been found ({currentVersion} -> {releaseVersion}), update now?");
-                                Aquatrax.TipHelper.Instance.Commit = delegate ()
-                                {
-                                    AutoUpdater.Update.Procceed(NewVersion);
-                                };
-                            });
-                            DiscordRichPresence.GameEvents.switchScene -= ShowUpdateDialog;
-                        }
-                    }
-                    DiscordRichPresence.GameEvents.switchScene += ShowUpdateDialog;
-                }
-            }
-        })));
+            var currentVersion = new AutoUpdater.Tag(PluginInfo.PLUGIN_VERSION);
+            AutoUpdater.Update.CheckForUpdate(currentVersion);
+        }
 
-        if (!ManiaLoaderDisabled)
+        if (EnableManiaLoader)
         {
             ManiaBeatmapsLoader = new OsuManiaLoader.Loader();
             if (ManiaBeatmapsLoader.BeatmapPacks.Count > 0) Logger.LogInfo($"Loaded {ManiaBeatmapsLoader.BeatmapPacks.Count} osu!mania packs!");
         }
 
-        if (File.Exists(Path.Combine(Path.Combine("INVAXION_Data", "Plugins"), "discord_game_sdk.dll")))
+        if (File.Exists(Emulator.Tools.Path.Combine("INVAXION_Data", "Plugins", "discord_game_sdk.dll")))
         {
             DiscordRichPresence.Data.Init();
             DiscordRichPresence.GameEventHooks.Hook();
@@ -144,14 +110,7 @@ public class Server : BaseUnityPlugin
     private void OnApplicationQuit()
     {
         ShuttingDown = true;
-        DiscordRichPresence.Data._activityManager.ClearActivity(
-            (
-                result =>
-                {
-                    // why is a callback required?
-                }
-            )
-        );
+        DiscordRichPresence.Data._activityManager.ClearActivity(_ => { });
         DiscordRichPresence.Data.Poll();
 
         if (Debug && _process != null)
@@ -163,12 +122,14 @@ public class Server : BaseUnityPlugin
         if (!Debug) return;
 
         var commands = new List<string>();
+        var filter = new List<string>();
 
         foreach (var command in MustImplement)
         {
-            if (!commands.Contains(command))
+            var cmd = $"{command} (x{MustImplement.Count(command.Equals)})";
+            if (!filter.Contains(cmd))
             {
-                commands.Add($"{command} (x{MustImplement.Count(command.Equals)})");
+                commands.Add(cmd);
             }
         }
 

@@ -26,13 +26,13 @@ public class OsuManiaToBMS
         {7, 59}
     };
 
-    private static List<string> CreateHeader(Beatmap beatmap)
+    private static List<string> CreateHeader(OsuMania beatmap)
     {
         var header = new List<string> {
             "", "*---------------------- HEADER FIELD", "",
-            "#PLAYER 1", $"#GENRE {beatmap.Metadata.Creator}",
-            $"#TITLE {beatmap.Metadata.TitleUnicode}", $"#SUBTITLE {beatmap.version}",
-            $"#ARTIST {beatmap.Metadata.ArtistUnicode}", "#BPM {calcuateTheBPM}",
+            "#PLAYER 1", $"#GENRE {beatmap.creator}",
+            $"#TITLE {beatmap.titleUnicode}", $"#SUBTITLE {beatmap.version}",
+            $"#ARTIST {beatmap.artistUnicode}", "#BPM {calcuateTheBPM}",
             "#DIFFICULTY 5", "#RANK 3", "", "*---------------------- EXPANSION FIELD",
             "", "*---------------------- MAIN DATA FIELD", "", ""
         };
@@ -40,7 +40,7 @@ public class OsuManiaToBMS
         return header;
     }
 
-    public static void Convert(Beatmap beatmap)
+    public static void Convert(OsuMania beatmap)
     {
         var buffer = CreateHeader(beatmap);
     }

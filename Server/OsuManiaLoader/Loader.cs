@@ -10,7 +10,7 @@ public class OsuManiaBeatmapPack
 {
     public string packName;
     public string packFile;
-    public List<Beatmap> Beatmaps = new();
+    public List<OsuMania> Beatmaps = new();
 }
 
 public class Loader
@@ -20,6 +20,7 @@ public class Loader
 
     public Loader()
     {
+        if (!Server.EnableManiaLoader) return;
         var utf8 = new UTF8Encoding();
 
         if (!Directory.Exists(OszDir))
@@ -46,7 +47,8 @@ public class Loader
                     var bytes = new byte[entry.Size];
                     var _ = entry.OpenEntryStream().Read(bytes, 0, (int)entry.Size);
                     var textContent = utf8.GetString(bytes);
-                    pack.Beatmaps.Add(BeatmapParser.Parse(textContent));
+
+                    pack.Beatmaps.Add(OsuBeatmapReader.Parse(textContent));
                 }
 
                 if (pack.Beatmaps.Count > 0)
@@ -54,8 +56,9 @@ public class Loader
                     BeatmapPacks.Add(pack);
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception e)
             {
+                Logger.LogError(e.Message);
                 Logger.LogError($"Failed to load `{osuFile}`");
             }
         }
