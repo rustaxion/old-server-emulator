@@ -2,13 +2,14 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace Server.AutoUpdater;
 
 public static class Update
 {
-    public static string ReleasesAPI = "https://api.github.com/repos/Invaxion-Server-Emulator/invaxion-server-emulator/releases";
+    public const string ReleasesAPI = "https://api.github.com/repos/Invaxion-Server-Emulator/invaxion-server-emulator/releases";
 
     public static void CheckForUpdate(Tag currentVersion)
     {
@@ -18,39 +19,40 @@ public static class Update
         {
             if (success)
             {
-                GithubReleases.Release NewVersion = null;
+                GithubReleases.Release newVersion = null;
+                var newVersionTag = currentVersion;
+                
                 var releases = LitJson.JsonMapper.ToObject<GithubReleases.Release[]>(request._www.text);
                 foreach (var release in releases)
                 {
                     var releaseVersion = new Tag(release.tag_name);
-                    if (releaseVersion > currentVersion)
+                    if (releaseVersion > newVersionTag)
                     {
-                        NewVersion = release;
+                        newVersion = release;
+                        newVersionTag = releaseVersion;
                     }
                 }
-                if (NewVersion != null)
-                {
-                    var releaseVersion = new Tag(NewVersion.tag_name);
-                    Server.logger.LogInfo($"[ServerEmulator] [Updater] A new version is available on GitHub! (v{releaseVersion})");
 
-                    void ShowUpdateDialog()
+                if (newVersion == null) return;
+                Server.logger.LogInfo($"[ServerEmulator] [Updater] A new version is available on GitHub! (v{newVersionTag})");
+
+                void ShowUpdateDialog()
+                {
+                    if (DiscordRichPresence.GameState.CurrentScene == "MenuScene")
                     {
-                        if (DiscordRichPresence.GameState.CurrentScene == "MenuScene")
+                        Emulator.Tools.Run.After(1f, () =>
                         {
-                            Emulator.Tools.Run.After(1f, () =>
+                            Aquatrax.TipHelper.Instance.InitTipMode(Aquatrax.TipHelper.TipsMode.two);
+                            Aquatrax.TipHelper.Instance.InitText($"An update for ServerEmulator has been found ({currentVersion} -> {newVersionTag}), update now?");
+                            Aquatrax.TipHelper.Instance.Commit = delegate ()
                             {
-                                Aquatrax.TipHelper.Instance.InitTipMode(Aquatrax.TipHelper.TipsMode.two);
-                                Aquatrax.TipHelper.Instance.InitText($"An update for ServerEmulator has been found ({currentVersion} -> {releaseVersion}), update now?");
-                                Aquatrax.TipHelper.Instance.Commit = delegate ()
-                                {
-                                    Procceed(NewVersion);
-                                };
-                            });
-                            DiscordRichPresence.GameEvents.switchScene -= ShowUpdateDialog;
-                        }
+                                Procceed(newVersion);
+                            };
+                        });
+                        DiscordRichPresence.GameEvents.switchScene -= ShowUpdateDialog;
                     }
-                    DiscordRichPresence.GameEvents.switchScene += ShowUpdateDialog;
                 }
+                DiscordRichPresence.GameEvents.switchScene += ShowUpdateDialog;
             }
         })));
     }
@@ -60,25 +62,26 @@ public static class Update
         var commands = new string[] {
             "Wait-Process -Name 'INVAXION' -ErrorAction SilentlyContinue",
             $"Invoke-WebRequest -Uri '{url}' -OutFile '{path}'",
-            "Remove-Item -Path $MyInvocation.MyCommand.Source"
+            "Remove-Item -Path $MyInvocation.MyCommand.Source",
+            "if ($Error)", "{", "Pause", "}"
         };
         return string.Join("\n", commands);
     }
 
     public static void Procceed(GithubReleases.Release release)
     {
-        var assetLink = release.assets.Where(asset => asset.name == "ServerEmulator.dll").FirstOrDefault().browser_download_url;
-        if (assetLink == "")
+        var assetLink = release.assets.FirstOrDefault(asset => asset.name == "ServerEmulator.dll");
+        if (assetLink == null)
         {
             return;
         }
 
         var outFile = Emulator.Tools.Path.Combine(BepInEx.Paths.BepInExRootPath, "plugins", "ServerEmulator.dll");
-        var script = GetUpdateScript(assetLink, outFile);
+        var script = GetUpdateScript(assetLink.browser_download_url, outFile);
 
         var scriptName = $"ServerEmulator_{new Tag(release.tag_name)}_update.ps1";
-        var scriptPath = Path.Combine(Path.GetTempPath(), scriptName);
-        File.WriteAllText(scriptPath, script);
+        var scriptPath = Path.Combine(BepInEx.Paths.BepInExRootPath, scriptName);
+        File.WriteAllText(scriptPath, script, Encoding.UTF8);
 
         var updateProcess = new Process()
         {
@@ -86,7 +89,7 @@ public static class Update
                 {
                     FileName = "powershell.exe",
                     Arguments = $"-ExecutionPolicy ByPass -File {scriptName}",
-                    WorkingDirectory = Path.GetTempPath(),
+                    WorkingDirectory = BepInEx.Paths.BepInExRootPath,
                 }
         };
         updateProcess.Start();
