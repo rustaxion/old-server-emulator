@@ -27,7 +27,7 @@ public class OsuBeatmapReader
                 hitObj = new OsuManiaNote();
                 if (hitObjType == "5")
                 {
-                    hitObj.newCombo = true;
+                    hitObj.NewCombo = true;
                 }
             }
             else if (new string[] { "2", "6", "8", "12" }.Contains(hitObjType)) return;
@@ -38,35 +38,35 @@ public class OsuBeatmapReader
 
                 if (hitObjType == "128")
                 {
-                    hitObj.newCombo = true;
+                    hitObj.NewCombo = true;
                 }
             }
             else throw new Exception($"HitObject Error: type {hitObjType} is not found in `{line}`");
 
-            if (beatmap.keyCount == 7)
+            if (beatmap.KeyCount == 7)
             {
-                hitObj.maniaColumn = lineSeperated[0] != "0" ? (int.Parse(lineSeperated[0]) / (512 / beatmap.keyCount)) + 1 : 0;
+                hitObj.ManiaColumn = lineSeperated[0] != "0" ? (int.Parse(lineSeperated[0]) / (512 / beatmap.KeyCount)) + 1 : 0;
             }
-            else if (beatmap.keyCount == 8)
+            else if (beatmap.KeyCount == 8)
             {
-                hitObj.maniaColumn = (int.Parse(lineSeperated[0]) / (512 / beatmap.keyCount)) + 1;
+                hitObj.ManiaColumn = (int.Parse(lineSeperated[0]) / (512 / beatmap.KeyCount)) + 1;
             }
-            hitObj.time = int.Parse(lineSeperated[2]);
+            hitObj.Time = int.Parse(lineSeperated[2]);
 
-            if (latestTpIndex < beatmap.timingPoints.Count - 1 && beatmap.timingPoints[latestTpIndex + 1].time <= hitObj.time)
+            if (latestTpIndex < beatmap.TimingPoints.Count - 1 && beatmap.TimingPoints[latestTpIndex + 1].Time <= hitObj.Time)
             {
                 latestTpIndex += 1;
             }
 
-            hitObj.timingPoint = beatmap.timingPoints[latestTpIndex];
-            beatmap.hitObjects.Add(hitObj);
+            hitObj.TimingPoint = beatmap.TimingPoints[latestTpIndex];
+            beatmap.HitObjects.Add(hitObj);
 
             if (lnBuffer != null)
             {
-                lnBuffer.time = hitObj.time;
-                lnBuffer.endTime = ((OsuManiaLongNote)hitObj).endTime;
-                lnBuffer.maniaColumn = hitObj.maniaColumn;
-                beatmap.hitObjects.Add(lnBuffer);
+                lnBuffer.Time = hitObj.Time;
+                lnBuffer.EndTime = ((OsuManiaLongNote)hitObj).EndTime;
+                lnBuffer.ManiaColumn = hitObj.ManiaColumn;
+                beatmap.HitObjects.Add(lnBuffer);
             }
         }
         void HeaderTimingPoints(string line)
@@ -74,14 +74,14 @@ public class OsuBeatmapReader
             float GetMsPerBeat(float ms)
             {
                 if (ms >= 0) return ms;
-                foreach (var tp in beatmap.timingPoints)
+                foreach (var tp in beatmap.TimingPoints)
                 {
-                    if (!tp.inherited)
+                    if (!tp.Inherited)
                     {
-                        return System.Math.Abs(ms / 100) * tp.msPerBeat;
+                        return Math.Abs(ms / 100) * tp.MsPerBeat;
                     }
                 }
-                throw new System.Exception("Non inherited BPM not found. Timing points are broken");
+                throw new Exception("Non inherited BPM not found. Timing points are broken");
             }
             var lineSeperated = line.Split(',');
             if (lineSeperated.Length != 8)
@@ -90,41 +90,41 @@ public class OsuBeatmapReader
             }
 
             var tp = new OsuTimingPoint();
-            tp.time = Convert.ToInt64(float.Parse(lineSeperated[0]));
-            tp.inherited = lineSeperated[6] == "0";
-            tp.meter = int.Parse(lineSeperated[2]);
-            tp.sampleSet = int.Parse(lineSeperated[3]);
-            tp.sampleIndex = int.Parse(lineSeperated[4]);
-            tp.volume = int.Parse(lineSeperated[5]);
-            tp.kiaiMode = lineSeperated[7] != "0";
+            tp.Time = (int)float.Parse(lineSeperated[0]);
+            tp.Inherited = lineSeperated[6] == "0";
+            tp.Meter = int.Parse(lineSeperated[2]);
+            tp.SampleSet = int.Parse(lineSeperated[3]);
+            tp.SampleIndex = int.Parse(lineSeperated[4]);
+            tp.Volume = int.Parse(lineSeperated[5]);
+            tp.KiaiMode = lineSeperated[7] != "0";
 
-            if (beatmap.timingPoints.Count > 0 && tp.time <= beatmap.timingPoints.Last().time + 2 && !tp.inherited)
-                beatmap.timingPoints.RemoveAt(beatmap.timingPoints.Count - 1);
+            if (beatmap.TimingPoints.Count > 0 && tp.Time <= beatmap.TimingPoints.Last().Time + 2 && !tp.Inherited)
+                beatmap.TimingPoints.RemoveAt(beatmap.TimingPoints.Count - 1);
 
-            if (tp.inherited)
+            if (tp.Inherited)
             {
-                tp.msPerBeat = GetMsPerBeat(float.Parse(lineSeperated[1]));
-                var prevTp = beatmap.timingPoints.Last();
+                tp.MsPerBeat = (int)GetMsPerBeat(float.Parse(lineSeperated[1]));
+                var prevTp = beatmap.TimingPoints.Last();
 
-                if (beatmap.timingPoints.Count > 0 && tp.time <= prevTp.time + 1 &&
-                    tp.sampleSet != prevTp.sampleSet && tp.sampleIndex != prevTp.sampleIndex)
+                if (beatmap.TimingPoints.Count > 0 && tp.Time <= prevTp.Time + 1 &&
+                    tp.SampleSet != prevTp.SampleSet && tp.SampleIndex != prevTp.SampleIndex)
                 {
-                    beatmap.timingPoints.RemoveAt(beatmap.timingPoints.Count - 1);
+                    beatmap.TimingPoints.RemoveAt(beatmap.TimingPoints.Count - 1);
                 }
             }
             else
             {
-                tp.msPerBeat = float.Parse(lineSeperated[1]);
-                var bpm = Stuff.CalculateBPM(tp);
+                tp.MsPerBeat = (int)float.Parse(lineSeperated[1]);
+                var bpm = Stuff.CalculateBpm(tp);
 
-                if (bpm != Convert.ToInt32(bpm) || bpm > 255)
+                if (Math.Abs(bpm - Convert.ToInt32(bpm)) > 0.1 || bpm > 255)
                     beatmap.ParseFloatBPM(bpm);
 
-                if (beatmap.timingPoints.Count > 0 && tp.time <= beatmap.noneInheritedTP.Last().time + 1)
-                    beatmap.noneInheritedTP.RemoveAt(beatmap.noneInheritedTP.Count - 1);
-                beatmap.noneInheritedTP.Add(tp);
+                if (beatmap.TimingPoints.Count > 0 && tp.Time <= beatmap.NoneInheritedTp.Last().Time + 1)
+                    beatmap.NoneInheritedTp.RemoveAt(beatmap.NoneInheritedTp.Count - 1);
+                beatmap.NoneInheritedTp.Add(tp);
             }
-            beatmap.timingPoints.Add(tp);
+            beatmap.TimingPoints.Add(tp);
         }
         void HeaderDifficulty(string line)
         {
@@ -134,12 +134,12 @@ public class OsuBeatmapReader
             {
                 case "CircleSize":
                     {
-                        beatmap.keyCount = int.Parse(lineProperty[1]);
+                        beatmap.KeyCount = int.Parse(lineProperty[1]);
                         break;
                     }
                 case "OverallDifficulty":
                     {
-                        beatmap.od = float.Parse(lineProperty[1]);
+                        beatmap.OverallDifficulty = float.Parse(lineProperty[1]);
                         break;
                     }
                 case "SliderTickRate":
@@ -163,22 +163,22 @@ public class OsuBeatmapReader
             {
                 case "AudioFilename":
                     {
-                        beatmap.audioFilename = lineProperty[1].Trim();
+                        beatmap.AudioFilename = lineProperty[1].Trim();
                         break;
                     }
                 case "AudioLeadIn":
                     {
-                        beatmap.audioLeadIn = int.Parse(lineProperty[1]);
+                        beatmap.AudioLeadIn = int.Parse(lineProperty[1]);
                         break;
                     }
                 case "PreviewTime":
                     {
-                        beatmap.previewTime = int.Parse(lineProperty[1]);
+                        beatmap.PreviewTime = int.Parse(lineProperty[1]);
                         break;
                     }
                 case "SampleSet":
                     {
-                        beatmap.sampleSet = lineProperty[1];
+                        beatmap.SampleSet = lineProperty[1];
                         break;
                     }
                 case "Mode":
@@ -189,7 +189,7 @@ public class OsuBeatmapReader
                     }
                 case "SpecialStyle":
                     {
-                        beatmap.specialStyle = lineProperty[1] == "1";
+                        beatmap.SpecialStyle = lineProperty[1] == "1";
                         break;
                     }
             }
@@ -202,43 +202,43 @@ public class OsuBeatmapReader
             {
                 case "Title":
                     {
-                        beatmap.title = lineProperty[1].Trim().Replace("/", "").Replace("\\", "");
+                        beatmap.Title = lineProperty[1].Trim().Replace("/", "").Replace("\\", "");
                         break;
                     }
                 case "TitleUnicode":
                     {
-                        beatmap.titleUnicode = lineProperty[1].Trim();
+                        beatmap.TitleUnicode = lineProperty[1].Trim();
                         break;
                     }
                 case "Artist":
                     {
-                        beatmap.artist = lineProperty[1].Trim();
+                        beatmap.Artist = lineProperty[1].Trim();
                         break;
                     }
                 case "ArtistUnicode":
                     {
-                        beatmap.artistUnicode = lineProperty[1].Trim();
+                        beatmap.ArtistUnicode = lineProperty[1].Trim();
 
                         break;
                     }
                 case "Creator":
                     {
-                        beatmap.creator = lineProperty[1].Trim();
+                        beatmap.Creator = lineProperty[1].Trim();
                         break;
                     }
                 case "Version":
                     {
-                        beatmap.version = lineProperty[1].Trim();
+                        beatmap.Version = lineProperty[1].Trim();
                         break;
                     }
                 case "Source":
                     {
-                        beatmap.source = lineProperty[1].Trim();
+                        beatmap.Source = lineProperty[1].Trim();
                         break;
                     }
                 case "BeatmapID":
                     {
-                        beatmap.beatmapId = lineProperty[1].Trim();
+                        beatmap.BeatmapId = lineProperty[1].Trim();
                         break;
                     }
             }
@@ -303,11 +303,11 @@ public class OsuBeatmapReader
             }
         }
 
-        beatmap.objects = new();
-        beatmap.objects.AddRange(beatmap.hitObjects.Select(e => (OsuObj)e));
-        beatmap.objects.AddRange(beatmap.noneInheritedTP.Select(e => (OsuObj)e));
+        beatmap.Objects = new();
+        beatmap.Objects.AddRange(beatmap.HitObjects.Select(e => (OsuObj)e));
+        beatmap.Objects.AddRange(beatmap.NoneInheritedTp.Select(e => (OsuObj)e));
 
-        beatmap.objects = beatmap.objects.OrderBy(obj => obj.time).ToList();
+        beatmap.Objects = beatmap.Objects.OrderBy(obj => obj.Time).ToList();
 
         return beatmap;
     }

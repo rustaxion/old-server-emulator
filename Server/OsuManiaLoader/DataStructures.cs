@@ -6,94 +6,88 @@ namespace Server.OsuManiaLoader;
 
 public class OsuMania
 {
-    public string audioFilename;
-    public int audioLeadIn;
-    public bool specialStyle;
-    public string sampleSet;
-    public int previewTime;
+    public string AudioFilename;
+    public int AudioLeadIn;
+    public bool SpecialStyle;
+    public string SampleSet;
+    public int PreviewTime;
 
     // Metadata
-    public string title;
-    public string titleUnicode;
-    public string artist;
-    public string artistUnicode;
-    public string creator;
-    public string version;
-    public string source;
-    public string beatmapId;
-    public string stageBg;
+    public string Title;
+    public string TitleUnicode;
+    public string Artist;
+    public string ArtistUnicode;
+    public string Creator;
+    public string Version;
+    public string Source;
+    public string BeatmapId;
+    public string StageBg;
 
-    public int keyCount;
-    public float od; // OverallDifficulty
+    public int KeyCount;
+    public float OverallDifficulty;
 
-    public List<(string, float)> floatBpm = new();
-    public List<OsuTimingPoint> timingPoints = new();
-    public List<OsuHitObject> hitObjects = new();
-    public List<OsuObj> objects;
-    public List<string> sampleFilenames = new();
-    public Dictionary<string, string> filenameToSample = new();
-    public List<OsuTimingPoint> noneInheritedTP = new();
+    public List<(string, float)> FloatBpms = new();
+    public List<OsuTimingPoint> TimingPoints = new();
+    public List<OsuHitObject> HitObjects = new();
+    public List<OsuObj> Objects;
+    public List<string> SampleFilenames = new();
+    public Dictionary<string, string> FilenameToSample = new();
+    public List<OsuTimingPoint> NoneInheritedTp = new();
 
     public void ParseFloatBPM(float bpm)
     {
-        foreach (var e in floatBpm)
+        foreach (var e in FloatBpms)
         {
-            if (e.Item2 == bpm)
+            if (Math.Abs(e.Item2 - bpm) < 0.1)
             {
                 return;
             }
         }
-        floatBpm.Add((Stuff.GetCurrentHsCount(floatBpm.Count + 1), bpm));
+        FloatBpms.Add((Stuff.GetCurrentHsCount(FloatBpms.Count + 1), bpm));
     }
 }
 
 public abstract class OsuObj
 {
-    public long time;
-    public int sortType;
+    public long Time;
+    public int SortType;
 }
 
 public class OsuTimingPoint : OsuObj
 {
-    public int msPerBeat;
-    public int meter;
-    public int sampleSet;
-    public int sampleIndex;
-    public int volume;
-    public bool inherited;
-    public bool kiaiMode;
+    public int MsPerBeat;
+    public int Meter;
+    public int SampleSet;
+    public int SampleIndex;
+    public int Volume;
+    public bool Inherited;
+    public bool KiaiMode;
 
-    public long msPerMeasure;
+    public long MsPerMeasure;
 
     public OsuTimingPoint()
     {
-        this.sortType = 0;
+        this.SortType = 0;
     }
 
     public override string ToString()
     {
-        return $"{time}ms (at {msPerBeat}ms per beat)";
+        return $"{Time}ms (at {MsPerBeat}ms per beat)";
     }
 
     public static bool operator ==(OsuTimingPoint left, OsuTimingPoint right)
     {
-        if (!left.msPerBeat.Equals(right.msPerBeat))
+        if (left == null) return false;
+        if (right == null) return false;
+        if (!left.MsPerBeat.Equals(right.MsPerBeat))
         {
             return false;
         }
-        if (!left.meter.Equals(right.meter))
+        if (!left.Meter.Equals(right.Meter))
         {
             return false;
         }
-        if (!left.sampleSet.Equals(right.sampleSet))
-        {
-            return false;
-        }
-        if (!left.sampleIndex.Equals(right.sampleIndex))
-        {
-            return false;
-        }
-        return true;
+        return left.SampleSet.Equals(right.SampleSet) && left.SampleIndex.Equals(right.SampleIndex);
     }
 
     public static bool operator !=(OsuTimingPoint left, OsuTimingPoint right)
@@ -115,21 +109,21 @@ public class OsuTimingPoint : OsuObj
 
 public abstract class OsuHitObject : OsuObj
 {
-    public long timeValue;
-    public bool newCombo;
-    public int maniaColumn;
-    public OsuTimingPoint timingPoint;
+    public long TimeValue;
+    public bool NewCombo;
+    public int ManiaColumn;
+    public OsuTimingPoint TimingPoint;
 
     public OsuHitObject()
     {
-        this.sortType = 1;
+        this.SortType = 1;
     }
 
-    internal string name = "HitObject";
+    internal string Name = "HitObject";
 
     public override string ToString()
     {
-        return $"{name}: t={time} | c={maniaColumn}";
+        return $"{Name}: t={Time} | c={ManiaColumn}";
     }
 
     public abstract int GetTypeValue();
@@ -139,56 +133,56 @@ public class OsuManiaNote : OsuHitObject
 {
     public OsuManiaNote()
     {
-        this.name = "ManiaNote";
+        this.Name = "ManiaNote";
     }
 
     public override int GetTypeValue()
     {
-        return this.newCombo ? 5 : 1;
+        return this.NewCombo ? 5 : 1;
     }
 }
 
 public class OsuManiaLongNote : OsuHitObject
 {
-    public int endTime;
+    public int EndTime;
 
     public OsuManiaLongNote(int endTime = -1)
     {
-        this.name = "ManiaNote (long)";
+        this.Name = "ManiaNote (long)";
         if (endTime > -1)
-            this.endTime = endTime;
+            this.EndTime = endTime;
     }
 
     public override int GetTypeValue()
     {
-        return this.newCombo ? 132 : 128;
+        return this.NewCombo ? 132 : 128;
     }
 }
 
 public class Fraction
 {
     // https://gist.github.com/fidelsoto/b4c0f14b800c58e137ad5757f35cacd6
-    public float numerator;
-    public float denominator;
+    public float Numerator;
+    public float Denominator;
 
     public Fraction(float numerator, float denominator)
     {
-        this.numerator = numerator;
-        this.denominator = denominator;
+        this.Numerator = numerator;
+        this.Denominator = denominator;
     }
 
     public Fraction(Fraction fraction)
     {
-        numerator = fraction.numerator;
-        denominator = fraction.denominator;
+        Numerator = fraction.Numerator;
+        Denominator = fraction.Denominator;
     }
 
     public override bool Equals(object obj)
     {
         if (obj == null) return false;
 
-        Fraction other = obj as Fraction;
-        return (numerator == other.numerator && denominator == other.denominator);
+        var other = (Fraction)obj;
+        return Math.Abs(Numerator - other.Numerator) < 0.1 && Math.Abs(Denominator - other.Denominator) < 0.1;
     }
 
     public static bool operator ==(Fraction f1, Fraction f2)
@@ -214,29 +208,29 @@ public class Fraction
     public static Fraction operator *(Fraction f1, float f2)
     {
         var f3 = new Fraction(f1);
-        f3.numerator *= f2;
+        f3.Numerator *= f2;
         return f3;
     }
 
     public static Fraction operator /(Fraction f1, float f2)
     {
         var f3 = new Fraction(f1);
-        f3.numerator /= f2;
-        f3.denominator /= f2;
+        f3.Numerator /= f2;
+        f3.Denominator /= f2;
         return f3;
     }
 
     public static Fraction operator +(Fraction f1, float f2)
     {
-        var f3 = new Fraction(f1.numerator, f1.denominator);
-        f3.numerator += f2 * f3.denominator;
+        var f3 = new Fraction(f1.Numerator, f1.Denominator);
+        f3.Numerator += f2 * f3.Denominator;
         return f3;
     }
 
     public static Fraction operator -(Fraction f1, float f2)
     {
-        var f3 = new Fraction(f1.numerator, f1.denominator);
-        f3.numerator -= f2 * f3.denominator;
+        var f3 = new Fraction(f1.Numerator, f1.Denominator);
+        f3.Numerator -= f2 * f3.Denominator;
         return f3;
     }
 
@@ -262,141 +256,133 @@ public class Fraction
 
     public static Fraction operator +(Fraction f1, Fraction f2)
     {
-        var a = f1.denominator > f2.denominator ? f1 : f2;
-        var b = f1.denominator < f2.denominator ? f1 : f2;
-        var difference = a.denominator / b.denominator;
+        var a = f1.Denominator > f2.Denominator ? f1 : f2;
+        var b = f1.Denominator < f2.Denominator ? f1 : f2;
+        var difference = a.Denominator / b.Denominator;
 
-        return new Fraction(a.numerator + (b.numerator * difference), a.denominator);
+        return new Fraction(a.Numerator + (b.Numerator * difference), a.Denominator);
     }
 
     public static Fraction operator -(Fraction f1, Fraction f2)
     {
-        var a = f1.denominator > f2.denominator ? f1 : f2;
-        var b = f1.denominator < f2.denominator ? f1 : f2;
-        var difference = a.denominator / b.denominator;
+        var a = f1.Denominator > f2.Denominator ? f1 : f2;
+        var b = f1.Denominator < f2.Denominator ? f1 : f2;
+        var difference = a.Denominator / b.Denominator;
 
-        return new Fraction(a.numerator - (b.numerator * difference), a.denominator);
+        return new Fraction(a.Numerator - (b.Numerator * difference), a.Denominator);
     }
 
     public static bool operator >(Fraction f1, Fraction f2)
     {
-        return (f1.numerator / f1.denominator) > (f2.numerator / f2.denominator);
+        return (f1.Numerator / f1.Denominator) > (f2.Numerator / f2.Denominator);
     }
 
     public static bool operator <(Fraction f1, Fraction f2)
     {
-        return (f1.numerator / f1.denominator) < (f2.numerator / f2.denominator);
+        return (f1.Numerator / f1.Denominator) < (f2.Numerator / f2.Denominator);
     }
 
     public static bool operator <=(Fraction f1, Fraction f2)
     {
-        return (f1.numerator / f1.denominator) <= (f2.numerator / f2.denominator);
+        return (f1.Numerator / f1.Denominator) <= (f2.Numerator / f2.Denominator);
     }
 
     public static bool operator >=(Fraction f1, Fraction f2)
     {
-        return (f1.numerator / f1.denominator) >= (f2.numerator / f2.denominator);
+        return (f1.Numerator / f1.Denominator) >= (f2.Numerator / f2.Denominator);
     }
 
     public static bool operator >(Fraction f1, float f2)
     {
-        return (f1.numerator / f1.denominator) > f2;
+        return (f1.Numerator / f1.Denominator) > f2;
     }
 
     public static bool operator <(Fraction f1, float f2)
     {
-        return (f1.numerator / f1.denominator) < f2;
+        return (f1.Numerator / f1.Denominator) < f2;
     }
 
     public static bool operator <=(Fraction f1, float f2)
     {
-        return (f1.numerator / f1.denominator) <= f2;
+        return (f1.Numerator / f1.Denominator) <= f2;
     }
 
     public static bool operator >=(Fraction f1, float f2)
     {
-        return (f1.numerator / f1.denominator) >= f2;
+        return (f1.Numerator / f1.Denominator) >= f2;
     }
 
     public static bool operator >(Fraction f1, int f2)
     {
-        return (f1.numerator / f1.denominator) > f2;
+        return (f1.Numerator / f1.Denominator) > f2;
     }
 
     public static bool operator <(Fraction f1, int f2)
     {
-        return (f1.numerator / f1.denominator) < f2;
+        return (f1.Numerator / f1.Denominator) < f2;
     }
 
     public static bool operator <=(Fraction f1, int f2)
     {
-        return (f1.numerator / f1.denominator) <= f2;
+        return (f1.Numerator / f1.Denominator) <= f2;
     }
 
     public static bool operator >=(Fraction f1, int f2)
     {
-        return (f1.numerator / f1.denominator) >= f2;
+        return (f1.Numerator / f1.Denominator) >= f2;
     }
 
     public override int GetHashCode()
     {
         // i dunno, some weird stuff, its not like we care
-        return (int)Math.Floor((numerator * denominator) + (numerator - denominator));
+        return base.GetHashCode();
     }
 
     public override string ToString()
     {
-        return numerator + "/" + denominator;
+        return Numerator + "/" + Denominator;
     }
 
     public float ToFloat()
     {
-        return numerator / denominator;
+        return Numerator / Denominator;
     }
 
     //Helper function, simplifies a fraction.
     public Fraction Simplify()
     {
-        for (float divideBy = denominator; divideBy > 0; divideBy--)
+        for (var divideBy = Denominator; divideBy > 0; divideBy--)
         {
-            bool divisible = ((int)(numerator / divideBy) * divideBy == numerator) &&
-                ((int)(denominator / divideBy) * divideBy == denominator);
+            var divisible = (Math.Abs((int)(Numerator / divideBy) * divideBy - Numerator) < 0.1) &&
+                (Math.Abs((int)(Denominator / divideBy) * divideBy - Denominator) < 0.1);
 
-            if (divisible)
-            {
-                numerator /= divideBy;
-                denominator /= divideBy;
-            }
+            if (!divisible) continue;
+
+            Numerator /= divideBy;
+            Denominator /= divideBy;
         }
         return this;
     }
 }
 
-public class BMSMeasure
+public class BmsMeasure
 {
-    public string measureNumber;
-    public List<BMSMainDataLine> lines = new();
+    public string MeasureNumber;
+    public List<BMSMainDataLine> Lines = new();
 
     public override string ToString()
     {
-        var ret = "";
-
-        foreach (var line in lines)
-        {
-            ret += $"#{measureNumber}{line.channel}:{line.data}\n";
-        }
-
-        return ret;
+        return Lines.Aggregate("", (current, line) => current + $"#{MeasureNumber}{line.Channel}:{line.Data}\n");
     }
 
     public void CreateDataLine(string channel, int bits, List<(int, object)> locations)
     {
         var chars = new Dictionary<int, string>();
-        var locations_ = locations.Select(locations => locations.Item1).ToArray();
+        var locations_ = locations.Select(loc => loc.Item1).ToArray();
 
         foreach (var loc in locations)
         {
-            if (typeof(OsuHitObject).IsInstanceOfType((loc.Item2)))
+            if ((loc.Item2) is OsuHitObject)
             {
                 chars[loc.Item1] = "ZZ";
             }
@@ -406,17 +392,17 @@ public class BMSMeasure
             }
         }
 
-        lines.Add(new(channel, bits, chars, locations_, measureNumber));
+        Lines.Add(new(channel, bits, chars, locations_, MeasureNumber));
     }
 
-    public void CreateMeasureLengthChange(int numOfBeats)
+    public void CreateMeasureLengthChange(float numOfBeats)
     {
-        lines.Add(new("02", 1, new() { { 0, numOfBeats.ToString() } }, new int[] { 0 }, measureNumber));
+        Lines.Add(new("02", 1, new() { { 0, numOfBeats.ToString() } }, new int[] { 0 }, MeasureNumber));
     }
 
     public void CreateBpmChangeLine(int bpm)
     {
-        lines.Add(new("03", 1, new() { { 0, bpm.ToString("X4").ToUpper() } }, new int[] { 0 }, measureNumber));
+        Lines.Add(new("03", 1, new() { { 0, bpm.ToString("X4").ToUpper() } }, new int[] { 0 }, MeasureNumber));
     }
 
     public void CreateBpmExtendedChangeLine(float BPM, (string, float)[] BPMs)
@@ -424,12 +410,12 @@ public class BMSMeasure
         (string, float) tuple = (null, 0);
         foreach (var bpm in BPMs)
         {
-            if (bpm.Item2 == BPM)
+            if (Math.Abs(bpm.Item2 - BPM) < 0.1)
             {
                 tuple = bpm;
             }
         }
-        lines.Add(new("08", 1, new() { { 0, tuple.Item1.ToString() } }, new int[] { 0 }, measureNumber));
+        Lines.Add(new("08", 1, new() { { 0, tuple.Item1.ToString() } }, new int[] { 0 }, MeasureNumber));
     }
 }
 
@@ -437,19 +423,19 @@ public class BMSMainDataLine
 {
     public BMSMainDataLine(string channel, int bits, Dictionary<int, string> characters, int[] locations, string measureNumber)
     {
-        this.channel = channel;
-        this.data = BuildData(bits, characters, locations);
-        this.measureNumber = measureNumber;
+        this.Channel = channel;
+        this.Data = BuildData(bits, characters, locations);
+        this.MeasureNumber = measureNumber;
     }
 
-    public string channel;
-    public string data;
-    public string measureNumber;
+    public string Channel;
+    public string Data;
+    public string MeasureNumber;
 
-    private string BuildData(int bits, Dictionary<int, string> characters, int[] locations)
+    private static string BuildData(int bits, Dictionary<int, string> characters, int[] locations)
     {
         var output = "";
-        int index = 0;
+        var index = 0;
 
         for (var i = 0; i < bits; i++)
         {
@@ -472,27 +458,27 @@ public class BMSMainDataLine
 
     public override string ToString()
     {
-        return $"#{measureNumber}{channel}:{data}\n";
+        return $"#{MeasureNumber}{Channel}:{Data}\n";
     }
 }
 
 public static class Base36
 {
-    public static char[] alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToArray();
+    public static char[] Alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToArray();
     public static string Encode(int number)
     {
         var output = new List<char>();
 
-        if (0 <= number && number < alphabet.Length)
+        if (0 <= number && number < Alphabet.Length)
         {
-            output.Insert(0, alphabet[number]);
+            output.Insert(0, Alphabet[number]);
         }
         else
         {
             while (number != 0)
             {
-                number = Math.DivRem(number, alphabet.Length, out int i);
-                output.Insert(0, alphabet[i]);
+                number = Math.DivRem(number, Alphabet.Length, out var i);
+                output.Insert(0, Alphabet[i]);
             }
         }
 
@@ -502,21 +488,34 @@ public static class Base36
 
 internal static class Stuff
 {
+    public static float GreatestCommonDenominator(float a, float b)
+    {
+        while (a != 0 && b != 0)
+        {
+            if (a > b)
+                a %= b;
+            else
+                b %= a;
+        }
+
+        return a == 0 ? b : a;
+    }
+
     public static string GetCurrentHsCount(int sampleNum)
     {
         var ret = Base36.Encode(sampleNum);
         return ret.Length > 2 ? "" : ret;
     }
 
-    public static float CalculateBPM(OsuTimingPoint timingPoint)
+    public static float CalculateBpm(OsuTimingPoint timingPoint)
     {
         int GetNthDecimal(float number, int n)
         {
-            return System.Convert.ToInt32(number * System.Math.Pow(10, n)) % 10;
+            return Convert.ToInt32(number * Math.Pow(10, n)) % 10;
         }
 
-        float bpm = 1 / ((timingPoint.msPerBeat / 1000) / 60);
-        int count = 0, ncount = 0;
+        var bpm = (float)(1.0 / (timingPoint.MsPerBeat / 1000.0 / 60.0));
+        int count = 0, nCount = 0;
 
         for (var i = 0; i < 5; i++)
         {
@@ -529,22 +528,14 @@ internal static class Stuff
                     }
                 case 9:
                     {
-                        ncount++;
+                        nCount++;
                         break;
                     }
             }
         }
-        if (count == 4)
-        {
-            return System.Convert.ToInt32(bpm);
-        }
-        else if (ncount == 4)
-        {
-            return System.Convert.ToInt32(System.Math.Round(bpm));
-        }
-        else
-        {
-            return (float)(System.Convert.ToInt32(bpm * System.Math.Pow(10, 4)) / 1000.0);
-        }
+        if (count == 4) return Convert.ToInt32(bpm);
+        if (nCount == 4) return Convert.ToInt32(Math.Round(bpm));
+
+        return (float)(Convert.ToInt32(bpm * Math.Pow(10, 4)) / 1000.0);
     }
 }

@@ -3,10 +3,13 @@
     <TargetFramework>net35</TargetFramework>
     <AssemblyName>ServerEmulator</AssemblyName>
     <Description>INVAXION Server Emulator</Description>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="OsuManiaLoader\LICENCE" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />

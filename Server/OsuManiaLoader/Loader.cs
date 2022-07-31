@@ -58,9 +58,30 @@ public class Loader
             }
             catch (System.Exception e)
             {
+                foreach (var pack in BeatmapPacks)
+                {
+                    foreach (var bmp in pack.Beatmaps)
+                    {
+                        foreach (var tp in bmp.TimingPoints)
+                        {
+                            Logger.LogError(tp.MsPerBeat.ToString());
+                        }
+                    }
+                }
                 Logger.LogError(e.Message);
+                Logger.LogError(e.StackTrace);
                 Logger.LogError($"Failed to load `{osuFile}`");
             }
+        }
+
+        foreach (var pack in BeatmapPacks)
+        {
+            Logger.LogInfo($"Beatmap pack `{pack.packName}` is now loading!");
+            foreach (var beatmap in pack.Beatmaps)
+            {
+                var BMS = OsuManiaToBms.Convert(beatmap);
+            }
+            Logger.LogInfo($"Beatmap pack `{pack.packName}` loaded!");
         }
     }
 }
