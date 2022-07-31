@@ -280,7 +280,7 @@ public static class Beatmaps
                     account.CharacterList.list.Add(character);
                 }
 
-                if (Convert.ToBoolean(data.playData.finishLevel))
+                if (Convert.ToBoolean(data.playData.life > 0))
                 {
                     character.playCount++;
                     character.exp++;
@@ -403,7 +403,7 @@ public static class Beatmaps
                     account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
                 }
 
-                account.currencyInfo.gold += goldGained;
+                account.currencyInfo.diamond += goldGained;
 
                 var settleData = new cometScene.SettleData
                 {
