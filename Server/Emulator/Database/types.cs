@@ -136,7 +136,8 @@ public class types
                 inSubscription = 0,
             };
 
-        public cometScene.ThemeList themeList = new();
+        public cometScene.ThemeList themeList = new() { list = { new() { themeId = 12 }, new() { themeId = 8 } } };
+
         public cometScene.PlayerCurrencyInfo currencyInfo =
             new()
             {
@@ -146,7 +147,14 @@ public class types
                 maxStamina = 10,
                 honourPoint = 0,
             };
+
         public cometScene.SongList songList = new();
-        public cometScene.CharacterList CharacterList;
+        public cometScene.CharacterList CharacterList = new()
+        { list =
+            {
+                new() { charId = 50010 },
+                new() { charId = 20020}
+            }
+        };
     }
 }

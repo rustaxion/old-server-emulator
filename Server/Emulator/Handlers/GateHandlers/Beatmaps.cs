@@ -434,7 +434,7 @@ public static class Beatmaps
                     settleData.changeList.Add(
                         new()
                         {
-                            type = 1,
+                            type = 2,
                             count = (int)goldGained,
                             id = 420,
                         }
@@ -448,6 +448,14 @@ public static class Beatmaps
                         MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
                         ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ret_FinishSong,
                         Data = Index.ObjectToByteArray(new cometScene.Ret_FinishSong() { songInfo = singleSongInfo, settleData = settleData, }),
+                    }
+                );
+                Index.Instance.GatePackageQueue.Enqueue(
+                    new Index.GamePackage()
+                    {
+                        MainCmd = (uint)cometScene.MainCmd.MainCmd_Game,
+                        ParaCmd = (uint)cometScene.ParaCmd.ParaCmd_Ntf_CharacterFullData,
+                        Data = Index.ObjectToByteArray(Gate.GetFullCharacterData(account)),
                     }
                 );
             }

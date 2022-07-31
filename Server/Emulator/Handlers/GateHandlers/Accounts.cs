@@ -144,19 +144,13 @@ public static class Accounts
                 account.charId = (long)Math.Round((double)(account.accId + 40000000000));
                 ServerLogger.LogInfo($"New account id: {account.accId}, new character id: {account.charId}");
 
-                account.CharacterList = new()
+                account.CharacterList.list.Add(new cometScene.CharData()
                 {
-                    list =
-                    {
-                        new cometScene.CharData()
-                        {
-                            charId = data.selectCharId,
-                            level = 1,
-                            exp = 0,
-                            playCount = 0,
-                        }
-                    }
-                };
+                    charId = data.selectCharId,
+                    level = 1,
+                    exp = 0,
+                    playCount = 0,
+                });
 
                 Server.Database.UpdateAccount(account);
 
