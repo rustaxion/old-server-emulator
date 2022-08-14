@@ -1,8 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Aquatrax;
 
 namespace Server.OsuManiaLoader;
+
+class TmpTimeline
+{
+    public int BarIndex;
+    public int NodeIndex;
+}
+
+class TmpNote
+{
+    public int Key;
+    public int Action;
+    public int Time;
+    public int BarIndex;
+    public int NodeIndex;
+}
+
+class InvaxionTrack
+{
+    public Dictionary<int, InvaxionNode> Nodes;
+}
+
+class InvaxionNode
+{
+    public int Action;
+}
+
+class InvaxionBar
+{
+    public Dictionary<int, InvaxionTrack> Tracks;
+}
+
+
+public class Difficulty
+{
+    public string KeyMode;
+    public string Diff;
+}
+
 
 public class OsuMania
 {
@@ -11,6 +50,10 @@ public class OsuMania
     public bool SpecialStyle;
     public string SampleSet;
     public int PreviewTime;
+    public string BMS;
+    public string INVAXION;
+
+    public Difficulty Difficulty;
 
     // Metadata
     public string Title;
@@ -20,8 +63,10 @@ public class OsuMania
     public string Creator;
     public string Version;
     public string Source;
-    public string BeatmapId;
+    public int BeatmapId;
+    public int BeatmapSetId;
     public string StageBg;
+    public int BeatDivisor;
 
     public int KeyCount;
     public float OverallDifficulty;
@@ -34,40 +79,33 @@ public class OsuMania
     public Dictionary<string, string> FilenameToSample = new();
     public List<OsuTimingPoint> NoneInheritedTp = new();
 
-    public void ParseFloatBPM(float bpm)
+    public void ParseFloatBpm(float bpm)
     {
-        foreach (var e in FloatBpms)
-        {
-            if (Math.Abs(e.Item2 - bpm) < 0.1)
-            {
-                return;
-            }
-        }
+        if (FloatBpms.Any(e => Math.Abs(e.Item2 - bpm) < 0.1)) return;
         FloatBpms.Add((Stuff.GetCurrentHsCount(FloatBpms.Count + 1), bpm));
     }
 }
 
 public abstract class OsuObj
 {
-    public long Time;
+    public int Time;
     public int SortType;
 }
 
 public class OsuTimingPoint : OsuObj
 {
-    public int MsPerBeat;
+    public float MsPerBeat;
     public int Meter;
     public int SampleSet;
     public int SampleIndex;
     public int Volume;
     public bool Inherited;
     public bool KiaiMode;
-
     public long MsPerMeasure;
 
     public OsuTimingPoint()
     {
-        this.SortType = 0;
+        SortType = 0;
     }
 
     public override string ToString()
@@ -77,16 +115,9 @@ public class OsuTimingPoint : OsuObj
 
     public static bool operator ==(OsuTimingPoint left, OsuTimingPoint right)
     {
-        if (left == null) return false;
-        if (right == null) return false;
-        if (!left.MsPerBeat.Equals(right.MsPerBeat))
-        {
-            return false;
-        }
-        if (!left.Meter.Equals(right.Meter))
-        {
-            return false;
-        }
+        if (left == null) return false; if (right == null) return false;
+        if (!left.MsPerBeat.Equals(right.MsPerBeat)) return false;
+        if (!left.Meter.Equals(right.Meter)) return false;
         return left.SampleSet.Equals(right.SampleSet) && left.SampleIndex.Equals(right.SampleIndex);
     }
 
@@ -111,19 +142,19 @@ public abstract class OsuHitObject : OsuObj
 {
     public long TimeValue;
     public bool NewCombo;
-    public int ManiaColumn;
+    public int x;
     public OsuTimingPoint TimingPoint;
 
     public OsuHitObject()
     {
-        this.SortType = 1;
+        SortType = 1;
     }
 
     internal string Name = "HitObject";
 
     public override string ToString()
     {
-        return $"{Name}: t={Time} | c={ManiaColumn}";
+        return $"{Name}: t={Time} | c={x}";
     }
 
     public abstract int GetTypeValue();
@@ -133,12 +164,12 @@ public class OsuManiaNote : OsuHitObject
 {
     public OsuManiaNote()
     {
-        this.Name = "ManiaNote";
+        Name = "ManiaNote";
     }
 
     public override int GetTypeValue()
     {
-        return this.NewCombo ? 5 : 1;
+        return NewCombo ? 5 : 1;
     }
 }
 
@@ -148,14 +179,14 @@ public class OsuManiaLongNote : OsuHitObject
 
     public OsuManiaLongNote(int endTime = -1)
     {
-        this.Name = "ManiaNote (long)";
+        Name = "ManiaNote (long)";
         if (endTime > -1)
-            this.EndTime = endTime;
+            EndTime = endTime;
     }
 
     public override int GetTypeValue()
     {
-        return this.NewCombo ? 132 : 128;
+        return NewCombo ? 132 : 128;
     }
 }
 
@@ -167,8 +198,8 @@ public class Fraction
 
     public Fraction(float numerator, float denominator)
     {
-        this.Numerator = numerator;
-        this.Denominator = denominator;
+        Numerator = numerator;
+        Denominator = denominator;
     }
 
     public Fraction(Fraction fraction)
@@ -209,6 +240,7 @@ public class Fraction
     {
         var f3 = new Fraction(f1);
         f3.Numerator *= f2;
+        f3.Denominator *= f2;
         return f3;
     }
 
@@ -256,7 +288,7 @@ public class Fraction
 
     public static Fraction operator +(Fraction f1, Fraction f2)
     {
-        var a = f1.Denominator > f2.Denominator ? f1 : f2;
+        var a = f1.Denominator >= f2.Denominator ? f1 : f2;
         var b = f1.Denominator < f2.Denominator ? f1 : f2;
         var difference = a.Denominator / b.Denominator;
 
@@ -265,7 +297,7 @@ public class Fraction
 
     public static Fraction operator -(Fraction f1, Fraction f2)
     {
-        var a = f1.Denominator > f2.Denominator ? f1 : f2;
+        var a = f1.Denominator >= f2.Denominator ? f1 : f2;
         var b = f1.Denominator < f2.Denominator ? f1 : f2;
         var difference = a.Denominator / b.Denominator;
 
@@ -382,14 +414,8 @@ public class BmsMeasure
 
         foreach (var loc in locations)
         {
-            if ((loc.Item2) is OsuHitObject)
-            {
-                chars[loc.Item1] = "ZZ";
-            }
-            else
-            {
-                chars[loc.Item1] = loc.Item2 as string;
-            }
+            if (loc.Item2 is OsuHitObject) chars[loc.Item1] = "ZZ";
+            else chars[loc.Item1] = (string)loc.Item2;
         }
 
         Lines.Add(new(channel, bits, chars, locations_, MeasureNumber));
@@ -397,12 +423,12 @@ public class BmsMeasure
 
     public void CreateMeasureLengthChange(float numOfBeats)
     {
-        Lines.Add(new("02", 1, new() { { 0, numOfBeats.ToString() } }, new int[] { 0 }, MeasureNumber));
+        Lines.Add(new("02", 1, new() { { 0, ((int)numOfBeats).ToString("X4").ToUpper() } }, new int[] { 0 }, MeasureNumber));
     }
 
-    public void CreateBpmChangeLine(int bpm)
+    public void CreateBpmChangeLine(float bpm)
     {
-        Lines.Add(new("03", 1, new() { { 0, bpm.ToString("X4").ToUpper() } }, new int[] { 0 }, MeasureNumber));
+        Lines.Add(new("03", 1, new() { { 0, ((int)bpm).ToString("X4").ToUpper() } }, new int[] { 0 }, MeasureNumber));
     }
 
     public void CreateBpmExtendedChangeLine(float BPM, (string, float)[] BPMs)
@@ -415,7 +441,7 @@ public class BmsMeasure
                 tuple = bpm;
             }
         }
-        Lines.Add(new("08", 1, new() { { 0, tuple.Item1.ToString() } }, new int[] { 0 }, MeasureNumber));
+        Lines.Add(new("08", 1, new() { { 0, tuple.Item1 } }, new[] { 0 }, MeasureNumber));
     }
 }
 
@@ -423,9 +449,9 @@ public class BMSMainDataLine
 {
     public BMSMainDataLine(string channel, int bits, Dictionary<int, string> characters, int[] locations, string measureNumber)
     {
-        this.Channel = channel;
-        this.Data = BuildData(bits, characters, locations);
-        this.MeasureNumber = measureNumber;
+        Channel = channel;
+        Data = BuildData(bits, characters, locations);
+        MeasureNumber = measureNumber;
     }
 
     public string Channel;
@@ -442,44 +468,29 @@ public class BMSMainDataLine
             if (i == locations[index])
             {
                 output += characters[i];
-                if (index <= locations.Length)
-                {
-                    index++;
-                }
+                if (!(index >= locations.Length - 1)) index++;
             }
-            else
-            {
-                output += "00";
-            }
+            else output += "00";
         }
 
         return output;
     }
 
-    public override string ToString()
-    {
-        return $"#{MeasureNumber}{Channel}:{Data}\n";
-    }
+    public override string ToString() => $"#{MeasureNumber}{Channel}:{Data}";
 }
 
 public static class Base36
 {
-    public static char[] Alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToArray();
+    private static readonly char[] Alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToArray();
     public static string Encode(int number)
     {
         var output = new List<char>();
 
-        if (0 <= number && number < Alphabet.Length)
+        if (0 <= number && number < Alphabet.Length) output.Insert(0, Alphabet[number]);
+        else while (number != 0)
         {
-            output.Insert(0, Alphabet[number]);
-        }
-        else
-        {
-            while (number != 0)
-            {
-                number = Math.DivRem(number, Alphabet.Length, out var i);
-                output.Insert(0, Alphabet[i]);
-            }
+            number = Math.DivRem(number, Alphabet.Length, out var i);
+            output.Insert(0, Alphabet[i]);
         }
 
         return string.Join("", output.Select(ch => ch.ToString()).ToArray()).PadLeft(2, '0');
@@ -504,14 +515,14 @@ internal static class Stuff
     public static string GetCurrentHsCount(int sampleNum)
     {
         var ret = Base36.Encode(sampleNum);
-        return ret.Length > 2 ? "" : ret;
+        return ret.Length > 2 || ret == "ZZ" ? "" : ret;
     }
 
     public static float CalculateBpm(OsuTimingPoint timingPoint)
     {
         int GetNthDecimal(float number, int n)
         {
-            return Convert.ToInt32(number * Math.Pow(10, n)) % 10;
+            return (int)(number * Math.Pow(10, n)) % 10;
         }
 
         var bpm = (float)(1.0 / (timingPoint.MsPerBeat / 1000.0 / 60.0));
@@ -536,6 +547,6 @@ internal static class Stuff
         if (count == 4) return Convert.ToInt32(bpm);
         if (nCount == 4) return Convert.ToInt32(Math.Round(bpm));
 
-        return (float)(Convert.ToInt32(bpm * Math.Pow(10, 4)) / 1000.0);
+        return (float)(Convert.ToInt32(bpm * Math.Pow(10, 4)) / 10000.0);
     }
 }

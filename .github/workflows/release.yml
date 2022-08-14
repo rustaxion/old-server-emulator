@@ -1,56 +1,59 @@
 name: Build and Deploy
 
 env:
-  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-  release-action: yes
+    ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    release-action: yes
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - '*.md'
-      - '.idea/*'
-      - '.vs/*'
-      - '*.yml'
+    push:
+        branches:
+            - master
+        paths-ignore:
+            - "*.md"
+            - ".idea/*"
+            - ".vs/*"
+            - "*.yml"
 
-
-concurrency: 
-  group: "build-and-release"
-  cancel-in-progress: true
+concurrency:
+    group: "build-and-release"
+    cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build and deploy
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v3
-    
-    - uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '6.0.x'
-    
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.2
-    
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.6.x'
-        architecture: 'x64'
-    
-    - name: Build
-      run: dotnet publish -c=Release
-    
-    - name: Set-tag-env
-      run: |
-        "RE_TAG_NAME=$(python .github/scripts/get_version_tag.py)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+    build:
+        name: Build and deploy
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v3
 
-    - name: Publish the build
-      uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.REPO_TOKEN }}"
-        automatic_release_tag: "v${{ env.RE_TAG_NAME }}"
-        prerelease: false
-        title: "Automatic Build"
-        files: |
-          Server/bin/*/net35/ServerEmulator.dll
+            - uses: actions/setup-dotnet@v2
+              with:
+                  dotnet-version: "6.0.x"
+
+            - name: Setup NuGet
+              uses: NuGet/setup-nuget@v1.0.2
+
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: "3.6.x"
+                  architecture: "x64"
+
+            - name: Build
+              run: dotnet publish -c=Debug
+
+            - name: Set-tag-env
+              run: |
+                  "RE_TAG_NAME=$(python .github/scripts/get_version_tag.py)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+            - name: Rename dll
+              run: |
+                  Copy-Item -Force Server\bin\Debug\net35\ServerEmulatorFinal.dll Server\bin\Debug\net35\ServerEmulator.dll
+
+            - name: Publish the build
+              uses: "marvinpinto/action-automatic-releases@latest"
+              with:
+                  repo_token: "${{ secrets.REPO_TOKEN }}"
+                  automatic_release_tag: "v${{ env.RE_TAG_NAME }}"
+                  prerelease: false
+                  title: "Automatic Build"
+                  files: |
+                      Server/bin/Debug/net35/ServerEmulator.dll

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Server.OsuManiaLoader;
 
-public class OsuBeatmapReader
+public static class OsuBeatmapReader
 {
     public static OsuMania Parse(string content)
     {
@@ -18,9 +18,10 @@ public class OsuBeatmapReader
             {
                 throw new Exception("HitObject Error: Invalid Syntax");
             }
+
             var hitObjType = lineSeperated[3];
             var hitObjectArg = lineSeperated.Last().Split(':');
-            OsuHitObject hitObj = null;
+            OsuHitObject hitObj;
 
             if (hitObjType == "1" || hitObjType == "5")
             {
@@ -30,7 +31,7 @@ public class OsuBeatmapReader
                     hitObj.NewCombo = true;
                 }
             }
-            else if (new string[] { "2", "6", "8", "12" }.Contains(hitObjType)) return;
+            else if (new[] { "2", "6", "8", "12" }.Contains(hitObjType)) return;
             else if (hitObjType == "132" || hitObjType == "128")
             {
                 hitObj = new OsuManiaLongNote(int.Parse(hitObjectArg[0]));
@@ -43,32 +44,26 @@ public class OsuBeatmapReader
             }
             else throw new Exception($"HitObject Error: type {hitObjType} is not found in `{line}`");
 
-            if (beatmap.KeyCount == 7)
-            {
-                hitObj.ManiaColumn = lineSeperated[0] != "0" ? (int.Parse(lineSeperated[0]) / (512 / beatmap.KeyCount)) + 1 : 0;
-            }
-            else if (beatmap.KeyCount == 8)
-            {
-                hitObj.ManiaColumn = (int.Parse(lineSeperated[0]) / (512 / beatmap.KeyCount)) + 1;
-            }
+            hitObj.x = int.Parse(lineSeperated[0]);
             hitObj.Time = int.Parse(lineSeperated[2]);
 
-            if (latestTpIndex < beatmap.TimingPoints.Count - 1 && beatmap.TimingPoints[latestTpIndex + 1].Time <= hitObj.Time)
+            if (latestTpIndex < beatmap.TimingPoints.Count - 1 &&
+                beatmap.TimingPoints[latestTpIndex + 1].Time <= hitObj.Time)
             {
-                latestTpIndex += 1;
+                latestTpIndex++;
             }
 
             hitObj.TimingPoint = beatmap.TimingPoints[latestTpIndex];
             beatmap.HitObjects.Add(hitObj);
 
-            if (lnBuffer != null)
-            {
-                lnBuffer.Time = hitObj.Time;
-                lnBuffer.EndTime = ((OsuManiaLongNote)hitObj).EndTime;
-                lnBuffer.ManiaColumn = hitObj.ManiaColumn;
-                beatmap.HitObjects.Add(lnBuffer);
-            }
+            if (lnBuffer == null) return;
+
+            lnBuffer.Time = ((OsuManiaLongNote)hitObj).EndTime;
+            lnBuffer.EndTime = ((OsuManiaLongNote)hitObj).EndTime;
+            lnBuffer.x = hitObj.x;
+            beatmap.HitObjects.Add(lnBuffer);
         }
+
         void HeaderTimingPoints(string line)
         {
             float GetMsPerBeat(float ms)
@@ -78,11 +73,13 @@ public class OsuBeatmapReader
                 {
                     if (!tp.Inherited)
                     {
-                        return Math.Abs(ms / 100) * tp.MsPerBeat;
+                        return Math.Abs(ms) / 100 * tp.MsPerBeat;
                     }
                 }
+
                 throw new Exception("Non inherited BPM not found. Timing points are broken");
             }
+
             var lineSeperated = line.Split(',');
             if (lineSeperated.Length != 8)
             {
@@ -90,7 +87,7 @@ public class OsuBeatmapReader
             }
 
             var tp = new OsuTimingPoint();
-            tp.Time = (int)float.Parse(lineSeperated[0]);
+            tp.Time = int.Parse(lineSeperated[0]);
             tp.Inherited = lineSeperated[6] == "0";
             tp.Meter = int.Parse(lineSeperated[2]);
             tp.SampleSet = int.Parse(lineSeperated[3]);
@@ -103,7 +100,7 @@ public class OsuBeatmapReader
 
             if (tp.Inherited)
             {
-                tp.MsPerBeat = (int)GetMsPerBeat(float.Parse(lineSeperated[1]));
+                tp.MsPerBeat = GetMsPerBeat(float.Parse(lineSeperated[1]));
                 var prevTp = beatmap.TimingPoints.Last();
 
                 if (beatmap.TimingPoints.Count > 0 && tp.Time <= prevTp.Time + 1 &&
@@ -114,18 +111,20 @@ public class OsuBeatmapReader
             }
             else
             {
-                tp.MsPerBeat = (int)float.Parse(lineSeperated[1]);
+                tp.MsPerBeat = float.Parse(lineSeperated[1]);
                 var bpm = Stuff.CalculateBpm(tp);
 
-                if (Math.Abs(bpm - Convert.ToInt32(bpm)) > 0.1 || bpm > 255)
-                    beatmap.ParseFloatBPM(bpm);
+                if (Math.Abs(bpm - (int)bpm) > 0.1 || bpm > 255)
+                    beatmap.ParseFloatBpm(bpm);
 
                 if (beatmap.TimingPoints.Count > 0 && tp.Time <= beatmap.NoneInheritedTp.Last().Time + 1)
                     beatmap.NoneInheritedTp.RemoveAt(beatmap.NoneInheritedTp.Count - 1);
                 beatmap.NoneInheritedTp.Add(tp);
             }
+
             beatmap.TimingPoints.Add(tp);
         }
+
         void HeaderDifficulty(string line)
         {
             var lineProperty = line.Split(':');
@@ -133,28 +132,43 @@ public class OsuBeatmapReader
             switch (lineProperty[0])
             {
                 case "CircleSize":
-                    {
-                        beatmap.KeyCount = int.Parse(lineProperty[1]);
-                        break;
-                    }
+                {
+                    beatmap.KeyCount = int.Parse(lineProperty[1]);
+                    break;
+                }
                 case "OverallDifficulty":
-                    {
-                        beatmap.OverallDifficulty = float.Parse(lineProperty[1]);
-                        break;
-                    }
+                {
+                    beatmap.OverallDifficulty = float.Parse(lineProperty[1]);
+                    break;
+                }
                 case "SliderTickRate":
                 case "HPDrainRate":
                 case "SliderMultiplier":
                 case "ApproachRate":
-                    {
-                        break;
-                    }
+                {
+                    break;
+                }
                 default:
-                    {
-                        throw new Exception("Attribute Error: " + lineProperty[0] + " not found");
-                    }
+                {
+                    throw new Exception("Attribute Error: " + lineProperty[0] + " not found");
+                }
             }
         }
+
+        void HeaderEditor(string line)
+        {
+            var lineProperty = line.Split(':');
+
+            switch (lineProperty[0])
+            {
+                case "BeatDivisor":
+                {
+                    beatmap.BeatDivisor = int.Parse(lineProperty[1].Trim());
+                    break;
+                }
+            }
+        }
+
         void HeaderGeneral(string line)
         {
             var lineProperty = line.Split(':');
@@ -162,38 +176,39 @@ public class OsuBeatmapReader
             switch (lineProperty[0])
             {
                 case "AudioFilename":
-                    {
-                        beatmap.AudioFilename = lineProperty[1].Trim();
-                        break;
-                    }
+                {
+                    beatmap.AudioFilename = lineProperty[1].Trim();
+                    break;
+                }
                 case "AudioLeadIn":
-                    {
-                        beatmap.AudioLeadIn = int.Parse(lineProperty[1]);
-                        break;
-                    }
+                {
+                    beatmap.AudioLeadIn = int.Parse(lineProperty[1]);
+                    break;
+                }
                 case "PreviewTime":
-                    {
-                        beatmap.PreviewTime = int.Parse(lineProperty[1]);
-                        break;
-                    }
+                {
+                    beatmap.PreviewTime = int.Parse(lineProperty[1]);
+                    break;
+                }
                 case "SampleSet":
-                    {
-                        beatmap.SampleSet = lineProperty[1];
-                        break;
-                    }
+                {
+                    beatmap.SampleSet = lineProperty[1];
+                    break;
+                }
                 case "Mode":
-                    {
-                        if (int.Parse(lineProperty[1]) != 3)
-                            throw new Exception("Beatmap is not an o!m beatmap!");
-                        break;
-                    }
+                {
+                    if (int.Parse(lineProperty[1]) != 3)
+                        throw new Exception("Beatmap is not an o!m beatmap!");
+                    break;
+                }
                 case "SpecialStyle":
-                    {
-                        beatmap.SpecialStyle = lineProperty[1] == "1";
-                        break;
-                    }
+                {
+                    beatmap.SpecialStyle = lineProperty[1] == "1";
+                    break;
+                }
             }
         }
+
         void HeaderMetadata(string line)
         {
             var lineProperty = line.Split(':');
@@ -201,46 +216,51 @@ public class OsuBeatmapReader
             switch (lineProperty[0])
             {
                 case "Title":
-                    {
-                        beatmap.Title = lineProperty[1].Trim().Replace("/", "").Replace("\\", "");
-                        break;
-                    }
+                {
+                    beatmap.Title = lineProperty[1].Trim().Replace("/", "").Replace("\\", "");
+                    break;
+                }
                 case "TitleUnicode":
-                    {
-                        beatmap.TitleUnicode = lineProperty[1].Trim();
-                        break;
-                    }
+                {
+                    beatmap.TitleUnicode = lineProperty[1].Trim();
+                    break;
+                }
                 case "Artist":
-                    {
-                        beatmap.Artist = lineProperty[1].Trim();
-                        break;
-                    }
+                {
+                    beatmap.Artist = lineProperty[1].Trim();
+                    break;
+                }
                 case "ArtistUnicode":
-                    {
-                        beatmap.ArtistUnicode = lineProperty[1].Trim();
+                {
+                    beatmap.ArtistUnicode = lineProperty[1].Trim();
 
-                        break;
-                    }
+                    break;
+                }
                 case "Creator":
-                    {
-                        beatmap.Creator = lineProperty[1].Trim();
-                        break;
-                    }
+                {
+                    beatmap.Creator = lineProperty[1].Trim();
+                    break;
+                }
                 case "Version":
-                    {
-                        beatmap.Version = lineProperty[1].Trim();
-                        break;
-                    }
+                {
+                    beatmap.Version = lineProperty[1].Trim();
+                    break;
+                }
                 case "Source":
-                    {
-                        beatmap.Source = lineProperty[1].Trim();
-                        break;
-                    }
+                {
+                    beatmap.Source = lineProperty[1].Trim();
+                    break;
+                }
                 case "BeatmapID":
-                    {
-                        beatmap.BeatmapId = lineProperty[1].Trim();
-                        break;
-                    }
+                {
+                    beatmap.BeatmapId = int.Parse(lineProperty[1].Trim());
+                    break;
+                }
+                case "BeatmapSetID":
+                {
+                    beatmap.BeatmapSetId = int.Parse(lineProperty[1].Trim());
+                    break;
+                }
             }
         }
 
@@ -265,41 +285,45 @@ public class OsuBeatmapReader
             switch (currentSection)
             {
                 case "General":
-                    {
-                        HeaderGeneral(line);
-                        break;
-                    }
+                {
+                    HeaderGeneral(line);
+                    break;
+                }
                 case "Metadata":
-                    {
-                        HeaderMetadata(line);
-                        break;
-                    }
+                {
+                    HeaderMetadata(line);
+                    break;
+                }
                 case "Difficulty":
-                    {
-                        HeaderDifficulty(line);
-                        break;
-                    }
+                {
+                    HeaderDifficulty(line);
+                    break;
+                }
                 case "TimingPoints":
-                    {
-                        HeaderTimingPoints(line);
-                        break;
-                    }
+                {
+                    HeaderTimingPoints(line);
+                    break;
+                }
                 case "HitObjects":
-                    {
-                        HeaderHitObjects(line);
-                        break;
-                    }
-                case "Events":
+                {
+                    HeaderHitObjects(line);
+                    break;
+                }
                 case "Editor":
+                {
+                    HeaderEditor(line);
+                    break;
+                }
+                case "Events":
                 case "FileFormat":
                 case "Colours":
-                    {
-                        break;
-                    }
+                {
+                    break;
+                }
                 default:
-                    {
-                        throw new Exception("Header Error: " + currentSection + " not found");
-                    }
+                {
+                    throw new Exception("Header Error: " + currentSection + " not found");
+                }
             }
         }
 

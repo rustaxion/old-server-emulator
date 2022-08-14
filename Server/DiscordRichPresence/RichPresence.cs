@@ -167,7 +167,7 @@ public class Data
 
             default:
             {
-                activity.Details = $"Listening to {DiscordRichPresence.GameState.CurrentSong.name} - {DiscordRichPresence.GameState.CurrentSong.composer}";
+                activity.Details = $"Listening to {GameState.CurrentSong.name} - {GameState.CurrentSong.composer}";
                 activity.State = "";
                 Update();
                 break;
@@ -183,7 +183,7 @@ public class Data
         {
             _discord.RunCallbacks();
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             RichPresenceLogger.LogInfo(e.ToString());
             _hasInit = false;

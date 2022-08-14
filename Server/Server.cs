@@ -1,10 +1,14 @@
-﻿using BepInEx;
+﻿using System;
+using BepInEx;
 using BepInEx.Configuration;
 using Server.Emulator.EagleTcpPatches;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using LitJson;
+using Server.Emulator.Tools;
+using Path = System.IO.Path;
 
 // ReSharper disable All
 
@@ -101,7 +105,7 @@ public class Server : BaseUnityPlugin
         {
             // Updates the presence every 5 seconds
             timeDelta = TimeHelper.getCurUnixTimeOfSec();
-            DiscordRichPresence.Data.UpdateActivity();
+            try { DiscordRichPresence.Data.UpdateActivity(); } catch (Exception) {}
         }
 
         DiscordRichPresence.Data.Poll();
