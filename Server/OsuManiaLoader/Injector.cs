@@ -78,8 +78,25 @@ public static class SongPatches
                 pack.PackId + Salt == int.Parse(id));
             if (pack == null) return audioClip;
 
-            // var audioDir = Path.Combine("osu!mania_beatmaps", "Audio!");
-            // if (!Directory.Exists(audioDir)) Directory.CreateDirectory(audioDir);
+            var audioDir = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine("osu!mania_beatmaps", "Audio!"));
+            if (!Directory.Exists(audioDir)) Directory.CreateDirectory(audioDir);
+            
+            var songPath = Path.Combine(audioDir, $"{pack.PackId}_{pack.PackName}_{pack.Beatmaps[0].AudioFilename}");
+            if (File.Exists(songPath))
+            {
+                var www = new WWW("file:///" + songPath);
+                while (!www.isDone && www.error == null)
+                    Thread.Sleep(10);
+                
+                return www.GetAudioClip(true, true,
+                    pack.Beatmaps[0].AudioFilename.Split('.').Last().ToLower() switch
+                    {
+                        "mp3" => AudioType.MPEG,
+                        "wav" => AudioType.WAV,
+                        "ogg" => AudioType.OGGVORBIS
+                    }
+                );
+            }
 
             var archive = ZipArchive.Open(new MemoryStream(File.ReadAllBytes(pack.PackFile)));
             foreach (var entry in archive.Entries)
@@ -87,15 +104,10 @@ public static class SongPatches
                 if (entry.IsDirectory || !entry.FilePath.EndsWith(pack.Beatmaps[0].AudioFilename)) continue;
                 var bytes = new byte[entry.Size];
                 var _ = entry.OpenEntryStream().Read(bytes, 0, (int)entry.Size);
-                var tempFilePath = Path.GetTempFileName();
-                var newTemptPath = tempFilePath
-                                       .Replace("\\", "/")
-                                       .TrimEnd('/') +
-                                   "_" + pack.PackName + "_" + pack.Beatmaps[0].AudioFilename;
-                File.Move(tempFilePath, newTemptPath);
-                File.WriteAllBytes(newTemptPath, bytes);
+                
+                File.WriteAllBytes(songPath, bytes);
 
-                var www = new WWW("file:///" + newTemptPath);
+                var www = new WWW("file:///" + songPath);
                 while (!www.isDone && www.error == null)
                     Thread.Sleep(10);
 
