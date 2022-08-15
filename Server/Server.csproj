@@ -15,7 +15,7 @@
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
         <PackageReference Include="BepInEx.Core" Version="5.*" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-        <PackageReference Include="ILRepack.Lib.MSBuild" Version="2.1.18" />
+<!--        <PackageReference Include="ILRepack.Lib.MSBuild" Version="2.1.18" />-->
         <PackageReference Include="NAudio" Version="1.10.0" />
         <PackageReference Include="UnityEngine.Modules" Version="5.6.0" IncludeAssets="compile" />
     </ItemGroup>
@@ -54,7 +54,7 @@
         </Reference>
     </ItemGroup>
 
-    <Target Name="PostBuild" AfterTargets="ILRepack">
-      <Exec Command="python -c &quot;os = __import__('os'); exit() if len(os.getenv('release-action', '')) else None; copy = __import__('shutil').copy; arg= __import__('sys').argv[1].replace('\&quot;', ''); a = r'D:\Directories\Downloads\INVAXION Development\INVAXION\BepInEx\plugins'; b = r'C:\Games\INVAXION\BepInEx\plugins'; path = (a if os.path.exists(a) else b); os.remove(os.path.join(arg, 'ServerEmulator.dll')); os.replace(os.path.join(arg, 'ServerEmulatorFinal.dll'), os.path.join(arg, 'ServerEmulator.dll')); copy(os.path.join(arg, 'ServerEmulator.dll'), path); print('Copied the file!')&quot; &quot;$(TargetDir)&quot;&#xA;&#xA;rem This is evil, I know..." />
+    <Target Name="PostBuild" AfterTargets="Build">
+      <Exec Command="python -c &quot;os = __import__('os'); exit() if len(os.getenv('release-action', '')) else None; copy = __import__('shutil').copy; arg= __import__('sys').argv[1].replace('\&quot;', ''); a = r'D:\Directories\Downloads\INVAXION Development\INVAXION\BepInEx\plugins'; b = r'C:\Games\INVAXION\BepInEx\plugins'; path = (a if os.path.exists(a) else b); copy(os.path.join(arg, 'ServerEmulator.dll'), path); print('Copied the file!')&quot; &quot;$(TargetDir)&quot;&#xA;&#xA;rem os.remove(os.path.join(arg, 'ServerEmulator.dll')); os.replace(os.path.join(arg, 'ServerEmulatorFinal.dll'), os.path.join(arg, 'ServerEmulator.dll')); &#xA;rem This is evil, I know..." />
     </Target>
 </Project>

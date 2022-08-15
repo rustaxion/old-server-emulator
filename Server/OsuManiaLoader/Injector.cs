@@ -78,6 +78,9 @@ public static class SongPatches
                 pack.PackId + Salt == int.Parse(id));
             if (pack == null) return audioClip;
 
+            // var audioDir = Path.Combine("osu!mania_beatmaps", "Audio!");
+            // if (!Directory.Exists(audioDir)) Directory.CreateDirectory(audioDir);
+
             var archive = ZipArchive.Open(new MemoryStream(File.ReadAllBytes(pack.PackFile)));
             foreach (var entry in archive.Entries)
             {
