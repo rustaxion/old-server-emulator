@@ -63,10 +63,9 @@ public class Loader
 
                 BeatmapPacks.Add(pack);
                 pack.PackId = pack.Beatmaps.Select(btm => btm.BeatmapSetId).First();
-                pack.BackgroundImages =
-                    pack.Beatmaps.Select(btm => btm.BackgroundImage).Where(i => i != null).ToArray();
-                
+                pack.BackgroundImages = pack.Beatmaps.Select(btm => btm.BackgroundImage).Where(i => i != null).ToArray();
                 var BPMs = pack.Beatmaps.Select(btm => (int)Stuff.CalculateBpm(btm.TimingPoints[0])).ToArray();
+                
                 pack.MaxBpm = BPMs.Max();
                 pack.MinBpm = BPMs.Min();
             }

@@ -32,10 +32,10 @@ public class Server : BaseUnityPlugin
     public static bool Debug { get => _Debug.Value; }
     public static bool CheckForUpdates { get => _CheckForUpdates.Value; }
 
-
+    
     private void Awake()
     {
-        _EnableManiaLoader = Config.Bind("General", "EnableManiaLoader", false, "Enables/Disables loading osu!mania beatmaps into the game.");
+        _EnableManiaLoader = Config.Bind("General", "EnableManiaLoader", true, "Enables/Disables loading osu!mania beatmaps into the game.");
         _Debug = Config.Bind("General", "EnableDebug", false, "Enables/Disables debugging messages and utils.");
         _CheckForUpdates = Config.Bind("General", "CheckForUpdates", true, "Enables/Disables checking for updates.");
 
@@ -113,14 +113,14 @@ public class Server : BaseUnityPlugin
         ShuttingDown = true;
         DiscordRichPresence.Data._activityManager.ClearActivity(_ => { });
         DiscordRichPresence.Data.Poll();
+        
+        if (!Debug) return;
 
         if (Debug && _process != null)
         {
             _process.Kill();
             _process = null;
         }
-
-        if (!Debug) return;
 
         var commands = new List<string>();
         var filter = new List<string>();
