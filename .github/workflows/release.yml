@@ -51,4 +51,4 @@ jobs:
                   prerelease: false
                   title: "Automatic Build"
                   files: |
-                      Server/bin/Debug/*/ServerEmulator.dll
+                      Server/bin/*/net35/ServerEmulator.dll
