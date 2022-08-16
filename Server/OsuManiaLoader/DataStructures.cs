@@ -60,6 +60,7 @@ public class OsuMania
     public int BeatmapSetId;
     public string StageBg;
     public int BeatDivisor;
+    public string BackgroundImage;
 
     public int KeyCount;
     public int OverallDifficulty;

@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Server.OsuManiaLoader;
 
+// Stolen from: https://github.com/MoeGrid/InvaxionCustomBeatmap/blob/9c90c9937c5c940b4a5f981aecf6ea20f0ba0ff7/Osu2Invaxion/MapConverter.cs
 public class ManiaToInvaxion
 {
     private static readonly int[,] KeyMap = {

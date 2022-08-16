@@ -205,6 +205,15 @@ public static class OsuBeatmapReader
             }
         }
 
+        void HeaderEvents(string line)
+        {
+            var lineProperty = line.Split(',');
+            if (lineProperty[0] != "0") return;
+            
+            if (lineProperty.Length != 5) return;
+            beatmap.BackgroundImage = lineProperty[2].Replace("\"", "");
+        }
+
         void HeaderMetadata(string line)
         {
             var lineProperty = line.Split(':');
@@ -311,6 +320,10 @@ public static class OsuBeatmapReader
                     break;
                 }
                 case "Events":
+                {
+                    HeaderEvents(line);
+                    break;
+                }
                 case "FileFormat":
                 case "Colours":
                 {

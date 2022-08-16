@@ -10,10 +10,11 @@ namespace Server.OsuManiaLoader;
 
 public class OsuManiaBeatmapPack
 {
+    public int PackId;
     public string PackName;
     public string PackFile;
     public List<OsuMania> Beatmaps = new();
-    public int PackId;
+    public string[] BackgroundImages;
 
     public int MinBpm;
     public int MaxBpm;
@@ -62,7 +63,9 @@ public class Loader
 
                 BeatmapPacks.Add(pack);
                 pack.PackId = pack.Beatmaps.Select(btm => btm.BeatmapSetId).First();
-
+                pack.BackgroundImages =
+                    pack.Beatmaps.Select(btm => btm.BackgroundImage).Where(i => i != null).ToArray();
+                
                 var BPMs = pack.Beatmaps.Select(btm => (int)Stuff.CalculateBpm(btm.TimingPoints[0])).ToArray();
                 pack.MaxBpm = BPMs.Max();
                 pack.MinBpm = BPMs.Min();
@@ -97,7 +100,7 @@ public class Loader
                     new ManiaToInvaxion(beatmap).Convert(out var map, out var audioFill);
                     beatmap.INVAXION = map;
 
-                    var diff = (int)beatmap.OverallDifficulty;
+                    var diff = beatmap.OverallDifficulty;
                     var notes = beatmap.HitObjects.Count;
 
                     switch (beatmap.KeyCount)
