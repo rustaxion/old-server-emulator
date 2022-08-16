@@ -12,7 +12,6 @@ on:
             - "*.md"
             - ".idea/*"
             - ".vs/*"
-            - "*.yml"
 
 concurrency:
     group: "build-and-release"
@@ -52,4 +51,4 @@ jobs:
                   prerelease: false
                   title: "Automatic Build"
                   files: |
-                      Server/bin/Debug/net35/ServerEmulator.dll
+                      Server/bin/Debug/*/ServerEmulator.dll
