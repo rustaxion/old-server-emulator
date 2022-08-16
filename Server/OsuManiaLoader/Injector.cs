@@ -13,6 +13,7 @@ using Path = System.IO.Path;
 
 namespace Server.OsuManiaLoader;
 
+// ReSharper disable once InconsistentNaming
 public static class SongPatches
 {
     public const long
@@ -21,20 +22,13 @@ public static class SongPatches
     private static readonly Harmony _harmony = new Harmony("song-injector");
 
     // ReSharper disable once InconsistentNaming
-    public static void getQuickPlayMusicList_Patch(ref GlobalConfig __instance)
+    public static void classifyMusicInfoList_Patch(ref GlobalConfig __instance)
     {
-        var dic = __instance.musicInfoDict;
+        var dic = Traverse.Create(__instance).Field<Dictionary<string, MusicInfoData>>("musicInfoDict").Value;
         dic.AddAll(Server.ManiaBeatmapsLoader.MusicDic);
-
-        foreach (var key in Server.ManiaBeatmapsLoader.MusicDic.Keys)
-        {
-            if (!__instance.freeMusicList.Contains(int.Parse(key)))
-            {
-                __instance.freeMusicList.Add(int.Parse(key));
-            }
-        }
     }
 
+    // ReSharper disable once InconsistentNaming
     public static bool GetCoverSprite_Patch(string path, ref Sprite __result)
     {
         var paths = path.Split(' ');
@@ -134,10 +128,9 @@ public static class SongPatches
                 pack.PackId + Salt == int.Parse(strs[0]));
             if (strs.Length == 4 && pack != null)
             {
-                foreach (var beatmap in pack.Beatmaps)
+                foreach (var beatmap in pack.Beatmaps.Where(i => i.Difficulty != null))
                 {
-                    if (beatmap.Difficulty == null ||
-                        beatmap.Difficulty.KeyMode != strs[1] ||
+                    if (beatmap.Difficulty.KeyMode != strs[1] ||
                         beatmap.Difficulty.Diff != strs[2]) continue;
                     
                     __instance.ParseText(0, beatmap.INVAXION);
@@ -155,17 +148,16 @@ public static class SongPatches
 
     public static void Inject()
     {
-        var getQuickPlayMusicList = AccessTools.Method(typeof(GlobalConfig), "getQuickPlayMusicList");
-        var getQuickPlayMusicListPatch = AccessTools.Method(typeof(SongPatches), "getQuickPlayMusicList_Patch");
-        _harmony.Patch(getQuickPlayMusicList, prefix: new HarmonyMethod(getQuickPlayMusicListPatch));
+        var classifyMusicInfoList = AccessTools.Method(typeof(GlobalConfig), nameof(GlobalConfig.classifyMusicInfoList));
+        var classifyMusicInfoListPatch = AccessTools.Method(typeof(SongPatches), nameof(classifyMusicInfoList_Patch));
+        _harmony.Patch(classifyMusicInfoList, prefix: new HarmonyMethod(classifyMusicInfoListPatch));
 
-        var getCoverSprite = AccessTools.Method(typeof(ExtensionMethods), "getCoverSprite");
-        var getCoverSpritePatch = AccessTools.Method(typeof(SongPatches), "GetCoverSprite_Patch");
+        var getCoverSprite = AccessTools.Method(typeof(ExtensionMethods), nameof(ExtensionMethods.getCoverSprite));
+        var getCoverSpritePatch = AccessTools.Method(typeof(SongPatches), nameof(GetCoverSprite_Patch));
         _harmony.Patch(getCoverSprite, prefix: new HarmonyMethod(getCoverSpritePatch));
 
-        var loadPlayMusic = AccessTools.Method(typeof(PlayData), "LoadPlayMusic");
-        var loadPlayMusicTranspiler =
-            AccessTools.Method(typeof(PlayDataHook), nameof(PlayDataHook.LoadPlayMusicTranspiler));
+        var loadPlayMusic = AccessTools.Method(typeof(PlayData), nameof(PlayData.LoadPlayMusic));
+        var loadPlayMusicTranspiler = AccessTools.Method(typeof(PlayDataHook), nameof(PlayDataHook.LoadPlayMusicTranspiler));
         _harmony.Patch(loadPlayMusic, transpiler: new HarmonyMethod(loadPlayMusicTranspiler));
 
         var readOneMusicMap = AccessTools.Method(typeof(MazicData), nameof(MazicData.ReadOneMusicMap));

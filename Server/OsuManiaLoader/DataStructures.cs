@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Aquatrax;
 
 namespace Server.OsuManiaLoader;
 
-class TmpTimeline
-{
-    public int BarIndex;
-    public int NodeIndex;
-}
-
-class TmpNote
+internal class TmpNote
 {
     public int Key;
     public int Action;
@@ -20,17 +13,17 @@ class TmpNote
     public int NodeIndex;
 }
 
-class InvaxionTrack
+internal class InvaxionTrack
 {
     public Dictionary<int, InvaxionNode> Nodes;
 }
 
-class InvaxionNode
+internal class InvaxionNode
 {
     public int Action;
 }
 
-class InvaxionBar
+internal class InvaxionBar
 {
     public Dictionary<int, InvaxionTrack> Tracks;
 }
@@ -69,7 +62,7 @@ public class OsuMania
     public int BeatDivisor;
 
     public int KeyCount;
-    public float OverallDifficulty;
+    public int OverallDifficulty;
 
     public List<(string, float)> FloatBpms = new();
     public List<OsuTimingPoint> TimingPoints = new();
@@ -190,295 +183,6 @@ public class OsuManiaLongNote : OsuHitObject
     }
 }
 
-public class Fraction
-{
-    // https://gist.github.com/fidelsoto/b4c0f14b800c58e137ad5757f35cacd6
-    public float Numerator;
-    public float Denominator;
-
-    public Fraction(float numerator, float denominator)
-    {
-        Numerator = numerator;
-        Denominator = denominator;
-    }
-
-    public Fraction(Fraction fraction)
-    {
-        Numerator = fraction.Numerator;
-        Denominator = fraction.Denominator;
-    }
-
-    public override bool Equals(object obj)
-    {
-        if (obj == null) return false;
-
-        var other = (Fraction)obj;
-        return Math.Abs(Numerator - other.Numerator) < 0.1 && Math.Abs(Denominator - other.Denominator) < 0.1;
-    }
-
-    public static bool operator ==(Fraction f1, Fraction f2)
-    {
-        return f1.Equals(f2);
-    }
-
-    public static bool operator ==(Fraction f1, int f2)
-    {
-        return f1.Equals(new Fraction(f2, 1));
-    }
-
-    public static bool operator !=(Fraction f1, Fraction f2)
-    {
-        return !(f1 == f2);
-    }
-
-    public static bool operator !=(Fraction f1, int f2)
-    {
-        return !(f1 == f2);
-    }
-
-    public static Fraction operator *(Fraction f1, float f2)
-    {
-        var f3 = new Fraction(f1);
-        f3.Numerator *= f2;
-        f3.Denominator *= f2;
-        return f3;
-    }
-
-    public static Fraction operator /(Fraction f1, float f2)
-    {
-        var f3 = new Fraction(f1);
-        f3.Numerator /= f2;
-        f3.Denominator /= f2;
-        return f3;
-    }
-
-    public static Fraction operator +(Fraction f1, float f2)
-    {
-        var f3 = new Fraction(f1.Numerator, f1.Denominator);
-        f3.Numerator += f2 * f3.Denominator;
-        return f3;
-    }
-
-    public static Fraction operator -(Fraction f1, float f2)
-    {
-        var f3 = new Fraction(f1.Numerator, f1.Denominator);
-        f3.Numerator -= f2 * f3.Denominator;
-        return f3;
-    }
-
-    public static float operator +(float f1, Fraction f2)
-    {
-        return f1 + f2.ToFloat();
-    }
-
-    public static float operator -(float f1, Fraction f2)
-    {
-        return f1 - f2.ToFloat();
-    }
-
-    public static float operator +(int f1, Fraction f2)
-    {
-        return f1 + f2.ToFloat();
-    }
-
-    public static float operator -(int f1, Fraction f2)
-    {
-        return f1 - f2.ToFloat();
-    }
-
-    public static Fraction operator +(Fraction f1, Fraction f2)
-    {
-        var a = f1.Denominator >= f2.Denominator ? f1 : f2;
-        var b = f1.Denominator < f2.Denominator ? f1 : f2;
-        var difference = a.Denominator / b.Denominator;
-
-        return new Fraction(a.Numerator + (b.Numerator * difference), a.Denominator);
-    }
-
-    public static Fraction operator -(Fraction f1, Fraction f2)
-    {
-        var a = f1.Denominator >= f2.Denominator ? f1 : f2;
-        var b = f1.Denominator < f2.Denominator ? f1 : f2;
-        var difference = a.Denominator / b.Denominator;
-
-        return new Fraction(a.Numerator - (b.Numerator * difference), a.Denominator);
-    }
-
-    public static bool operator >(Fraction f1, Fraction f2)
-    {
-        return (f1.Numerator / f1.Denominator) > (f2.Numerator / f2.Denominator);
-    }
-
-    public static bool operator <(Fraction f1, Fraction f2)
-    {
-        return (f1.Numerator / f1.Denominator) < (f2.Numerator / f2.Denominator);
-    }
-
-    public static bool operator <=(Fraction f1, Fraction f2)
-    {
-        return (f1.Numerator / f1.Denominator) <= (f2.Numerator / f2.Denominator);
-    }
-
-    public static bool operator >=(Fraction f1, Fraction f2)
-    {
-        return (f1.Numerator / f1.Denominator) >= (f2.Numerator / f2.Denominator);
-    }
-
-    public static bool operator >(Fraction f1, float f2)
-    {
-        return (f1.Numerator / f1.Denominator) > f2;
-    }
-
-    public static bool operator <(Fraction f1, float f2)
-    {
-        return (f1.Numerator / f1.Denominator) < f2;
-    }
-
-    public static bool operator <=(Fraction f1, float f2)
-    {
-        return (f1.Numerator / f1.Denominator) <= f2;
-    }
-
-    public static bool operator >=(Fraction f1, float f2)
-    {
-        return (f1.Numerator / f1.Denominator) >= f2;
-    }
-
-    public static bool operator >(Fraction f1, int f2)
-    {
-        return (f1.Numerator / f1.Denominator) > f2;
-    }
-
-    public static bool operator <(Fraction f1, int f2)
-    {
-        return (f1.Numerator / f1.Denominator) < f2;
-    }
-
-    public static bool operator <=(Fraction f1, int f2)
-    {
-        return (f1.Numerator / f1.Denominator) <= f2;
-    }
-
-    public static bool operator >=(Fraction f1, int f2)
-    {
-        return (f1.Numerator / f1.Denominator) >= f2;
-    }
-
-    public override int GetHashCode()
-    {
-        // i dunno, some weird stuff, its not like we care
-        return base.GetHashCode();
-    }
-
-    public override string ToString()
-    {
-        return Numerator + "/" + Denominator;
-    }
-
-    public float ToFloat()
-    {
-        return Numerator / Denominator;
-    }
-
-    //Helper function, simplifies a fraction.
-    public Fraction Simplify()
-    {
-        for (var divideBy = Denominator; divideBy > 0; divideBy--)
-        {
-            var divisible = (Math.Abs((int)(Numerator / divideBy) * divideBy - Numerator) < 0.1) &&
-                (Math.Abs((int)(Denominator / divideBy) * divideBy - Denominator) < 0.1);
-
-            if (!divisible) continue;
-
-            Numerator /= divideBy;
-            Denominator /= divideBy;
-        }
-        return this;
-    }
-}
-
-public class BmsMeasure
-{
-    public string MeasureNumber;
-    public List<BMSMainDataLine> Lines = new();
-
-    public override string ToString()
-    {
-        return Lines.Aggregate("", (current, line) => current + $"#{MeasureNumber}{line.Channel}:{line.Data}\n");
-    }
-
-    public void CreateDataLine(string channel, int bits, List<(int, object)> locations)
-    {
-        var chars = new Dictionary<int, string>();
-        var locations_ = locations.Select(loc => loc.Item1).ToArray();
-
-        foreach (var loc in locations)
-        {
-            if (loc.Item2 is OsuHitObject) chars[loc.Item1] = "ZZ";
-            else chars[loc.Item1] = (string)loc.Item2;
-        }
-
-        Lines.Add(new(channel, bits, chars, locations_, MeasureNumber));
-    }
-
-    public void CreateMeasureLengthChange(float numOfBeats)
-    {
-        Lines.Add(new("02", 1, new() { { 0, ((int)numOfBeats).ToString("X4").ToUpper() } }, new int[] { 0 }, MeasureNumber));
-    }
-
-    public void CreateBpmChangeLine(float bpm)
-    {
-        Lines.Add(new("03", 1, new() { { 0, ((int)bpm).ToString("X4").ToUpper() } }, new int[] { 0 }, MeasureNumber));
-    }
-
-    public void CreateBpmExtendedChangeLine(float BPM, (string, float)[] BPMs)
-    {
-        (string, float) tuple = (null, 0);
-        foreach (var bpm in BPMs)
-        {
-            if (Math.Abs(bpm.Item2 - BPM) < 0.1)
-            {
-                tuple = bpm;
-            }
-        }
-        Lines.Add(new("08", 1, new() { { 0, tuple.Item1 } }, new[] { 0 }, MeasureNumber));
-    }
-}
-
-public class BMSMainDataLine
-{
-    public BMSMainDataLine(string channel, int bits, Dictionary<int, string> characters, int[] locations, string measureNumber)
-    {
-        Channel = channel;
-        Data = BuildData(bits, characters, locations);
-        MeasureNumber = measureNumber;
-    }
-
-    public string Channel;
-    public string Data;
-    public string MeasureNumber;
-
-    private static string BuildData(int bits, Dictionary<int, string> characters, int[] locations)
-    {
-        var output = "";
-        var index = 0;
-
-        for (var i = 0; i < bits; i++)
-        {
-            if (i == locations[index])
-            {
-                output += characters[i];
-                if (!(index >= locations.Length - 1)) index++;
-            }
-            else output += "00";
-        }
-
-        return output;
-    }
-
-    public override string ToString() => $"#{MeasureNumber}{Channel}:{Data}";
-}
-
 public static class Base36
 {
     private static readonly char[] Alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToArray();
@@ -499,19 +203,6 @@ public static class Base36
 
 internal static class Stuff
 {
-    public static float GreatestCommonDenominator(float a, float b)
-    {
-        while (a != 0 && b != 0)
-        {
-            if (a > b)
-                a %= b;
-            else
-                b %= a;
-        }
-
-        return a == 0 ? b : a;
-    }
-
     public static string GetCurrentHsCount(int sampleNum)
     {
         var ret = Base36.Encode(sampleNum);

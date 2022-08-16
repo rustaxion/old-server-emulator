@@ -23,7 +23,7 @@ public static class OsuBeatmapReader
             var hitObjectArg = lineSeperated.Last().Split(':');
             OsuHitObject hitObj;
 
-            if (hitObjType == "1" || hitObjType == "5")
+            if (hitObjType is "1" or "5")
             {
                 hitObj = new OsuManiaNote();
                 if (hitObjType == "5")
@@ -32,7 +32,7 @@ public static class OsuBeatmapReader
                 }
             }
             else if (new[] { "2", "6", "8", "12" }.Contains(hitObjType)) return;
-            else if (hitObjType == "132" || hitObjType == "128")
+            else if (hitObjType is "132" or "128")
             {
                 hitObj = new OsuManiaLongNote(int.Parse(hitObjectArg[0]));
                 lnBuffer = new OsuManiaLongNote(int.Parse(hitObjectArg[0]));
@@ -49,9 +49,8 @@ public static class OsuBeatmapReader
 
             if (latestTpIndex < beatmap.TimingPoints.Count - 1 &&
                 beatmap.TimingPoints[latestTpIndex + 1].Time <= hitObj.Time)
-            {
                 latestTpIndex++;
-            }
+            
 
             hitObj.TimingPoint = beatmap.TimingPoints[latestTpIndex];
             beatmap.HitObjects.Add(hitObj);
@@ -66,16 +65,11 @@ public static class OsuBeatmapReader
 
         void HeaderTimingPoints(string line)
         {
-            float GetMsPerBeat(float ms)
+            int GetMsPerBeat(float ms)
             {
-                if (ms >= 0) return ms;
-                foreach (var tp in beatmap.TimingPoints)
-                {
-                    if (!tp.Inherited)
-                    {
-                        return Math.Abs(ms) / 100 * tp.MsPerBeat;
-                    }
-                }
+                if (ms >= 0) return (int)ms;
+                foreach (var tp in beatmap.TimingPoints.Where(tp => !tp.Inherited))
+                    return (int)(Math.Abs(ms) / 100 * tp.MsPerBeat);
 
                 throw new Exception("Non inherited BPM not found. Timing points are broken");
             }
@@ -86,14 +80,16 @@ public static class OsuBeatmapReader
                 throw new Exception("TimingPoint Error: Invalid Syntax");
             }
 
-            var tp = new OsuTimingPoint();
-            tp.Time = int.Parse(lineSeperated[0]);
-            tp.Inherited = lineSeperated[6] == "0";
-            tp.Meter = int.Parse(lineSeperated[2]);
-            tp.SampleSet = int.Parse(lineSeperated[3]);
-            tp.SampleIndex = int.Parse(lineSeperated[4]);
-            tp.Volume = int.Parse(lineSeperated[5]);
-            tp.KiaiMode = lineSeperated[7] != "0";
+            var tp = new OsuTimingPoint
+            {
+                Time = int.Parse(lineSeperated[0]),
+                Inherited = lineSeperated[6] == "0",
+                Meter = int.Parse(lineSeperated[2]),
+                SampleSet = int.Parse(lineSeperated[3]),
+                SampleIndex = int.Parse(lineSeperated[4]),
+                Volume = int.Parse(lineSeperated[5]),
+                KiaiMode = lineSeperated[7] != "0"
+            };
 
             if (beatmap.TimingPoints.Count > 0 && tp.Time <= beatmap.TimingPoints.Last().Time + 2 && !tp.Inherited)
                 beatmap.TimingPoints.RemoveAt(beatmap.TimingPoints.Count - 1);
@@ -111,7 +107,7 @@ public static class OsuBeatmapReader
             }
             else
             {
-                tp.MsPerBeat = float.Parse(lineSeperated[1]);
+                tp.MsPerBeat = (int)float.Parse(lineSeperated[1]);
                 var bpm = Stuff.CalculateBpm(tp);
 
                 if (Math.Abs(bpm - (int)bpm) > 0.1 || bpm > 255)
@@ -138,7 +134,7 @@ public static class OsuBeatmapReader
                 }
                 case "OverallDifficulty":
                 {
-                    beatmap.OverallDifficulty = float.Parse(lineProperty[1]);
+                    beatmap.OverallDifficulty = (int)float.Parse(lineProperty[1]);
                     break;
                 }
                 case "SliderTickRate":
@@ -264,21 +260,21 @@ public static class OsuBeatmapReader
             }
         }
 
-        bool isEmpty(string line) => line.Trim().Length == 0;
-        bool isComment(string line) => line.StartsWith("//");
-        bool isSectionHeader(string line) => line.Trim().StartsWith("[") && line.Trim().EndsWith("]");
+        bool IsEmpty(string line) => line.Trim().Length == 0;
+        bool IsComment(string line) => line.StartsWith("//");
+        bool IsSectionHeader(string line) => line.Trim().StartsWith("[") && line.Trim().EndsWith("]");
 
         var currentSection = "FileFormat";
 
         foreach (var line in content.Split('\n'))
         {
-            if (isEmpty(line) || isComment(line)) continue;
-            if (isSectionHeader(line))
+            if (IsEmpty(line) || IsComment(line)) continue;
+            if (IsSectionHeader(line))
             {
                 var split = line.Trim().ToList();
                 split.RemoveAt(0);
                 split.RemoveAt(split.Count - 1);
-                currentSection = String.Join("", split.Select(e => e.ToString()).ToArray());
+                currentSection = string.Join("", split.Select(e => e.ToString()).ToArray());
                 continue;
             }
 

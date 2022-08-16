@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+// ReSharper disable FieldCanBeMadeReadOnly.Local
 
 namespace Server.OsuManiaLoader;
 
@@ -13,16 +14,13 @@ public class ManiaToInvaxion
         { 27, 11, 12, 13, 14, 15, 16, 29 }
     };
     private int _keyMode;
-    private int _keyNum;
     private int _bpm;
-    private float _oneBeatTime;
     private int _offset;
     private int _beatDivisor;
     private float _oneDivisorTime;
     private int _columnWidth;
     private List<TmpNote> _tmpNotes = new();
     private Dictionary<int, InvaxionBar> _invaxionMap = new();
-    private Dictionary<float, TmpTimeline> _timeLine = new();
     private StringBuilder _invaxionMapStr = new();
     private OsuMania _beatmap;
 
@@ -35,24 +33,23 @@ public class ManiaToInvaxion
             8 => 2,
             _ => 0
         };
-        _keyNum = _keyMode switch
+        var keyNum = _keyMode switch
         {
             1 => 6,
             2 => 8,
             _ => 4
         };
-        _columnWidth = 512 / _keyNum;
-        _oneBeatTime = beatmap.TimingPoints[0].MsPerBeat;
+        _columnWidth = 512 / keyNum;
+        var oneBeatTime = beatmap.TimingPoints[0].MsPerBeat;
         _offset = beatmap.TimingPoints[0].Time;
         _beatDivisor = beatmap.BeatDivisor;
-        _oneDivisorTime = _oneBeatTime / _beatDivisor;
-        _bpm = (int)(60 * 1000 / _oneBeatTime);
+        _oneDivisorTime = oneBeatTime / _beatDivisor;
+        _bpm = (int)(60 * 1000 / oneBeatTime);
     }
 
     public void Convert(out string map, out int audioFill)
     {
         _tmpNotes.Clear();
-        _timeLine.Clear();
         _invaxionMap.Clear();
         
         var fillNode = (int)(_offset / _oneDivisorTime);
@@ -67,15 +64,14 @@ public class ManiaToInvaxion
         {
             var startTime = i.Time - _offset;
             var endTime = i is OsuManiaLongNote l ? l.EndTime - _offset : startTime;
-            var barIndex = 0;
-            var nodeIndex = 0;
             
-            CalcIndex(startTime, fillNode, out barIndex, out nodeIndex);
-            if (i is OsuManiaLongNote)
+            var k = X2Key(i.x);
+            CalcIndex(startTime, fillNode, out var barIndex, out var nodeIndex);
+            if (i is not OsuManiaLongNote)
             {
                 _tmpNotes.Add(new TmpNote
                 {
-                    Key = X2Key(i.x),
+                    Key = k,
                     Action = 11,
                     Time = startTime,
                     BarIndex = barIndex,
@@ -84,7 +80,6 @@ public class ManiaToInvaxion
             }
             else
             {
-                var k = X2Key(i.x);
                 _tmpNotes.Add(new TmpNote
                 {
                     Key = k,
@@ -138,19 +133,12 @@ public class ManiaToInvaxion
         _invaxionMap = _invaxionMap.OrderBy(o => o.Key).ToDictionary(o => o.Key, p => p.Value);
         foreach (var i in _invaxionMap)
         {
-            // 准备
             if (i.Key == 0)
-            {
                 _invaxionMapStr.AppendFormat("0:\n1,{0};\n\n", _bpm);
-            }
-            // Bar
             _invaxionMapStr.AppendFormat("{0}:\n", i.Key + 1);
-            // Start
             if (i.Key == 0)
-            {
                 _invaxionMapStr.Append("3,1,\n");
-            }
-            // Track
+            
             if (i.Value != null)
             {
                 i.Value.Tracks = i.Value.Tracks.OrderBy(o => o.Key).ToDictionary(o => o.Key, p => p.Value);
@@ -158,9 +146,7 @@ public class ManiaToInvaxion
                 {
                     _invaxionMapStr.AppendFormat("{0},", j.Key);
                     for (var k = 0; k < _beatDivisor * 4; k++)
-                    {
                         _invaxionMapStr.Append(j.Value.Nodes.ContainsKey(k) ? j.Value.Nodes[k].Action.ToString() : "00");
-                    }
                     _invaxionMapStr.AppendFormat(",\n");
                 }
             }
@@ -173,10 +159,9 @@ public class ManiaToInvaxion
     
     private void CalcIndex(int time, int fill, out int barIndex, out int nodeIndex)
     {
-        int oneBarNode = _beatDivisor * 4;
-        int divisorNum = (int)Math.Round(time / _oneDivisorTime);
-        barIndex = divisorNum / oneBarNode;
-        nodeIndex = divisorNum % oneBarNode;
+        var oneBarNode = _beatDivisor * 4;
+        var divisorNum = (int)Math.Round(time / _oneDivisorTime);
+        barIndex = Math.DivRem(divisorNum, oneBarNode, out nodeIndex);
 
         nodeIndex += fill;
         barIndex += nodeIndex / oneBarNode;
