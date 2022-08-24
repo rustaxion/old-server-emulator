@@ -1,8 +1,8 @@
-﻿using System;
+﻿using LitJson;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using LitJson;
 
 // ReSharper disable All
 
@@ -37,8 +37,8 @@ public class Database
         // The code works fine, if you can fix the ambiguity warnings that appear as errors I would be thankful.
         var accounts = JsonMapper.ToObject<List<types.AccountData>>(json);
         var accs = JsonMapper.ToObject(json);
-        
-        for (var j=0; j < accounts.Count; j++)
+
+        for (var j = 0; j < accounts.Count; j++)
         {
             // I have to do this mumbo jumbo because LitJson doesn't properly construct lists that are within objects,
             // it does actually make the list, and if you use a debugger, you will see the items inside
@@ -49,12 +49,12 @@ public class Database
             // *clapping sounds*
             var acc = accs[j];
             var account = accounts[j];
-            
+
             // ===========ThemeList==============
             account.themeList.list.AddRange(JsonMapper.ToObject<List<cometScene.ThemeData>>(acc["themeList"]["list"].ToJson()));
             // ===========CharacterList==============
             account.CharacterList.list.AddRange(JsonMapper.ToObject<List<cometScene.CharData>>(acc["CharacterList"]["list"].ToJson()));
-            
+
             // ==========Team BuffList===============
             account.team.buffList.AddRange(JsonMapper.ToObject<List<cometScene.BuffData>>(acc["team"]["buffList"].ToJson()));
             // ==========scoreList===============
@@ -80,15 +80,27 @@ public class Database
             // ===========Song list==============
             account.songList.list.AddRange(JsonMapper.ToObject<List<cometScene.SongData>>(acc["songList"]["list"].ToJson()));
             account.songList.favoriteList.AddRange(JsonMapper.ToObject<List<uint>>(acc["songList"]["favoriteList"].ToJson()));
+            // ===========Cosmic Tour============
+            account.cosmicTourData.storyData = JsonMapper.ToObject<List<cometScene.StoryData>>(acc["cosmicTourData"]["storyData"].ToJson());
+            for (var i = 0; i < account.cosmicTourData.storyData.Count; i++)
+            {
+                account.cosmicTourData.storyData[i].missionList.AddRange(JsonMapper.ToObject<List<uint>>(acc["cosmicTourData"]["storyData"][i]["missionList"].ToJson()));
+            }
+            foreach (var storyData in account.cosmicTourData.storyData)
+            {
+                var missions = storyData.missionList.ToList().Distinct();
+                storyData.missionList.RemoveAll(e => true);
+                storyData.missionList.AddRange(missions);
+            }
 
             Accounts[account.accId] = account;
         }
     }
-    
+
     private void LoadAccountsLocal()
     {
         Accounts = new();
-        
+
         try
         {
             var json = File.ReadAllText("ServerEmu_UserDatabase.json");
@@ -103,20 +115,22 @@ public class Database
         }
         ServerLogger.LogInfo($"Accounts loaded: {Accounts.Count}");
     }
-    
+
     public Database()
     {
-        if (Server.Debug) LoadAccountsLocal();
-        else LoadAccounts();
+        if (Server.Debug)
+            LoadAccountsLocal();
+        else
+            LoadAccounts();
     }
-    
+
     public types.AccountData CreateAccount()
     {
         var acc = new types.AccountData();
         acc.accId = Accounts.Keys.Count > 0 ? Accounts.Keys.ToArray().Max() + 1 : 1;
         return acc;
     }
-    
+
     public types.AccountData GetAccount(uint accId)
     {
         if (Accounts.ContainsKey(accId))
@@ -125,7 +139,7 @@ public class Database
         }
         return null;
     }
-    
+
     public types.AccountData GetAccount(long sessionId)
     {
         foreach (var acc in Accounts)
@@ -137,7 +151,7 @@ public class Database
         }
         return null;
     }
-    
+
     public types.AccountData GetAccount(string steamId)
     {
         foreach (var acc in Accounts)
@@ -163,7 +177,7 @@ public class Database
             SaveAllLocal();
             return;
         }
-        
+
         var writer = new JsonWriter { PrettyPrint = true, IndentValue = 2 };
         JsonMapper.ToJson(Accounts.Values.ToArray(), writer);
         UnityEngine.PlayerPrefs.SetString("ServerEmulator/UserDatabase", writer.ToString().Trim());

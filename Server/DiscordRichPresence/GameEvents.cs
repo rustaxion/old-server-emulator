@@ -2,7 +2,6 @@
 
 namespace Server.DiscordRichPresence;
 
-
 public delegate void SwitchScene();
 
 public static class GameEvents
@@ -49,6 +48,7 @@ public static class GameEvents
 public static class GameEventHooks
 {
     private static readonly Harmony _harmony = new Harmony("game-events");
+
     public static void Hook()
     {
         var PC_newQuickPlayView = AccessTools.Method(typeof(Aquatrax.PC_newQuickPlayView), "Start");

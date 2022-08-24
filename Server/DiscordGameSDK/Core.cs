@@ -461,7 +461,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public void SetType(LobbyType type)
@@ -568,7 +567,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public void SetMetadata(string key, string value)
@@ -603,7 +601,13 @@ namespace Discord
         internal partial struct FFIMethods
         {
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-            internal delegate Result FilterMethod(IntPtr methodsPtr, [MarshalAs(UnmanagedType.LPStr)] string key, LobbySearchComparison comparison, LobbySearchCast cast, [MarshalAs(UnmanagedType.LPStr)] string value);
+            internal delegate Result FilterMethod(
+                IntPtr methodsPtr,
+                [MarshalAs(UnmanagedType.LPStr)] string key,
+                LobbySearchComparison comparison,
+                LobbySearchCast cast,
+                [MarshalAs(UnmanagedType.LPStr)] string value
+            );
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate Result SortMethod(IntPtr methodsPtr, [MarshalAs(UnmanagedType.LPStr)] string key, LobbySearchCast cast, [MarshalAs(UnmanagedType.LPStr)] string value);
@@ -637,7 +641,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public void Filter(string key, LobbySearchComparison comparison, LobbySearchCast cast, string value)
@@ -693,18 +696,13 @@ namespace Discord
     {
         public readonly Result Result;
 
-        public ResultException(Result result) : base(result.ToString())
-        {
-        }
+        public ResultException(Result result) : base(result.ToString()) { }
     }
 
     public partial class Discord : IDisposable
     {
         [StructLayout(LayoutKind.Sequential)]
-        internal partial struct FFIEvents
-        {
-
-        }
+        internal partial struct FFIEvents { }
 
         [StructLayout(LayoutKind.Sequential)]
         internal partial struct FFIMethods
@@ -849,7 +847,6 @@ namespace Discord
         }
 
         [DllImport(Constants.DllName, ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-
         private static extern Result DiscordCreate(UInt32 version, ref FFICreateParams createParams, out IntPtr manager);
 
         public delegate void SetLogHookHandler(LogLevel level, string message);
@@ -946,7 +943,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         private GCHandle? setLogHook;
@@ -1080,11 +1076,7 @@ namespace Discord
         {
             if (ApplicationManagerInstance == null)
             {
-                ApplicationManagerInstance = new ApplicationManager(
-                  Methods.GetApplicationManager(MethodsPtr),
-                  ApplicationEventsPtr,
-                  ref ApplicationEvents
-                );
+                ApplicationManagerInstance = new ApplicationManager(Methods.GetApplicationManager(MethodsPtr), ApplicationEventsPtr, ref ApplicationEvents);
             }
             return ApplicationManagerInstance;
         }
@@ -1093,11 +1085,7 @@ namespace Discord
         {
             if (UserManagerInstance == null)
             {
-                UserManagerInstance = new UserManager(
-                  Methods.GetUserManager(MethodsPtr),
-                  UserEventsPtr,
-                  ref UserEvents
-                );
+                UserManagerInstance = new UserManager(Methods.GetUserManager(MethodsPtr), UserEventsPtr, ref UserEvents);
             }
             return UserManagerInstance;
         }
@@ -1106,11 +1094,7 @@ namespace Discord
         {
             if (ImageManagerInstance == null)
             {
-                ImageManagerInstance = new ImageManager(
-                  Methods.GetImageManager(MethodsPtr),
-                  ImageEventsPtr,
-                  ref ImageEvents
-                );
+                ImageManagerInstance = new ImageManager(Methods.GetImageManager(MethodsPtr), ImageEventsPtr, ref ImageEvents);
             }
             return ImageManagerInstance;
         }
@@ -1119,11 +1103,7 @@ namespace Discord
         {
             if (ActivityManagerInstance == null)
             {
-                ActivityManagerInstance = new ActivityManager(
-                  Methods.GetActivityManager(MethodsPtr),
-                  ActivityEventsPtr,
-                  ref ActivityEvents
-                );
+                ActivityManagerInstance = new ActivityManager(Methods.GetActivityManager(MethodsPtr), ActivityEventsPtr, ref ActivityEvents);
             }
             return ActivityManagerInstance;
         }
@@ -1132,11 +1112,7 @@ namespace Discord
         {
             if (RelationshipManagerInstance == null)
             {
-                RelationshipManagerInstance = new RelationshipManager(
-                  Methods.GetRelationshipManager(MethodsPtr),
-                  RelationshipEventsPtr,
-                  ref RelationshipEvents
-                );
+                RelationshipManagerInstance = new RelationshipManager(Methods.GetRelationshipManager(MethodsPtr), RelationshipEventsPtr, ref RelationshipEvents);
             }
             return RelationshipManagerInstance;
         }
@@ -1145,11 +1121,7 @@ namespace Discord
         {
             if (LobbyManagerInstance == null)
             {
-                LobbyManagerInstance = new LobbyManager(
-                  Methods.GetLobbyManager(MethodsPtr),
-                  LobbyEventsPtr,
-                  ref LobbyEvents
-                );
+                LobbyManagerInstance = new LobbyManager(Methods.GetLobbyManager(MethodsPtr), LobbyEventsPtr, ref LobbyEvents);
             }
             return LobbyManagerInstance;
         }
@@ -1158,11 +1130,7 @@ namespace Discord
         {
             if (NetworkManagerInstance == null)
             {
-                NetworkManagerInstance = new NetworkManager(
-                  Methods.GetNetworkManager(MethodsPtr),
-                  NetworkEventsPtr,
-                  ref NetworkEvents
-                );
+                NetworkManagerInstance = new NetworkManager(Methods.GetNetworkManager(MethodsPtr), NetworkEventsPtr, ref NetworkEvents);
             }
             return NetworkManagerInstance;
         }
@@ -1171,11 +1139,7 @@ namespace Discord
         {
             if (OverlayManagerInstance == null)
             {
-                OverlayManagerInstance = new OverlayManager(
-                  Methods.GetOverlayManager(MethodsPtr),
-                  OverlayEventsPtr,
-                  ref OverlayEvents
-                );
+                OverlayManagerInstance = new OverlayManager(Methods.GetOverlayManager(MethodsPtr), OverlayEventsPtr, ref OverlayEvents);
             }
             return OverlayManagerInstance;
         }
@@ -1184,11 +1148,7 @@ namespace Discord
         {
             if (StorageManagerInstance == null)
             {
-                StorageManagerInstance = new StorageManager(
-                  Methods.GetStorageManager(MethodsPtr),
-                  StorageEventsPtr,
-                  ref StorageEvents
-                );
+                StorageManagerInstance = new StorageManager(Methods.GetStorageManager(MethodsPtr), StorageEventsPtr, ref StorageEvents);
             }
             return StorageManagerInstance;
         }
@@ -1197,11 +1157,7 @@ namespace Discord
         {
             if (StoreManagerInstance == null)
             {
-                StoreManagerInstance = new StoreManager(
-                  Methods.GetStoreManager(MethodsPtr),
-                  StoreEventsPtr,
-                  ref StoreEvents
-                );
+                StoreManagerInstance = new StoreManager(Methods.GetStoreManager(MethodsPtr), StoreEventsPtr, ref StoreEvents);
             }
             return StoreManagerInstance;
         }
@@ -1210,11 +1166,7 @@ namespace Discord
         {
             if (VoiceManagerInstance == null)
             {
-                VoiceManagerInstance = new VoiceManager(
-                  Methods.GetVoiceManager(MethodsPtr),
-                  VoiceEventsPtr,
-                  ref VoiceEvents
-                );
+                VoiceManagerInstance = new VoiceManager(Methods.GetVoiceManager(MethodsPtr), VoiceEventsPtr, ref VoiceEvents);
             }
             return VoiceManagerInstance;
         }
@@ -1223,28 +1175,18 @@ namespace Discord
         {
             if (AchievementManagerInstance == null)
             {
-                AchievementManagerInstance = new AchievementManager(
-                  Methods.GetAchievementManager(MethodsPtr),
-                  AchievementEventsPtr,
-                  ref AchievementEvents
-                );
+                AchievementManagerInstance = new AchievementManager(Methods.GetAchievementManager(MethodsPtr), AchievementEventsPtr, ref AchievementEvents);
             }
             return AchievementManagerInstance;
         }
     }
 
-    internal partial class MonoPInvokeCallbackAttribute : Attribute
-    {
-
-    }
+    internal partial class MonoPInvokeCallbackAttribute : Attribute { }
 
     public partial class ApplicationManager
     {
         [StructLayout(LayoutKind.Sequential)]
-        internal partial struct FFIEvents
-        {
-
-        }
+        internal partial struct FFIEvents { }
 
         [StructLayout(LayoutKind.Sequential)]
         internal partial struct FFIMethods
@@ -1304,7 +1246,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         internal ApplicationManager(IntPtr ptr, IntPtr eventsPtr, ref FFIEvents events)
@@ -1442,7 +1383,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public event CurrentUserUpdateHandler OnCurrentUserUpdate;
@@ -1530,10 +1470,7 @@ namespace Discord
     public partial class ImageManager
     {
         [StructLayout(LayoutKind.Sequential)]
-        internal partial struct FFIEvents
-        {
-
-        }
+        internal partial struct FFIEvents { }
 
         [StructLayout(LayoutKind.Sequential)]
         internal partial struct FFIMethods
@@ -1573,7 +1510,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         internal ImageManager(IntPtr ptr, IntPtr eventsPtr, ref FFIEvents events)
@@ -1688,7 +1624,14 @@ namespace Discord
             internal delegate void SendInviteCallback(IntPtr ptr, Result result);
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-            internal delegate void SendInviteMethod(IntPtr methodsPtr, Int64 userId, ActivityActionType type, [MarshalAs(UnmanagedType.LPStr)] string content, IntPtr callbackData, SendInviteCallback callback);
+            internal delegate void SendInviteMethod(
+                IntPtr methodsPtr,
+                Int64 userId,
+                ActivityActionType type,
+                [MarshalAs(UnmanagedType.LPStr)] string content,
+                IntPtr callbackData,
+                SendInviteCallback callback
+            );
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate void AcceptInviteCallback(IntPtr ptr, Result result);
@@ -1743,7 +1686,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public event ActivityJoinHandler OnActivityJoin;
@@ -1978,7 +1920,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public event RefreshHandler OnRefresh;
@@ -2163,7 +2104,12 @@ namespace Discord
             internal delegate void ConnectLobbyWithActivitySecretCallback(IntPtr ptr, Result result, ref Lobby lobby);
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-            internal delegate void ConnectLobbyWithActivitySecretMethod(IntPtr methodsPtr, [MarshalAs(UnmanagedType.LPStr)] string activitySecret, IntPtr callbackData, ConnectLobbyWithActivitySecretCallback callback);
+            internal delegate void ConnectLobbyWithActivitySecretMethod(
+                IntPtr methodsPtr,
+                [MarshalAs(UnmanagedType.LPStr)] string activitySecret,
+                IntPtr callbackData,
+                ConnectLobbyWithActivitySecretCallback callback
+            );
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate void DisconnectLobbyCallback(IntPtr ptr, Result result);
@@ -2377,7 +2323,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public event LobbyUpdateHandler OnLobbyUpdate;
@@ -2991,7 +2936,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public event MessageHandler OnMessage;
@@ -3219,7 +3163,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public event ToggleHandler OnToggle;
@@ -3333,10 +3276,7 @@ namespace Discord
     public partial class StorageManager
     {
         [StructLayout(LayoutKind.Sequential)]
-        internal partial struct FFIEvents
-        {
-
-        }
+        internal partial struct FFIEvents { }
 
         [StructLayout(LayoutKind.Sequential)]
         internal partial struct FFIMethods
@@ -3354,7 +3294,14 @@ namespace Discord
             internal delegate void ReadAsyncPartialCallback(IntPtr ptr, Result result, IntPtr dataPtr, Int32 dataLen);
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-            internal delegate void ReadAsyncPartialMethod(IntPtr methodsPtr, [MarshalAs(UnmanagedType.LPStr)] string name, UInt64 offset, UInt64 length, IntPtr callbackData, ReadAsyncPartialCallback callback);
+            internal delegate void ReadAsyncPartialMethod(
+                IntPtr methodsPtr,
+                [MarshalAs(UnmanagedType.LPStr)] string name,
+                UInt64 offset,
+                UInt64 length,
+                IntPtr callbackData,
+                ReadAsyncPartialCallback callback
+            );
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             internal delegate Result WriteMethod(IntPtr methodsPtr, [MarshalAs(UnmanagedType.LPStr)] string name, byte[] data, Int32 dataLen);
@@ -3426,7 +3373,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         internal StorageManager(IntPtr ptr, IntPtr eventsPtr, ref FFIEvents events)
@@ -3681,7 +3627,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public event EntitlementCreateHandler OnEntitlementCreate;
@@ -3932,7 +3877,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public event SettingsUpdateHandler OnSettingsUpdate;
@@ -4141,7 +4085,6 @@ namespace Discord
                 }
                 return (FFIMethods)MethodsStructure;
             }
-
         }
 
         public event UserAchievementUpdateHandler OnUserAchievementUpdate;

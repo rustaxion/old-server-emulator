@@ -6,8 +6,10 @@ public static class Songs
 {
     private static Dictionary<string, SongInfo> _songData;
     #region SongData
-    private static SongInfo[] _songs = new SongInfo[] {
-        new SongInfo {
+    private static SongInfo[] _songs = new SongInfo[]
+    {
+        new SongInfo
+        {
             id = 80031,
             name = "Full Control",
             composer = "RiraN",
@@ -32,7 +34,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80008,
             name = "Paradigm Shift",
             composer = "モリモリあつし",
@@ -57,7 +60,8 @@ public static class Songs
             minBPM = 145,
             maxBPM = 145,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80011,
             name = "Grisaille",
             composer = "Nego_tiator",
@@ -82,7 +86,8 @@ public static class Songs
             minBPM = 152,
             maxBPM = 152,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80012,
             name = "Our Rusty Memories",
             composer = "Artificial Idol",
@@ -107,7 +112,8 @@ public static class Songs
             minBPM = 100,
             maxBPM = 100,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80010,
             name = "Cernunnos's Horn",
             composer = "Crimsona",
@@ -132,7 +138,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80034,
             name = "Exalt",
             composer = "はがね&7mai",
@@ -157,7 +164,8 @@ public static class Songs
             minBPM = 220,
             maxBPM = 220,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80007,
             name = "HAPPY*FOREVER",
             composer = "monaclo*",
@@ -182,7 +190,8 @@ public static class Songs
             minBPM = 209,
             maxBPM = 209,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80015,
             name = "Stardust Highway",
             composer = "NeLiME",
@@ -207,7 +216,8 @@ public static class Songs
             minBPM = 176,
             maxBPM = 176,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80013,
             name = "Life Porter",
             composer = "すてらべえ",
@@ -232,7 +242,8 @@ public static class Songs
             minBPM = 130,
             maxBPM = 130,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80009,
             name = "Summer Days",
             composer = "Ans*",
@@ -257,7 +268,8 @@ public static class Songs
             minBPM = 186,
             maxBPM = 186,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80014,
             name = "My Story",
             composer = "Ryo Arue",
@@ -282,7 +294,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80019,
             name = "Fluctuation",
             composer = "Zekk",
@@ -307,7 +320,8 @@ public static class Songs
             minBPM = 194,
             maxBPM = 194,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80020,
             name = "夢見の少年",
             composer = "Aoi",
@@ -332,7 +346,8 @@ public static class Songs
             minBPM = 240,
             maxBPM = 240,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80018,
             name = "Infection",
             composer = "A.I",
@@ -357,7 +372,8 @@ public static class Songs
             minBPM = 145,
             maxBPM = 145,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63122,
             name = "雷切 (From Hachihachi)",
             composer = "ICBM",
@@ -382,7 +398,8 @@ public static class Songs
             minBPM = 152,
             maxBPM = 152,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63123,
             name = "名無しの宣教師 (From Dynamix)",
             composer = "MIssionary",
@@ -407,7 +424,8 @@ public static class Songs
             minBPM = 195,
             maxBPM = 195,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63204,
             name = "Perspicuus_Aestus (From Dynamix)",
             composer = "Ryusse",
@@ -432,7 +450,8 @@ public static class Songs
             minBPM = 185,
             maxBPM = 185,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62005,
             name = "Ice Cream",
             composer = "sky_delta feat. あさちる",
@@ -457,7 +476,8 @@ public static class Songs
             minBPM = 130,
             maxBPM = 173,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62006,
             name = "Dreamrainer",
             composer = "天遊",
@@ -482,7 +502,8 @@ public static class Songs
             minBPM = 136,
             maxBPM = 136,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63103,
             name = "Connected(Zyon Ver)",
             composer = "Akira Complex x Hommarju",
@@ -507,7 +528,8 @@ public static class Songs
             minBPM = 190,
             maxBPM = 190,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 69008,
             name = "Cryonix",
             composer = "sky_delta",
@@ -532,7 +554,8 @@ public static class Songs
             minBPM = 184,
             maxBPM = 184,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68008,
             name = "Primum Mobile",
             composer = "himmel",
@@ -557,7 +580,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68108,
             name = "Nirvana",
             composer = "Zekk",
@@ -582,7 +606,8 @@ public static class Songs
             minBPM = 170,
             maxBPM = 170,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80002,
             name = "Grenade",
             composer = "sky_delta",
@@ -607,7 +632,8 @@ public static class Songs
             minBPM = 181,
             maxBPM = 181,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65036,
             name = "野史",
             composer = "Killerblood",
@@ -632,7 +658,8 @@ public static class Songs
             minBPM = 100,
             maxBPM = 100,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 64005,
             name = "Kronos",
             composer = "sakuzyo",
@@ -657,7 +684,8 @@ public static class Songs
             minBPM = 156,
             maxBPM = 156,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 69018,
             name = "Reflectia",
             composer = "cnsouka",
@@ -682,7 +710,8 @@ public static class Songs
             minBPM = 138,
             maxBPM = 138,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68002,
             name = "Sakura Fubuki",
             composer = "Street",
@@ -707,7 +736,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68001,
             name = "Alice Rainbow",
             composer = "金鎮",
@@ -732,7 +762,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65011,
             name = "吉原ラメント",
             composer = "亜沙 feat. MAYU",
@@ -757,7 +788,8 @@ public static class Songs
             minBPM = 195,
             maxBPM = 195,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65012,
             name = "炉心融解",
             composer = "iroha(sasaki) feat. MAYU",
@@ -782,7 +814,8 @@ public static class Songs
             minBPM = 165,
             maxBPM = 165,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82004,
             name = "新战场",
             composer = "DMYoung feat.茶理理",
@@ -807,7 +840,8 @@ public static class Songs
             minBPM = 185,
             maxBPM = 185,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82003,
             name = "流★群 Meteor Stream",
             composer = "H.K.君 with Cnsouka feat.GUMI",
@@ -832,7 +866,8 @@ public static class Songs
             minBPM = 125,
             maxBPM = 125,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82000,
             name = "乾杯 - (゜  -゜ )つロ",
             composer = "H.K.君",
@@ -857,7 +892,8 @@ public static class Songs
             minBPM = 90,
             maxBPM = 90,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82001,
             name = "交织 together",
             composer = "DMYoung feat.泠鸢yousa、hanser",
@@ -882,7 +918,8 @@ public static class Songs
             minBPM = 132,
             maxBPM = 132,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82002,
             name = "与你同行 ~B With U~",
             composer = "kz（livetune） feat.22娘（幽舞越山）",
@@ -907,7 +944,8 @@ public static class Songs
             minBPM = 130,
             maxBPM = 130,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80003,
             name = "Check Point",
             composer = "Nitro Fun/Hyper Potions",
@@ -932,7 +970,8 @@ public static class Songs
             minBPM = 117,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 69002,
             name = "远枫",
             composer = "himmel feat.瑤山百靈",
@@ -957,7 +996,8 @@ public static class Songs
             minBPM = 135,
             maxBPM = 135,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80016,
             name = "Upon Ararat",
             composer = "Iris x VSX feat. LynH",
@@ -982,7 +1022,8 @@ public static class Songs
             minBPM = 130,
             maxBPM = 130,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80005,
             name = "Garden of Eden",
             composer = "Iris",
@@ -1007,7 +1048,8 @@ public static class Songs
             minBPM = 90,
             maxBPM = 90,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68005,
             name = "ラーメンのうた",
             composer = "ASACHILL prod. sky_delta",
@@ -1032,7 +1074,8 @@ public static class Songs
             minBPM = 131,
             maxBPM = 131,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65035,
             name = "Illumination",
             composer = "You feat.nayuta",
@@ -1057,7 +1100,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65034,
             name = "My Sweet Kiss",
             composer = "3R2 feat.瑶山百霊",
@@ -1082,7 +1126,8 @@ public static class Songs
             minBPM = 132,
             maxBPM = 132,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80017,
             name = "晴れた空",
             composer = "noVaTion",
@@ -1107,7 +1152,8 @@ public static class Songs
             minBPM = 98,
             maxBPM = 98,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 69001,
             name = "それから",
             composer = "noVaTion",
@@ -1132,7 +1178,8 @@ public static class Songs
             minBPM = 96,
             maxBPM = 96,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65037,
             name = "I can reach you",
             composer = "TE.TOY",
@@ -1157,7 +1204,8 @@ public static class Songs
             minBPM = 105,
             maxBPM = 105,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80035,
             name = "前人未闘",
             composer = "からとP",
@@ -1182,7 +1230,8 @@ public static class Songs
             minBPM = 125,
             maxBPM = 125,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80004,
             name = "Xintessence",
             composer = "紅葉月梛葉",
@@ -1207,7 +1256,8 @@ public static class Songs
             minBPM = 155,
             maxBPM = 155,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80023,
             name = "Entanglement",
             composer = "月代彩",
@@ -1232,7 +1282,8 @@ public static class Songs
             minBPM = 128,
             maxBPM = 128,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80032,
             name = "めくる",
             composer = "Ms.",
@@ -1257,7 +1308,8 @@ public static class Songs
             minBPM = 179,
             maxBPM = 179,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80033,
             name = "ALDEBARAN",
             composer = "比嘉憲吾",
@@ -1282,7 +1334,8 @@ public static class Songs
             minBPM = 180,
             maxBPM = 180,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68107,
             name = "Vision of Eaux",
             composer = "月代彩",
@@ -1307,7 +1360,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62004,
             name = "Code Paradiso",
             composer = "himmel",
@@ -1332,7 +1386,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80041,
             name = "Veritas",
             composer = "Nhato/Taishi",
@@ -1357,7 +1412,8 @@ public static class Songs
             minBPM = 135,
             maxBPM = 135,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80001,
             name = "Load of the Ciel",
             composer = "sky_delta vs Street",
@@ -1382,7 +1438,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62011,
             name = "霜爆",
             composer = "himmel",
@@ -1407,7 +1464,8 @@ public static class Songs
             minBPM = 145,
             maxBPM = 145,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 69017,
             name = "Lantinid",
             composer = "ARForest",
@@ -1432,7 +1490,8 @@ public static class Songs
             minBPM = 202,
             maxBPM = 202,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65031,
             name = "Urban Transit",
             composer = "mossari",
@@ -1457,7 +1516,8 @@ public static class Songs
             minBPM = 140,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68003,
             name = "Data Err0r",
             composer = "Lunatic Sounds",
@@ -1482,7 +1542,8 @@ public static class Songs
             minBPM = 180,
             maxBPM = 180,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63003,
             name = "Sink into Nightmare",
             composer = "LEMiao feat.瑤山百靈",
@@ -1507,7 +1568,8 @@ public static class Songs
             minBPM = 145,
             maxBPM = 145,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63001,
             name = "Wings of Liberty",
             composer = "himmel",
@@ -1532,7 +1594,8 @@ public static class Songs
             minBPM = 180,
             maxBPM = 180,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68006,
             name = "Altersist",
             composer = "Void",
@@ -1557,7 +1620,8 @@ public static class Songs
             minBPM = 138,
             maxBPM = 138,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62010,
             name = "Empyrean",
             composer = "himmel",
@@ -1582,7 +1646,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62018,
             name = "Aerialwalker",
             composer = "天遊",
@@ -1607,7 +1672,8 @@ public static class Songs
             minBPM = 128,
             maxBPM = 128,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65101,
             name = "星空の花束",
             composer = "himmel feat. 瑶山百霊",
@@ -1632,7 +1698,8 @@ public static class Songs
             minBPM = 118,
             maxBPM = 118,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 69012,
             name = "機械少女的日常",
             composer = "錄音P",
@@ -1657,7 +1724,8 @@ public static class Songs
             minBPM = 160,
             maxBPM = 160,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 69901,
             name = "功夫ガールズ",
             composer = "hoskey",
@@ -1682,7 +1750,8 @@ public static class Songs
             minBPM = 164,
             maxBPM = 164,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68009,
             name = "Razor",
             composer = "Zekk",
@@ -1707,7 +1776,8 @@ public static class Songs
             minBPM = 128,
             maxBPM = 128,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63120,
             name = "Duet(From Hachihachi)",
             composer = "Skytree",
@@ -1732,7 +1802,8 @@ public static class Songs
             minBPM = 94,
             maxBPM = 122,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 67003,
             name = "Once a Dreamer",
             composer = "Shi Kuang Lee",
@@ -1757,7 +1828,8 @@ public static class Songs
             minBPM = 90,
             maxBPM = 90,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62017,
             name = "* Crow Solace *",
             composer = "m108",
@@ -1782,7 +1854,8 @@ public static class Songs
             minBPM = 188,
             maxBPM = 188,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63121,
             name = "春菊(From Dynamix)",
             composer = "SUWAKI",
@@ -1807,7 +1880,8 @@ public static class Songs
             minBPM = 171,
             maxBPM = 171,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 69903,
             name = "Connected (かめりあ Remix)",
             composer = "Akira Complex x Hommarju",
@@ -1832,7 +1906,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63102,
             name = "Connected (WRLD Remix)",
             composer = "Akira Complex x Hommarju",
@@ -1857,7 +1932,8 @@ public static class Songs
             minBPM = 85,
             maxBPM = 85,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63101,
             name = "Connected (Gammer Remix)",
             composer = "Akira Complex x Hommarju",
@@ -1882,7 +1958,8 @@ public static class Songs
             minBPM = 85,
             maxBPM = 85,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62008,
             name = "Zorn",
             composer = "iKz",
@@ -1907,7 +1984,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68007,
             name = "Vector Cannon",
             composer = "Akira Complex",
@@ -1932,7 +2010,8 @@ public static class Songs
             minBPM = 105,
             maxBPM = 105,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62022,
             name = "Seedy Try",
             composer = "t+pazolite",
@@ -1957,7 +2036,8 @@ public static class Songs
             minBPM = 210,
             maxBPM = 210,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62023,
             name = "Reborn",
             composer = "Scarfaith",
@@ -1982,7 +2062,8 @@ public static class Songs
             minBPM = 129,
             maxBPM = 129,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80036,
             name = "天風",
             composer = "うまるつふり",
@@ -2007,7 +2088,8 @@ public static class Songs
             minBPM = 147,
             maxBPM = 147,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68104,
             name = "Utopia",
             composer = "typeMARS",
@@ -2032,7 +2114,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68103,
             name = "Triumph&Regret",
             composer = "typeMARS",
@@ -2057,7 +2140,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68102,
             name = "Stardust Overdrive",
             composer = "typeMARS",
@@ -2082,7 +2166,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80028,
             name = "The World of Cyber",
             composer = "LATI",
@@ -2107,7 +2192,8 @@ public static class Songs
             minBPM = 135,
             maxBPM = 135,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68105,
             name = "流れ星に願うよいま",
             composer = "LemonWhisper(EBICO & ノゾム)",
@@ -2132,7 +2218,8 @@ public static class Songs
             minBPM = 128,
             maxBPM = 128,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80040,
             name = "Uwabami",
             composer = "Kplecraft",
@@ -2157,7 +2244,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80039,
             name = "Sakiko(Zyon Edit)",
             composer = "Kanata.S",
@@ -2182,7 +2270,8 @@ public static class Songs
             minBPM = 139,
             maxBPM = 139,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80038,
             name = "Sweet Little Chocolate",
             composer = "uma",
@@ -2207,7 +2296,8 @@ public static class Songs
             minBPM = 170,
             maxBPM = 170,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80037,
             name = "Angelica",
             composer = "yusi x Awfuless",
@@ -2232,7 +2322,8 @@ public static class Songs
             minBPM = 190,
             maxBPM = 190,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 64004,
             name = "伯爵&妖精",
             composer = "埋葬",
@@ -2257,7 +2348,8 @@ public static class Songs
             minBPM = 138,
             maxBPM = 138,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 64002,
             name = "The Eighth Sin",
             composer = "MIssionary",
@@ -2282,7 +2374,8 @@ public static class Songs
             minBPM = 200,
             maxBPM = 200,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 64001,
             name = "六道輪回",
             composer = "feitie",
@@ -2307,7 +2400,8 @@ public static class Songs
             minBPM = 160,
             maxBPM = 160,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62013,
             name = "Stairway to heaven",
             composer = "月代彩",
@@ -2332,7 +2426,8 @@ public static class Songs
             minBPM = 152,
             maxBPM = 152,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65006,
             name = "Mint Julep Chocolate",
             composer = "Zoey feat. komine",
@@ -2357,7 +2452,8 @@ public static class Songs
             minBPM = 130,
             maxBPM = 130,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 66001,
             name = "Vanish of Sakura",
             composer = "himmel",
@@ -2382,7 +2478,8 @@ public static class Songs
             minBPM = 140,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68101,
             name = "Gone with the Beat",
             composer = "typeMARS",
@@ -2407,7 +2504,8 @@ public static class Songs
             minBPM = 176,
             maxBPM = 176,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 67004,
             name = "New Generation",
             composer = "John Towse",
@@ -2432,7 +2530,8 @@ public static class Songs
             minBPM = 190,
             maxBPM = 190,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68004,
             name = "White Note",
             composer = "ARForest",
@@ -2457,7 +2556,8 @@ public static class Songs
             minBPM = 191,
             maxBPM = 191,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62019,
             name = "Stage 5",
             composer = "LV.4",
@@ -2482,7 +2582,8 @@ public static class Songs
             minBPM = 145,
             maxBPM = 145,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82008,
             name = "写给我家狗的歌",
             composer = "ilem",
@@ -2507,7 +2608,8 @@ public static class Songs
             minBPM = 95,
             maxBPM = 95,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82010,
             name = "威海",
             composer = "ilem",
@@ -2532,7 +2634,8 @@ public static class Songs
             minBPM = 100,
             maxBPM = 100,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82009,
             name = "售楼小姐",
             composer = "ilem",
@@ -2557,7 +2660,8 @@ public static class Songs
             minBPM = 108,
             maxBPM = 108,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80042,
             name = "Elf",
             composer = "隼",
@@ -2582,7 +2686,8 @@ public static class Songs
             minBPM = 159,
             maxBPM = 159,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80043,
             name = "Never BEE",
             composer = "Papa",
@@ -2607,7 +2712,8 @@ public static class Songs
             minBPM = 140,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80044,
             name = "明日には、消えてゆく  INVAXIONver.",
             composer = "KMA万華鏡音楽同盟",
@@ -2632,7 +2738,8 @@ public static class Songs
             minBPM = 140,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65032,
             name = "赫",
             composer = "Blacklolita",
@@ -2657,7 +2764,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62012,
             name = "Helios",
             composer = "Akira Complex",
@@ -2682,7 +2790,8 @@ public static class Songs
             minBPM = 142,
             maxBPM = 142,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62016,
             name = "The Formula",
             composer = "Junk",
@@ -2707,7 +2816,8 @@ public static class Songs
             minBPM = 144,
             maxBPM = 144,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80046,
             name = "Evening Primrose",
             composer = "WyvernP",
@@ -2732,7 +2842,8 @@ public static class Songs
             minBPM = 100,
             maxBPM = 200,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82005,
             name = "勾指起誓",
             composer = "ilem",
@@ -2757,7 +2868,8 @@ public static class Songs
             minBPM = 85,
             maxBPM = 85,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82006,
             name = "夜间出租车",
             composer = "ilem",
@@ -2782,7 +2894,8 @@ public static class Songs
             minBPM = 105,
             maxBPM = 105,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82007,
             name = "大氿歌",
             composer = "ilem",
@@ -2807,7 +2920,8 @@ public static class Songs
             minBPM = 100,
             maxBPM = 100,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82011,
             name = "得过且过的勇者",
             composer = "ilem",
@@ -2832,7 +2946,8 @@ public static class Songs
             minBPM = 105,
             maxBPM = 105,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65102,
             name = "花语：玫瑰",
             composer = "himmel",
@@ -2857,7 +2972,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 68106,
             name = "Persephone",
             composer = "EBICO",
@@ -2882,7 +2998,8 @@ public static class Songs
             minBPM = 185,
             maxBPM = 185,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 64003,
             name = "Incontrollable Desire",
             composer = "希望索任合資",
@@ -2907,7 +3024,8 @@ public static class Songs
             minBPM = 180,
             maxBPM = 180,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62021,
             name = "CUBICSPHERE",
             composer = "sky_delta",
@@ -2932,7 +3050,8 @@ public static class Songs
             minBPM = 179,
             maxBPM = 179,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62024,
             name = "White Light",
             composer = "KO3",
@@ -2957,7 +3076,8 @@ public static class Songs
             minBPM = 138,
             maxBPM = 138,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62020,
             name = "Right Now!",
             composer = "KO3",
@@ -2982,7 +3102,8 @@ public static class Songs
             minBPM = 150,
             maxBPM = 150,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63004,
             name = "造夢器",
             composer = "戰場原妖精 feat.洛天依",
@@ -3007,7 +3128,8 @@ public static class Songs
             minBPM = 158,
             maxBPM = 158,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80029,
             name = "Lailah",
             composer = "隼",
@@ -3032,7 +3154,8 @@ public static class Songs
             minBPM = 173,
             maxBPM = 173,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 63002,
             name = "Scarlet Drop",
             composer = "人形兔 feat.樂正綾",
@@ -3057,7 +3180,8 @@ public static class Songs
             minBPM = 240,
             maxBPM = 240,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65015,
             name = "え？あぁ、そう。",
             composer = "蝶々P feat. MAYU",
@@ -3082,7 +3206,8 @@ public static class Songs
             minBPM = 192,
             maxBPM = 192,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65014,
             name = "一途な片思い、実らせたい小さな幸せ。",
             composer = "うたたP feat. MAYU",
@@ -3107,7 +3232,8 @@ public static class Songs
             minBPM = 176,
             maxBPM = 176,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80000,
             name = "See You",
             composer = "WRLD/Richard Caddock",
@@ -3132,7 +3258,8 @@ public static class Songs
             minBPM = 0,
             maxBPM = 0,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80027,
             name = "事象の地平線",
             composer = "wa.",
@@ -3157,7 +3284,8 @@ public static class Songs
             minBPM = 169,
             maxBPM = 169,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80026,
             name = "滅衝クインテセンス",
             composer = "wa.",
@@ -3182,7 +3310,8 @@ public static class Songs
             minBPM = 190,
             maxBPM = 190,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 67002,
             name = "戰歿者谷",
             composer = "Triodust",
@@ -3207,7 +3336,8 @@ public static class Songs
             minBPM = 100,
             maxBPM = 100,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65033,
             name = "Adventure",
             composer = "S2NOISE",
@@ -3232,7 +3362,8 @@ public static class Songs
             minBPM = 110,
             maxBPM = 110,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65100,
             name = "枯レ語リ",
             composer = "Ryuu feat. 流月",
@@ -3257,7 +3388,8 @@ public static class Songs
             minBPM = 158,
             maxBPM = 158,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65030,
             name = "Philosophy",
             composer = "Radianth",
@@ -3282,7 +3414,8 @@ public static class Songs
             minBPM = 138,
             maxBPM = 138,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80006,
             name = "Dolfie Dream",
             composer = "O2i3",
@@ -3307,7 +3440,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62001,
             name = "Offshore",
             composer = "Nhato",
@@ -3332,7 +3466,8 @@ public static class Songs
             minBPM = 132,
             maxBPM = 132,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 67001,
             name = "Maple Wind Acoustic Ver.",
             composer = "himmel",
@@ -3357,7 +3492,8 @@ public static class Songs
             minBPM = 135,
             maxBPM = 135,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62003,
             name = "Rebirth",
             composer = "haloweak",
@@ -3382,7 +3518,8 @@ public static class Songs
             minBPM = 138,
             maxBPM = 138,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 62007,
             name = "Frozen Paradise",
             composer = "GhostFinal",
@@ -3407,7 +3544,8 @@ public static class Songs
             minBPM = 146,
             maxBPM = 146,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 69009,
             name = "StartingLine",
             composer = "G.K feat.洛天依",
@@ -3432,7 +3570,8 @@ public static class Songs
             minBPM = 132,
             maxBPM = 132,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 65016,
             name = "青",
             composer = "164 feat. MAYU",
@@ -3457,7 +3596,8 @@ public static class Songs
             minBPM = 90,
             maxBPM = 90,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20015,
             name = "Tutorial: 3-5",
             composer = "",
@@ -3482,7 +3622,8 @@ public static class Songs
             minBPM = 130,
             maxBPM = 130,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20014,
             name = "Tutorial: 3-4",
             composer = "",
@@ -3507,7 +3648,8 @@ public static class Songs
             minBPM = 130,
             maxBPM = 173,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20013,
             name = "Tutorial: 3-3",
             composer = "",
@@ -3532,7 +3674,8 @@ public static class Songs
             minBPM = 130,
             maxBPM = 173,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20012,
             name = "Tutorial: 3-2",
             composer = "",
@@ -3557,7 +3700,8 @@ public static class Songs
             minBPM = 140,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20011,
             name = "Tutorial: 3-1",
             composer = "",
@@ -3582,7 +3726,8 @@ public static class Songs
             minBPM = 140,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20010,
             name = "Tutorial: 2-5",
             composer = "",
@@ -3607,7 +3752,8 @@ public static class Songs
             minBPM = 98,
             maxBPM = 98,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20009,
             name = "Tutorial: 2-4",
             composer = "",
@@ -3632,7 +3778,8 @@ public static class Songs
             minBPM = 145,
             maxBPM = 145,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20008,
             name = "Tutorial: 2-3",
             composer = "",
@@ -3657,7 +3804,8 @@ public static class Songs
             minBPM = 145,
             maxBPM = 145,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20007,
             name = "Tutorial: 2-2",
             composer = "",
@@ -3682,7 +3830,8 @@ public static class Songs
             minBPM = 135,
             maxBPM = 135,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20006,
             name = "Tutorial: 2-1",
             composer = "",
@@ -3707,7 +3856,8 @@ public static class Songs
             minBPM = 135,
             maxBPM = 135,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20005,
             name = "Tutorial: 1-5",
             composer = "",
@@ -3732,7 +3882,8 @@ public static class Songs
             minBPM = 175,
             maxBPM = 175,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20003,
             name = "Tutorial: 1-4",
             composer = "",
@@ -3757,7 +3908,8 @@ public static class Songs
             minBPM = 117,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20002,
             name = "Tutorial: 1-3",
             composer = "",
@@ -3782,7 +3934,8 @@ public static class Songs
             minBPM = 117,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20001,
             name = "Tutorial: 1-2",
             composer = "",
@@ -3807,7 +3960,8 @@ public static class Songs
             minBPM = 90,
             maxBPM = 90,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 20000,
             name = "Tutorial: 1-1",
             composer = "",
@@ -3832,7 +3986,8 @@ public static class Songs
             minBPM = 135,
             maxBPM = 135,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80030,
             name = "Ooi",
             composer = "O2i3",
@@ -3857,7 +4012,8 @@ public static class Songs
             minBPM = 216,
             maxBPM = 216,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80021,
             name = "Hua Sui Yue",
             composer = "V.K克",
@@ -3882,7 +4038,8 @@ public static class Songs
             minBPM = 148,
             maxBPM = 148,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 84100,
             name = "Paramita",
             composer = "Papa",
@@ -3907,7 +4064,8 @@ public static class Songs
             minBPM = 140,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 84101,
             name = "3pm.noitcefnI",
             composer = "xartauqa",
@@ -3932,7 +4090,8 @@ public static class Songs
             minBPM = 145,
             maxBPM = 145,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 84102,
             name = "Bacon Omelet",
             composer = "Woolroll vs UN1C0DE",
@@ -3957,7 +4116,8 @@ public static class Songs
             minBPM = 140,
             maxBPM = 140,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82012,
             name = "lemon",
             composer = "",
@@ -3982,7 +4142,8 @@ public static class Songs
             minBPM = 87,
             maxBPM = 87,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 82013,
             name = "loser",
             composer = "",
@@ -4007,7 +4168,8 @@ public static class Songs
             minBPM = 121,
             maxBPM = 121,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 80045,
             name = "世界一のネコ姫さま  INVAXIONver.",
             composer = "KMA万華鏡音楽同盟",
@@ -4032,7 +4194,8 @@ public static class Songs
             minBPM = 154,
             maxBPM = 154,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 81005,
             name = "Asgard",
             composer = "SLT/Hain/rmk",
@@ -4057,7 +4220,8 @@ public static class Songs
             minBPM = 260,
             maxBPM = 260,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 81015,
             name = "Colorful Days♪",
             composer = "P4koo feat.つゆり花鈴",
@@ -4082,7 +4246,8 @@ public static class Songs
             minBPM = 136,
             maxBPM = 136,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 81001,
             name = "Fatal Sphere",
             composer = "A.Ki vs F4LSE",
@@ -4107,7 +4272,8 @@ public static class Songs
             minBPM = 172,
             maxBPM = 172,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 81002,
             name = "W-Inda",
             composer = "Se-U-Ra",
@@ -4132,7 +4298,8 @@ public static class Songs
             minBPM = 170,
             maxBPM = 170,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 81003,
             name = "天海原～あまみはら～",
             composer = "うまるつふり",
@@ -4157,7 +4324,8 @@ public static class Songs
             minBPM = 231,
             maxBPM = 231,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 81004,
             name = "81004",
             composer = "",
@@ -4182,7 +4350,8 @@ public static class Songs
             minBPM = 260,
             maxBPM = 260,
         },
-        new SongInfo {
+        new SongInfo
+        {
             id = 90000,
             name = "星と花のささやき",
             composer = "铃科",
@@ -4214,8 +4383,9 @@ public static class Songs
     {
         get
         {
-            if (_songData != null) return _songData;
-            
+            if (_songData != null)
+                return _songData;
+
             _songData = new Dictionary<string, SongInfo>();
             foreach (var song in _songs)
             {

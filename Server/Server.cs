@@ -1,10 +1,11 @@
 ﻿using System;
+using BepInEx;
+using BepInEx.Configuration;
+using Server.Emulator.EagleTcpPatches;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using BepInEx;
-using Server.Emulator.EagleTcpPatches;
 
 // ReSharper disable All
 
@@ -15,21 +16,58 @@ public class Server : BaseUnityPlugin
 {
     public static BepInEx.Logging.ManualLogSource logger;
     public static Emulator.Database.Database Database;
+    public static Emulator.PlaceholderServerData PlaceholderServerData;
+    public static OsuManiaLoader.Loader ManiaBeatmapsLoader;
+    public static NAudioWrapper.NAudio NAudio = NAudioWrapper.NAudio.Instance;
     public static List<string> MustImplement = new();
-    public static bool Debug = true;
     private static Process _process;
     private static bool ShuttingDown = false;
+
+    // Configuration
+    private static ConfigEntry<bool> _EnableManiaLoader;
+    private static ConfigEntry<bool> _Debug;
+    private static ConfigEntry<bool> _CheckForUpdates;
+
+    public static bool EnableManiaLoader => _EnableManiaLoader.Value;
+    public static bool Debug => _Debug.Value;
+    public static bool CheckForUpdates => _CheckForUpdates.Value;
+
     
     private void Awake()
     {
+        _EnableManiaLoader = Config.Bind("General", "EnableManiaLoader", true, "Enables/Disables loading osu!mania beatmaps into the game.");
+        _Debug = Config.Bind("General", "EnableDebug", false, "Enables/Disables debugging messages and utils.");
+        _CheckForUpdates = Config.Bind("General", "CheckForUpdates", true, "Enables/Disables checking for updates.");
+
+        _instance = this;
         logger = Logger;
         Database = new Emulator.Database.Database();
+        PlaceholderServerData = new();
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
 
+        new Emulator.Patches.HookManager().Init();
+        GeneralPatches.TipHelperInputPatches.Hook();
         HookManager.Instance.Create();
-        DiscordRichPresence.Data.Init();
 
-        if (File.Exists("BepInEx/watch_logs.py") && Debug)
+        if (CheckForUpdates)
+        {
+            var currentVersion = new AutoUpdater.Tag(PluginInfo.PLUGIN_VERSION);
+            AutoUpdater.Update.CheckForUpdate(currentVersion);
+        }
+
+        if (EnableManiaLoader)
+        {
+            ManiaBeatmapsLoader = new OsuManiaLoader.Loader();
+            if (ManiaBeatmapsLoader.BeatmapPacks.Count > 0) Logger.LogInfo($"Loaded {ManiaBeatmapsLoader.BeatmapPacks.Count} osu!mania packs!");
+        }
+
+        if (File.Exists(Emulator.Tools.Path.Combine("INVAXION_Data", "Plugins", "discord_game_sdk.dll")))
+        {
+            DiscordRichPresence.Data.Init();
+            DiscordRichPresence.GameEventHooks.Hook();
+        }
+
+        if (Debug && File.Exists("BepInEx/watch_logs.py"))
         {
             _process = new Process()
             {
@@ -42,24 +80,32 @@ public class Server : BaseUnityPlugin
             };
             _process.Start();
         }
+    }
 
-        DiscordRichPresence.GameEventHooks.Hook();
-        DiscordRichPresence.GameEvents.switchScene += () =>
-        {
-            // warning so that it is yellow :)
-            Logger.LogWarning($"Scene changed! {DiscordRichPresence.GameState.CurrentScene}");
-        };
+    private static void AfterGameHasInit()
+    {
+        Server.NAudio.Load();
     }
 
     private static long timeDelta = TimeHelper.getCurUnixTimeOfSec();
+    
+    private static Server _instance;
+    public static Server Instance => _instance;
+
+    public void startCoroutine(System.Collections.IEnumerator routine)
+    {
+        StartCoroutine(routine);
+    }
+
     private void Update()
     {
-        if (ShuttingDown) return;
+        if (ShuttingDown)
+            return;
         if (TimeHelper.getCurUnixTimeOfSec() - timeDelta >= 5)
         {
             // Updates the presence every 5 seconds
             timeDelta = TimeHelper.getCurUnixTimeOfSec();
-            DiscordRichPresence.Data.UpdateActivity();
+            try { DiscordRichPresence.Data.UpdateActivity(); } catch (Exception) {}
         }
 
         DiscordRichPresence.Data.Poll();
@@ -68,25 +114,29 @@ public class Server : BaseUnityPlugin
     private void OnApplicationQuit()
     {
         ShuttingDown = true;
-        DiscordRichPresence.Data._activityManager.ClearActivity((result =>
+        try
         {
-            // why is a callback required? 
-        }));
-        DiscordRichPresence.Data.Poll();
+            DiscordRichPresence.Data._activityManager.ClearActivity(_ => { });
+            DiscordRichPresence.Data.Poll();    
+        } catch (Exception e) { /* ignore */ }
         
-        if (Debug && _process != null)
+        if (!Debug) return;
+
+        if (_process != null)
         {
             _process.Kill();
             _process = null;
         }
 
         var commands = new List<string>();
+        var filter = new List<string>();
 
         foreach (var command in MustImplement)
         {
-            if (!commands.Contains(command))
+            var cmd = $"{command} (x{MustImplement.Count(command.Equals)})";
+            if (!filter.Contains(cmd))
             {
-                commands.Add($"{command} (x{MustImplement.Count(command.Equals)})");
+                commands.Add(cmd);
             }
         }
 

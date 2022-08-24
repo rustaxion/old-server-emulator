@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
 namespace Server.Emulator.EagleTcpPatches;
 
 public class EagleTcpClient
@@ -14,7 +13,7 @@ public class EagleTcpClient
         ConnectedClients.Add(1, false);
         ConnectedClients.Add(2, false);
     }
-    
+
     public static int SendCmd(int tag, uint mainCmd, uint paraCmd, byte[] msgContent, int size)
     {
         ServerLogger.LogInfo($"SendCmd: tag: {tag}, mainCmd: {mainCmd}, paraCmd: {paraCmd}, size: {size}");
@@ -31,7 +30,7 @@ public class EagleTcpClient
         }
         return (int)EagleStatus.ES_Disconnect;
     }
-    
+
     public static int ParseCmd(int tag, ref int mainCmd, ref int paraCmd, byte[] msgContent)
     {
         if (!IsConnected(tag))
@@ -42,7 +41,8 @@ public class EagleTcpClient
 
         var queue = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? Index.Instance.LoginPackageQueue : Index.Instance.GatePackageQueue;
         var socket = tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? EagleTcp.loginSocket : EagleTcp.gateSocket;
-        if (socket == null || queue.Count == 0) return 0;
+        if (socket == null || queue.Count == 0)
+            return 0;
 
         var gamePackage = queue.Dequeue();
 
@@ -55,7 +55,7 @@ public class EagleTcpClient
         ServerLogger.LogInfo($"ParseCmd: tag: {tag}, mainCmd: {mainCmd}, paraCmd: {paraCmd}, size: {gamePackage.Data.Length}");
         return gamePackage.Data.Length;
     }
-    
+
     private enum EagleStatus
     {
         ES_OK,
@@ -78,7 +78,7 @@ public class EagleTcpClient
     {
         return ConnectedClients.ContainsKey(tag) && ConnectedClients[tag];
     }
-    
+
     public static bool ContectServer(string pszServerIP, int nServerPort, int tag)
     {
         ServerLogger.LogInfo("Connected to the '" + (tag == (int)EagleTcp.CSocketType.SOCKET_LOGIN ? "login" : "gate") + "' server");
