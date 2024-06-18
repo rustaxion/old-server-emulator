@@ -200,19 +200,7 @@ public static class CosmicTour
                     }
                 }
 
-                account.curExp += (uint)Math.Round(missionsCompleted * 10f);
-                uint goldGained = 0;
-                while (account.curExp >= account.maxExp)
-                {
-                    account.level++;
-                    if (account.level % 5 == 0)
-                    {
-                        goldGained += (uint)Math.Floor(Math.Pow(account.level, 0.8)) * 60;
-                    }
-                    account.curExp -= account.maxExp;
-                    account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
-                }
-                account.currencyInfo.gold += goldGained;
+                account.currencyInfo.gold += account.IncreaseExp((uint)Math.Round(missionsCompleted * 10f));
                 settleData.expData = new()
                 {
                     curExp = account.curExp,

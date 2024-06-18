@@ -395,18 +395,7 @@ public static class Beatmaps
                 if (songInfo.life <= 0)
                     expToReward /= 2;
 
-                account.curExp += expToReward;
-                while (account.curExp >= account.maxExp)
-                {
-                    account.level++;
-                    if (account.level % 5 == 0)
-                    {
-                        goldGained += (uint)Math.Floor(Math.Pow(account.level, 0.8)) * 60;
-                    }
-                    account.curExp -= account.maxExp;
-                    account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
-                }
-
+                goldGained += account.IncreaseExp(expToReward);
                 account.currencyInfo.diamond += goldGained;
 
                 var settleData = new cometScene.SettleData

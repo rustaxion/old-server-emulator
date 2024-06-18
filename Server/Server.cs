@@ -118,7 +118,7 @@ public class Server : BaseUnityPlugin
         {
             DiscordRichPresence.Data._activityManager.ClearActivity(_ => { });
             DiscordRichPresence.Data.Poll();    
-        } catch (Exception e) { /* ignore */ }
+        } catch (Exception) { /* ignore */ }
         
         if (!Debug) return;
 

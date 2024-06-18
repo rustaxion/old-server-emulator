@@ -42,7 +42,7 @@ public static class SongPatches
             songId = int.Parse(paths[0]);
             pack = Server.ManiaBeatmapsLoader.BeatmapPacks.FirstOrDefault(pack => pack.PackId + Salt == songId);
         }
-        catch (Exception e) { /* ignore */ }
+        catch (Exception) { /* ignore */ }
         if (pack == null) return true;
 
         var bgDir = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine("osu!mania_beatmaps", "Backgrounds!"));
@@ -137,7 +137,8 @@ public static class SongPatches
             {
                 "mp3" => AudioType.MPEG,
                 "wav" => AudioType.WAV,
-                "ogg" => AudioType.OGGVORBIS
+                "ogg" => AudioType.OGGVORBIS,
+                _ => AudioType.UNKNOWN
             };
 
             var found = File.Exists(songPath);
