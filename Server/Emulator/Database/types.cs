@@ -109,6 +109,35 @@ public class types
         public uint total6KScore = 0;
         public uint total8KScore = 0;
         public long charId = 0000000000;
+
+        public uint IncreaseExp(uint exp)
+        {
+            if (level >= 30)
+            {
+                level = 30;
+                curExp = 0;
+                return 0;
+            }
+
+            curExp += exp;
+            uint goldGained = 0;
+            while (curExp >= maxExp)
+            {
+                level++;
+                if (level % 5 == 0)
+                {
+                    goldGained += (uint)System.Math.Floor(System.Math.Pow(level, 0.8)) * 60;
+                }
+                if (level == 30)
+                {
+                    curExp = 0;
+                    break;
+                }
+                curExp -= maxExp;
+            }
+            return goldGained;
+        }
+
         public CosmicTourData cosmicTourData = new();
 
         public cometScene.TeamData team =
