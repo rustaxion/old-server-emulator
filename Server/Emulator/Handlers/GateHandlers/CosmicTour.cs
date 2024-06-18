@@ -216,6 +216,11 @@ public static class CosmicTour
                         {
                             goldGained += (uint)Math.Floor(Math.Pow(account.level, 0.8)) * 60;
                         }
+                        if (account.level == 30)
+                        {
+                            account.curExp = 0;
+                            break;
+                        }
                         account.curExp -= account.maxExp;
                     }
                     account.currencyInfo.gold += goldGained;
