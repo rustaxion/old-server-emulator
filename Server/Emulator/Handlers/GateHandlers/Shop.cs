@@ -63,13 +63,7 @@ public static class Shop
                                 }
                             );
 
-                            account.curExp += 20;
-
-                            while (account.curExp >= account.maxExp)
-                            {
-                                account.curExp -= account.maxExp;
-                                account.level++;
-                            }
+                            account.IncreaseExp(20);
 
                             Server.Database.UpdateAccount(account);
                             Server.Database.SaveAll();
@@ -126,14 +120,8 @@ public static class Shop
                             }
 
                             account.currencyInfo.diamond -= (uint)price;
-                            account.curExp += 20;
+                            account.IncreaseExp(20);
                             account.songList.list.Add(new() { songId = data.itemId });
-
-                            while (account.curExp >= account.maxExp)
-                            {
-                                account.curExp -= account.maxExp;
-                                account.level++;
-                            }
 
                             Server.Database.UpdateAccount(account);
                             Server.Database.SaveAll();
@@ -178,14 +166,8 @@ public static class Shop
                             }
 
                             account.currencyInfo.diamond -= (uint)price;
-                            account.curExp += 20;
+                            account.IncreaseExp(20);
                             account.themeList.list.Add(new() { themeId = data.itemId });
-
-                            while (account.curExp >= account.maxExp)
-                            {
-                                account.curExp -= account.maxExp;
-                                account.level++;
-                            }
 
                             Server.Database.UpdateAccount(account);
                             Server.Database.SaveAll();
