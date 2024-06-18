@@ -404,7 +404,6 @@ public static class Beatmaps
                         goldGained += (uint)Math.Floor(Math.Pow(account.level, 0.8)) * 60;
                     }
                     account.curExp -= account.maxExp;
-                    account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
                 }
 
                 account.currencyInfo.diamond += goldGained;

@@ -69,7 +69,6 @@ public static class Shop
                             {
                                 account.curExp -= account.maxExp;
                                 account.level++;
-                                account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
                             }
 
                             Server.Database.UpdateAccount(account);
@@ -134,7 +133,6 @@ public static class Shop
                             {
                                 account.curExp -= account.maxExp;
                                 account.level++;
-                                account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
                             }
 
                             Server.Database.UpdateAccount(account);
@@ -187,7 +185,6 @@ public static class Shop
                             {
                                 account.curExp -= account.maxExp;
                                 account.level++;
-                                account.maxExp = (uint)Math.Round(account.maxExp * 1.2f, 0);
                             }
 
                             Server.Database.UpdateAccount(account);
