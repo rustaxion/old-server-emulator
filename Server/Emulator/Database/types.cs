@@ -87,7 +87,16 @@ public class types
         public string steamId;
         public uint level = 1;
         public uint curExp = 0;
-        public uint maxExp = 50;
+        public uint maxExp
+        {
+            get
+            {
+                if (level >= 30)
+                    return 0;
+                else
+                    return (uint)(50 * System.Math.Pow(1.2, level - 1));
+            }
+        }
         public uint selectCharId;
         public uint language = 2;
         public uint sessionId = 0;
