@@ -155,6 +155,7 @@ public static class CosmicTour
                     };
                     if (chapter.Id >= types.CosmicTourData.DlcStart)
                     {
+                        account.cosmicTourData.specialStoryData.RemoveAll(story => story.chapterId == chapter.Id && story.curLevelId == level.Sequence);
                         var specialStoryData = new cometScene.SpecialStoryData();
                         specialStoryData.chapterId = (uint)chapter.Id;
                         specialStoryData.curLevelId = (uint)level.Sequence;
@@ -163,6 +164,7 @@ public static class CosmicTour
                     }
                     else
                     {
+                        account.cosmicTourData.storyData.RemoveAll(story => story.chapterId == chapter.Id && story.levelId == level.Sequence);
                         account.cosmicTourData.storyData.Add(storyData);
                     }
                 }

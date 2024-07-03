@@ -9,7 +9,7 @@ public class types
     {
         private List<Aquatrax.StoryPlannetData> _planetData;
 
-        public const uint DlcStart = 100;
+        public static uint DlcStart = 100;
 
         private uint latestChapterId = 1;
         private uint latestLevelId = 1;
@@ -26,7 +26,7 @@ public class types
                 try { latestChapterId = storyData.Max(story => story.chapterId); }
                 catch (System.ArgumentNullException) { }
 
-                try { latestLevelId = storyData.Max(level => level.levelId); }
+                try { latestLevelId = storyData.Where(story => story.chapterId == latestChapterId).Max(level => level.levelId); }
                 catch (System.ArgumentNullException) { }
 
                 var chapter = _planetData.First(planet => planet.Id == latestChapterId);
@@ -55,7 +55,7 @@ public class types
                 try { latestSpecialChapterId = specialStoryData.Max(story => story.chapterId); }
                 catch (System.ArgumentNullException) { }
 
-                try { latestSpecialLevelId = specialStoryData.Max(level => level.curLevelId); }
+                try { latestSpecialLevelId = specialStoryData.Where(story => story.chapterId == latestSpecialChapterId).Max(level => level.curLevelId); }
                 catch (System.ArgumentNullException) { }
 
                 var spec_chapter = _planetData.First(planet => planet.Id == latestSpecialChapterId);
