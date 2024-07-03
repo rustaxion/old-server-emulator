@@ -93,6 +93,21 @@ public class Database
                 storyData.missionList.AddRange(missions);
             }
 
+            account.cosmicTourData.specialStoryData = JsonMapper.ToObject<List<cometScene.SpecialStoryData>>(acc["cosmicTourData"]["specialStoryData"].ToJson());
+            for (var i = 0; i < account.cosmicTourData.specialStoryData.Count; i++)
+            {
+                for (var k = 0; k < account.cosmicTourData.specialStoryData[k].list.Count; k++)
+                {
+                    account.cosmicTourData.specialStoryData[i].list[k].missionList.AddRange(JsonMapper.ToObject<List<uint>>(acc["cosmicTourData"]["specialStoryData"][i]["list"][k]["missionList"].ToJson()));
+                }
+                foreach (var storyData in account.cosmicTourData.specialStoryData[i].list)
+                {
+                    var missions = storyData.missionList.ToList().Distinct();
+                    storyData.missionList.RemoveAll(e => true);
+                    storyData.missionList.AddRange(missions);
+                }
+            }
+
             Accounts[account.accId] = account;
         }
     }

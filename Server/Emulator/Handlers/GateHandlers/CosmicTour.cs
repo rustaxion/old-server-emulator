@@ -1,5 +1,6 @@
 ﻿using Aquatrax;
 using ProtoBuf;
+using Server.Emulator.Database;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -94,15 +95,11 @@ public static class CosmicTour
                 ServerLogger.LogInfo($"Cosmic Tour!");
 
                 var account = Server.Database.GetAccount(sessionId);
-                var storyInfo = new cometScene.Ret_Story_Info
-                {
-                    curNormalChapterId = account.cosmicTourData.GetCurNormalChapterId(),
-                    curNormalLevelId = account.cosmicTourData.GetCurNormalLevelId(),
-                    curTutorialChapterId = account.cosmicTourData.GetCurTutorialChapterId(),
-                    curTutorialLevelId = account.cosmicTourData.GetCurTutorialLevelId(),
-                };
+                var storyInfo = new cometScene.Ret_Story_Info();
+                account.cosmicTourData.ApplyToStoryInfo(ref storyInfo);
 
                 storyInfo.list.AddRange(account.cosmicTourData.storyData);
+                storyInfo.specialList.AddRange(account.cosmicTourData.specialStoryData);
 
                 Index.Instance.GatePackageQueue.Enqueue(new()
                 {
@@ -137,8 +134,17 @@ public static class CosmicTour
                 };
 
                 var settleData = new cometScene.SettleData();
-                
-                var storyData = account.cosmicTourData.storyData.FirstOrDefault(story => story.chapterId == chapter.Id && story.levelId == level.Sequence);
+
+                cometScene.StoryData storyData = null;
+                if (chapter.Id >= types.CosmicTourData.DlcStart)
+                {
+                    storyData = account.cosmicTourData.specialStoryData.FirstOrDefault(story => story.chapterId == chapter.Id && story.curLevelId == level.Sequence)?.list.LastOrDefault();
+                }
+                else
+                {
+                    storyData = account.cosmicTourData.storyData.FirstOrDefault(story => story.chapterId == chapter.Id && story.levelId == level.Sequence);
+                }
+
                 if (storyData == null)
                 {
                     storyData = new(){
@@ -147,7 +153,18 @@ public static class CosmicTour
                         finishLevel = data.data.playData.finishLevel,
                         curRank = 0,
                     };
-                    account.cosmicTourData.storyData.Add(storyData);
+                    if (chapter.Id >= types.CosmicTourData.DlcStart)
+                    {
+                        var specialStoryData = new cometScene.SpecialStoryData();
+                        specialStoryData.chapterId = (uint)chapter.Id;
+                        specialStoryData.curLevelId = (uint)level.Sequence;
+                        specialStoryData.list.Add(storyData);
+                        account.cosmicTourData.specialStoryData.Add(specialStoryData);
+                    }
+                    else
+                    {
+                        account.cosmicTourData.storyData.Add(storyData);
+                    }
                 }
 
                 float missionsCompleted = 0;
@@ -223,10 +240,7 @@ public static class CosmicTour
                     storyData.maxScore = data.data.playData.score;
                 }
 
-                storyFinish.curNormalChapterId = account.cosmicTourData.GetCurNormalChapterId();
-                storyFinish.curNormalLevelId = account.cosmicTourData.GetCurNormalLevelId();
-                storyFinish.curTutorialChapterId = account.cosmicTourData.GetCurTutorialChapterId();
-                storyFinish.curTutorialLevelId = account.cosmicTourData.GetCurTutorialLevelId();
+                account.cosmicTourData.ApplyToStoryFinish(ref storyFinish);
 
                 Server.Database.UpdateAccount(account);
                 Server.Database.SaveAll();
