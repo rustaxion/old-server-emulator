@@ -81,16 +81,46 @@ public class Database
             account.songList.list.AddRange(JsonMapper.ToObject<List<cometScene.SongData>>(acc["songList"]["list"].ToJson()));
             account.songList.favoriteList.AddRange(JsonMapper.ToObject<List<uint>>(acc["songList"]["favoriteList"].ToJson()));
             // ===========Cosmic Tour============
-            account.cosmicTourData.storyData = JsonMapper.ToObject<List<cometScene.StoryData>>(acc["cosmicTourData"]["storyData"].ToJson());
-            for (var i = 0; i < account.cosmicTourData.storyData.Count; i++)
+            try
             {
-                account.cosmicTourData.storyData[i].missionList.AddRange(JsonMapper.ToObject<List<uint>>(acc["cosmicTourData"]["storyData"][i]["missionList"].ToJson()));
+                account.cosmicTourData.storyData = JsonMapper.ToObject<List<cometScene.StoryData>>(acc["cosmicTourData"]["storyData"].ToJson());
+                for (var i = 0; i < account.cosmicTourData.storyData.Count; i++)
+                {
+                    account.cosmicTourData.storyData[i].missionList.AddRange(JsonMapper.ToObject<List<uint>>(acc["cosmicTourData"]["storyData"][i]["missionList"].ToJson()));
+                }
+                foreach (var storyData in account.cosmicTourData.storyData)
+                {
+                    var missions = storyData.missionList.ToList().Distinct();
+                    storyData.missionList.RemoveAll(e => true);
+                    storyData.missionList.AddRange(missions);
+                }
             }
-            foreach (var storyData in account.cosmicTourData.storyData)
+            catch (Exception)
             {
-                var missions = storyData.missionList.ToList().Distinct();
-                storyData.missionList.RemoveAll(e => true);
-                storyData.missionList.AddRange(missions);
+                account.cosmicTourData.storyData = new();
+            }
+
+            try
+            {
+                account.cosmicTourData.specialStoryData = JsonMapper.ToObject<List<cometScene.SpecialStoryData>>(acc["cosmicTourData"]["specialStoryData"].ToJson());
+                for (var i = 0; i < account.cosmicTourData.specialStoryData.Count; i++)
+                {
+                    account.cosmicTourData.specialStoryData[i].list.AddRange(JsonMapper.ToObject<List<cometScene.StoryData>>(acc["cosmicTourData"]["specialStoryData"][i]["list"].ToJson()));
+                    for (var k = 0; k < account.cosmicTourData.specialStoryData[i].list.Count; k++)
+                    {
+                        account.cosmicTourData.specialStoryData[i].list[k].missionList.AddRange(JsonMapper.ToObject<List<uint>>(acc["cosmicTourData"]["specialStoryData"][i]["list"][k]["missionList"].ToJson()));
+                    }
+                    foreach (var storyData in account.cosmicTourData.specialStoryData[i].list)
+                    {
+                        var missions = storyData.missionList.ToList().Distinct();
+                        storyData.missionList.RemoveAll(e => true);
+                        storyData.missionList.AddRange(missions);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                account.cosmicTourData.specialStoryData = new();
             }
 
             Accounts[account.accId] = account;

@@ -7,8 +7,15 @@ public class types
 {
     public class CosmicTourData
     {
-        private List<uint> _currentData;
         private List<Aquatrax.StoryPlannetData> _planetData;
+
+        public static uint DlcStart = 100;
+
+        private uint latestChapterId = 1;
+        private uint latestLevelId = 1;
+
+        private uint latestSpecialChapterId = DlcStart;
+        private uint latestSpecialLevelId = 1;
 
         private void Init()
         {
@@ -16,10 +23,6 @@ public class types
 
             if (storyData.Count != 0)
             {
-                uint latestChapterId = 1;
-                uint latestLevelId = 1;
-
-
                 try { latestChapterId = storyData.Max(story => story.chapterId); }
                 catch (System.ArgumentNullException) { }
 
@@ -45,36 +48,65 @@ public class types
                 {
                     latestLevelId++;
                 }
-
-                _currentData = new() { latestChapterId, latestLevelId, latestChapterId, latestLevelId };
             }
-            else _currentData = new() { 1, 1, 1, 1 };
+
+            if (specialStoryData.Count != 0)
+            {
+                try { latestSpecialChapterId = specialStoryData.Max(story => story.chapterId); }
+                catch (System.ArgumentNullException) { }
+
+                try { latestSpecialLevelId = specialStoryData.Where(story => story.chapterId == latestSpecialChapterId).Max(level => level.curLevelId); }
+                catch (System.ArgumentNullException) { }
+
+                var spec_chapter = _planetData.First(planet => planet.Id == latestSpecialChapterId);
+                var spec_level = spec_chapter.Levels.First(level => level.Sequence == latestSpecialLevelId);
+
+                if (spec_chapter.Levels.IndexOf(spec_level) == spec_chapter.Levels.Count - 1)
+                {
+                    foreach (var planet in _planetData)
+                    {
+                        if ((planet.Id - 1) == latestSpecialChapterId)
+                        {
+                            latestSpecialChapterId = (uint)planet.Id;
+                            latestSpecialLevelId = (uint)planet.Levels[0].Sequence;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    latestSpecialLevelId++;
+                }
+            }
         }
 
-        public uint GetCurNormalChapterId()
+        public void ApplyToStoryInfo(ref cometScene.Ret_Story_Info info)
         {
             Init();
-            return _currentData[0];
+            info.curNormalChapterId = latestChapterId;
+            info.curNormalLevelId = latestLevelId;
+            info.curTutorialChapterId = latestChapterId;
+            info.curTutorialLevelId = latestLevelId;
+
+            var specList = new cometScene.SpecialStoryData();
+            specList.chapterId = latestSpecialChapterId;
+            specList.curLevelId = latestSpecialLevelId;
+            info.specialList.Add(specList);
         }
 
-        public uint GetCurNormalLevelId()
+        public void ApplyToStoryFinish(ref cometScene.Ret_Story_Finish info)
         {
             Init();
-            return _currentData[1];
-        }
-
-        public uint GetCurTutorialChapterId()
-        {
-            Init();
-            return _currentData[2];
-        }
-        public uint GetCurTutorialLevelId()
-        {
-            Init();
-            return _currentData[3];
+            info.curNormalChapterId = latestChapterId;
+            info.curNormalLevelId = latestLevelId;
+            info.curTutorialChapterId = latestChapterId;
+            info.curTutorialLevelId = latestLevelId;
+            info.curSpecialChapterId = latestSpecialChapterId;
+            info.curSpecialLevelId = latestSpecialLevelId;
         }
 
         public List<cometScene.StoryData> storyData = new() { };
+        public List<cometScene.SpecialStoryData> specialStoryData = new() { };
     }
 
     public class AccountData
